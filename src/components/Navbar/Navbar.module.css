@@ -1,0 +1,168 @@
+.container {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 100px;
+  background-color: var(--white);
+  /* background-color: black; */
+  /* margin-bottom: -10px; */
+  border-bottom: 1px solid var(--gray3);
+}
+
+.logoDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+}
+
+.logoDiv h5 {
+  font-family: "Istok Web", sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0;
+}
+
+.logo {
+  height: 60px;
+}
+
+.logo2 {
+  height: 20px;
+}
+
+.active {
+  background-color: rgba(255, 255, 255);
+  border-bottom: 1px solid var(--gray3);
+}
+
+.rightContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+}
+
+.link {
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--black2);
+  text-decoration: none;
+}
+
+.avator {
+  height: 35px;
+}
+
+.faIcon {
+  padding: 5px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  outline: none;
+  display: none;
+  font-size: 30px;
+}
+
+.statusPara,
+.modalPara {
+  font-size: 13px;
+  font-weight: 400;
+  font-family: "Open Sans", sans-serif;
+  color: var(--black);
+  text-align: center;
+}
+
+.modalPara {
+  margin-bottom: 30px;
+}
+
+.statusPara {
+  color: var(--orange);
+  margin-top: 20px;
+}
+
+@media only screen and (max-width: 1150px) {
+  .container {
+    padding: 15px 50px;
+    gap: 15px;
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .container {
+    padding: 15px 20px;
+  }
+
+  .rightContainer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 500px;
+    width: 300px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    background-color: var(--white);
+    transition: 1s;
+    /* transform: translateY(-100vh); */
+  }
+
+  .logo {
+    height: 40px;
+  }
+
+  .responsive_nav {
+    transform: none;
+    display: flex;
+    border-bottom: 1px solid var(--gray3);
+    border-left: 1px solid var(--gray3);
+  }
+
+  .closeBtn {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+  }
+
+  .faIcon {
+    display: block;
+  }
+
+  .dropdownContainer,
+  .buttonContainer,
+  .iconContainer {
+    flex-direction: column;
+  }
+
+  .logoDiv h5 {
+    font-size: 42px;
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .container {
+    padding: 15px 20px;
+  }
+
+  .logo {
+    height: 35px;
+  }
+
+  .logo2 {
+    height: 18px;
+  }
+
+  .logoDiv h5 {
+    font-size: 36px;
+  }
+}

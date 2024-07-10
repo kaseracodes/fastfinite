@@ -1,0 +1,18 @@
+.btn {
+  width: fit-content;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-family: "Montserrat", sans-serif;
+  border: none;
+  color: var(--black);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+@media only screen and (max-width: 1000px) {
+  .btn {
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 12px;
+  }
+}
