@@ -1,6 +1,6 @@
 .container {
-  width: 99vw;
-  max-width: 2000px;
+  width: 100vw;
+  max-width: 1800px;
 }
 
 @media only screen and (max-width: 1000px) {

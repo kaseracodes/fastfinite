@@ -2,6 +2,42 @@
   /* width: 100vw; */
 }
 
+.div1 {
+  padding: 100px;
+  font-family: "Poppins", sans-serif;
+}
+
+.div1Heading {
+  font-size: 48px;
+  font-weight: 600;
+  margin: 0 0 80px 0;
+  text-align: center;
+  color: var(--black);
+  line-height: 0%;
+}
+
+.categoryOuterDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* width: fit-content; */
+}
+
+.categoryDiv {
+  border: 1px solid var(--gray2);
+  padding: 50px 50px 20px 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+}
+
+.categoryDiv img {
+  width: 200px;
+  height: 200px;
+}
+
 .div2 {
   padding: 100px;
   display: flex;
@@ -13,7 +49,7 @@
 
 .div4 {
   background-image: url("/images/home_page/image2.png");
-  padding: 150px;
+  padding: 100px;
   background-size: cover;
   font-family: "Poppins", sans-serif;
 }
@@ -86,9 +122,17 @@
   .div4 {
     padding: 100px 0 100px 100px;
   }
+
+  .div1 {
+    padding: 100px 50px;
+  }
 }
 
 @media only screen and (max-width: 1100px) {
+  .div1 {
+    padding: 50px;
+  }
+
   .div2 {
     padding: 80px 50px 50px 50px;
     gap: 70px;
@@ -107,6 +151,7 @@
     padding: 0 70px;
   }
 
+  .div1Heading,
   .div4Heading {
     font-size: 32px;
   }
@@ -121,6 +166,23 @@
 }
 
 @media only screen and (max-width: 550px) {
+  .div1 {
+    padding: 50px 20px;
+  }
+
+  .div1Heading {
+    font-size: 28px;
+    margin-bottom: 50px;
+  }
+
+  .categoryOuterDiv {
+    padding-bottom: 30px;
+  }
+
+  .categoryDiv {
+    padding: 30px 30px 10px 30px;
+  }
+
   .div2 {
     padding: 50px 20px 30px 30px;
     gap: 50px;
