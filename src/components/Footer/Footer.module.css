@@ -1,0 +1,90 @@
+.container {
+  background-color: var(--yellow);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 200px;
+  padding: 50px;
+}
+
+.logoDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.linkDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 120px;
+}
+
+.innerLinkDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.link {
+  text-decoration: none;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--black);
+}
+
+@media only screen and (max-width: 1250px) {
+  .container {
+    gap: 150px;
+  }
+
+  .linkDiv {
+    gap: 80px;
+  }
+}
+
+@media only screen and (max-width: 1100px) {
+  .container {
+    gap: 100px;
+  }
+
+  .linkDiv {
+    gap: 50px;
+  }
+}
+
+@media only screen and (max-width: 950px) {
+  .container {
+    flex-direction: column;
+    gap: 50px;
+  }
+
+  .linkDiv {
+    gap: 80px;
+  }
+}
+
+@media only screen and (max-width: 700px) {
+  .container {
+    padding: 50px 20px;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .linkDiv {
+    gap: 20px;
+  }
+
+  .innerLinkDiv {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .link {
+    font-size: 12px;
+  }
+}

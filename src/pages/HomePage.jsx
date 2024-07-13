@@ -11,8 +11,13 @@ import { useEffect, useState } from "react";
 import { RiDoubleQuotesL } from "react-icons/ri";
 import { RiDoubleQuotesR } from "react-icons/ri";
 import { BikeCategory } from "../assets/BikeCategory";
+import AccordionSection from "../components/Accordion/Accordion";
+import Footer from "../components/Footer/Footer";
+import { useLocation } from "react-router-dom";
 
 const HomePage = () => {
+  const location = useLocation();
+
   const heading = `Your<br /><span style="color:${COLORS.yellow}">Urban Adventure</span><br />Starts Here !`;
 
   const responsive1 = {
@@ -70,6 +75,30 @@ const HomePage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const sectionId = hash.substring(1); // Remove the "#" from the hash
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    };
+
+    // Call the handler initially in case there's already a hash in the URL
+    handleHashChange();
+
+    // Add event listener for hash change
+    window.addEventListener("hashchange", handleHashChange);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [location]);
+
   return (
     <Wrapper>
       <Navbar />
@@ -108,7 +137,11 @@ const HomePage = () => {
           alt="image"
           className={styles.div2Image}
         />
-        <div>
+        <div className={styles.timeline}>
+          <h5 className={styles.heading}>How to book your ride?</h5>
+          <p className={styles.subHeading}>
+            Book your dream ride in just four simple steps
+          </p>
           <Timeline />
         </div>
       </div>
@@ -141,6 +174,17 @@ const HomePage = () => {
           </Carousel>
         </div>
       </div>
+
+      <div className={styles.div5} id="faq">
+        <h5 className={styles.heading}>Have Questions? We got you.</h5>
+        <p className={styles.subHeading}>
+          Contact us on +91-8448444897 WhatsApp/Call in case of any other query.
+        </p>
+
+        <AccordionSection />
+      </div>
+
+      <Footer />
     </Wrapper>
   );
 };

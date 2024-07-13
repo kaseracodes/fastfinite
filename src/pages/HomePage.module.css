@@ -7,6 +7,22 @@
   font-family: "Poppins", sans-serif;
 }
 
+.heading {
+  font-family: "Inter", sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--black);
+  margin: 0 0 20px 0;
+}
+
+.subHeading {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--black);
+  margin: 0 0 40px 0;
+}
+
 .div1Heading {
   font-size: 48px;
   font-weight: 600;
@@ -107,6 +123,10 @@
   font-weight: 700;
 }
 
+.div5 {
+  padding: 100px;
+}
+
 @media only screen and (max-width: 1300px) {
   .div2 {
     padding: 100px 50px;
@@ -129,6 +149,10 @@
 }
 
 @media only screen and (max-width: 1100px) {
+  .heading {
+    font-size: 28px;
+  }
+
   .div1 {
     padding: 50px;
   }
@@ -163,9 +187,21 @@
   .userName {
     font-size: 15px;
   }
+
+  .div5 {
+    padding: 50px;
+  }
 }
 
 @media only screen and (max-width: 550px) {
+  .heading {
+    font-size: 24px;
+  }
+
+  .subHeading {
+    font-size: 15px;
+  }
+
   .div1 {
     padding: 50px 20px;
   }
@@ -215,5 +251,9 @@
 
   .userName {
     font-size: 14px;
+  }
+
+  .div5 {
+    padding: 50px 20px;
   }
 }
