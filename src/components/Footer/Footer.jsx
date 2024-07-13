@@ -1,10 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Footer.module.css";
 
 const Footer = () => {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.container}>
-      <div className={styles.logoDiv}>
+      <div className={styles.logoDiv} onClick={() => navigate("/")}>
         <img src="/images/logo3.png" alt="logo" />
         <img src="/images/logo2.png" alt="logo" />
       </div>
