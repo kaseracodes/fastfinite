@@ -36,6 +36,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 5px;
   /* width: fit-content; */
 }
 
@@ -47,6 +48,12 @@
   justify-content: center;
   align-items: center;
   width: fit-content;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.categoryDiv:hover {
+  transform: scale(1.01);
 }
 
 .categoryDiv img {

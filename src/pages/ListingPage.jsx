@@ -19,15 +19,19 @@ import { useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import { BikesData } from "../assets/BikesData";
 import ListingCard from "../components/ListingCard/ListingCard";
+import Footer from "../components/Footer/Footer";
 
 const ListingPage = () => {
+  const transmissionType = new URLSearchParams(window.location.search).get(
+    "transmissionType"
+  );
   const [pickupDate, setPickupDate] = useState(dayjs());
   const [dropoffDate, setDropoffDate] = useState(dayjs());
   const [duration, setDuration] = useState("daily");
   const [transmission, setTransmission] = useState({
-    scooty: false,
-    electricScooty: false,
-    bikes: false,
+    scooty: transmissionType === "scooty",
+    electricScooty: transmissionType === "electricScooty",
+    bikes: transmissionType === "bike",
   });
   const [brands, setBrands] = useState({
     honda: false,
@@ -193,6 +197,8 @@ const ListingPage = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </Wrapper>
   );
 };

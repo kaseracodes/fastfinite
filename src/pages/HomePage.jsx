@@ -13,9 +13,10 @@ import { RiDoubleQuotesR } from "react-icons/ri";
 import { BikeCategory } from "../assets/BikeCategory";
 import AccordionSection from "../components/Accordion/Accordion";
 import Footer from "../components/Footer/Footer";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const location = useLocation();
 
   const heading = `Your<br /><span style="color:${COLORS.yellow}">Urban Adventure</span><br />Starts Here !`;
@@ -107,6 +108,7 @@ const HomePage = () => {
         heading={heading}
         buttonText="Book Your Bike"
         imagePath="/images/home_banner.png"
+        onClick={() => navigate("/bikes")}
       />
 
       <div className={styles.div1}>
@@ -121,7 +123,14 @@ const HomePage = () => {
           >
             {BikeCategory.map((item, index) => (
               <div key={index} className={styles.categoryOuterDiv}>
-                <div className={styles.categoryDiv}>
+                <div
+                  className={styles.categoryDiv}
+                  onClick={() =>
+                    navigate(
+                      `/bikes/?transmissionType=${item.transmissionType}`
+                    )
+                  }
+                >
                   <img src={item.imagePath} alt="image" />
                   <p className={styles.categoryName}>{item.name}</p>
                 </div>
@@ -146,7 +155,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      <div className={styles.div4}>
+      <div className={styles.div4} id="testimonials">
         <div className={styles.carouselContainer}>
           <h5 className={styles.div4Heading}>What Our Clients Say</h5>
           <Carousel

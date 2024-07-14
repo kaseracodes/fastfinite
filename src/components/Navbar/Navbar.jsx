@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import styles from "./Navbar.module.css";
 // import { COLORS } from "../../assets/constants";
@@ -61,30 +62,31 @@ const Navbar = ({ bgColor }) => {
           navbarOpen ? styles.responsive_nav : ""
         }`}
       >
-        <Link
+        {/* <Link
           to="/"
           className={styles.link}
-          // style={{
-          //   color: isSmallScreen
-          //     ? COLORS.blue
-          //     : isScrolled || bgColor
-          //     ? COLORS.blue
-          //     : COLORS.white,
-          // }}
         >
           Home
-        </Link>
+        </Link> */}
         <Link to="/about-us" className={styles.link}>
           About Us
         </Link>
 
-        <Link to="/testimonials" className={styles.link}>
+        <Link to="/#testimonials" className={styles.link}>
           Testimonials
         </Link>
 
-        <Link to="/login" className={styles.link}>
-          Login
+        <Link to="/bikes" className={styles.link}>
+          Book Your Bike
         </Link>
+
+        <Link to="/list" className={styles.link}>
+          List Bike
+        </Link>
+
+        {/* <Link to="/login" className={styles.link}>
+          Login
+        </Link> */}
 
         <img src="/images/avatar.png" alt="image" className={styles.avator} />
 

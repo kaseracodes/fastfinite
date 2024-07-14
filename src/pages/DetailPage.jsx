@@ -9,9 +9,10 @@ import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TextField } from "@mui/material";
 import dayjs from "dayjs";
-// import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { COLORS } from "../assets/constants";
+import Footer from "../components/Footer/Footer";
 
 const Card = ({ imagePath, heading, detail, textColor }) => {
   return (
@@ -163,14 +164,14 @@ const DetailPage = () => {
               <p className={styles.para2}>Late fee 150/hr</p>
             </div>
 
-            {/* <div className={styles.map}>
+            <div className={styles.map}>
               <h5 className={styles.title}>Pickup Location</h5>
               <p className={styles.location}>{bike.location}</p>
 
               <MapContainer
                 center={bike.position}
                 zoom={13}
-                style={{ height: "400px", width: "100%" }}
+                className={styles.mapContainer}
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -182,7 +183,7 @@ const DetailPage = () => {
                   </Popup>
                 </Marker>
               </MapContainer>
-            </div> */}
+            </div>
           </div>
 
           <div className={styles.div3}>
@@ -233,6 +234,8 @@ const DetailPage = () => {
           </div>
         </>
       )}
+
+      <Footer />
     </Wrapper>
   );
 };

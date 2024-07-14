@@ -3,7 +3,7 @@ import { COLORS } from "../../assets/constants";
 import Button from "../Button/Button";
 import styles from "./Banner.module.css";
 
-const Banner = ({ imagePath, heading, description, buttonText }) => {
+const Banner = ({ imagePath, heading, description, buttonText, onClick }) => {
   return (
     <div
       style={{ backgroundImage: `url("${imagePath}")` }}
@@ -25,6 +25,7 @@ const Banner = ({ imagePath, heading, description, buttonText }) => {
           bgColor={COLORS.yellow}
           textColor={COLORS.black}
           content={buttonText}
+          onClick={onClick}
         />
       )}
     </div>

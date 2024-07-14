@@ -7,7 +7,7 @@ const Footer = () => {
   return (
     <div className={styles.container}>
       <div className={styles.logoDiv} onClick={() => navigate("/")}>
-        <img src="/images/logo3.png" alt="logo" />
+        <img src="/images/logo.png" alt="logo" />
         <img src="/images/logo2.png" alt="logo" />
       </div>
 
