@@ -8,4 +8,7 @@ export const COLORS = {
   gray3: "#c1c1c166",
   yellow: "#FDD505",
   orange: "#ff9b42",
+  green: "#155724",
+  lightGreen: "#D4EDDA",
+  gold: "#856404",
 };

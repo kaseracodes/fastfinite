@@ -12,6 +12,10 @@
   padding: 20px;
 }
 
+.imageDiv img {
+  width: 200px;
+}
+
 .infoDiv {
   display: flex;
   justify-content: space-between;

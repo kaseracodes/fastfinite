@@ -25,6 +25,9 @@ body {
   --gray3: #c1c1c166;
   --yellow: #fdd505;
   --orange: #ff9b42;
+  --green: #155724;
+  --light-green: #d4edda;
+  --gold: #856404;
 }
 
 /* Hide the scrollbar track */

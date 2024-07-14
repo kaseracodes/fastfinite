@@ -1,8 +1,10 @@
 /* eslint-disable react/prop-types */
+import { useNavigate } from "react-router-dom";
 import styles from "./ListingCard.module.css";
 import { IoLocationOutline } from "react-icons/io5";
 
 const ListingCard = ({
+  id,
   name,
   imagePath,
   year,
@@ -12,6 +14,8 @@ const ListingCard = ({
   deposit,
   duration,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.container}>
       <div className={styles.imageDiv}>
@@ -45,7 +49,9 @@ const ListingCard = ({
         </div>
       </div>
 
-      <button className={styles.btn}>Book Your Ride</button>
+      <button className={styles.btn} onClick={() => navigate(`/bikes/${id}`)}>
+        Book Your Ride
+      </button>
     </div>
   );
 };

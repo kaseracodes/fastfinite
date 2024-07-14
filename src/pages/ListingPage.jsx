@@ -3,14 +3,14 @@ import styles from "./ListingPage.module.css";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import {
-  Box,
+  // Box,
   FormControl,
   FormControlLabel,
   FormLabel,
   Radio,
   RadioGroup,
   Checkbox,
-  Typography,
+  // Typography,
   TextField,
   Divider,
 } from "@mui/material";
@@ -179,6 +179,7 @@ const ListingPage = () => {
             {BikesData.map((item, index) => (
               <ListingCard
                 key={index}
+                id={item.id}
                 imagePath={item.imagePath}
                 name={item.name}
                 year={item.year}

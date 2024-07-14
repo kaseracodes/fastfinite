@@ -3,6 +3,7 @@ import "./App.css";
 import ScrollToTop from "./ScrollToTop";
 import HomePage from "./pages/HomePage";
 import ListingPage from "./pages/ListingPage";
+import DetailPage from "./pages/DetailPage";
 
 function App() {
   return (
@@ -10,7 +11,8 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="listing-page" element={<ListingPage />} />
+        <Route path="/bikes" element={<ListingPage />} />
+        <Route path="/bikes/:id" element={<DetailPage />} />
       </Routes>
     </>
   );

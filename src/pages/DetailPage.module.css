@@ -1,0 +1,262 @@
+.div1 {
+  display: flex;
+  /* justify-content: center; */
+  width: 100%;
+  gap: 50px;
+  padding: 50px 100px;
+  font-family: "Poppins", sans-serif;
+}
+
+.imageDiv {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px 150px;
+  border: 1px solid var(--gray2);
+  border-radius: 4px;
+}
+
+.imageDiv img {
+  margin-bottom: 30px;
+}
+
+.para,
+.para2 {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--light-gray);
+}
+
+.infoCardDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 50px;
+}
+
+.cardContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+}
+
+.cardContainer img {
+  margin: 0;
+}
+
+.innerCard {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: center;
+  align-items: center; */
+  gap: 0px;
+}
+
+.cardHeading,
+.cardDetail {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.cardDetail {
+  color: var(--yellow);
+  font-weight: 600;
+}
+
+.detailsDiv {
+  width: 100%;
+  max-width: 500px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--black);
+  margin: 0 0 20px 0;
+}
+
+.dateInputContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.filterHeading {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 20px 0 10px 0;
+}
+
+.select {
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 400;
+  border: 1px solid var(--gray2);
+  border-radius: 4px;
+}
+
+.hr {
+  border: 1px solid var(--gray2);
+}
+
+.amountText,
+.amountText2,
+.subHeading {
+  font-size: 14px;
+  font-weight: 400;
+  margin: 5px 0;
+}
+
+.amountText2,
+.subHeading {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.amountDiv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* .btnDiv {
+    display: flex;
+    fle
+} */
+
+.btn1,
+.btn2 {
+  font-family: "Poppins", sans-serif;
+  display: block;
+  width: 100%;
+  margin: 15px 0;
+  border: none;
+  border-radius: 4px;
+}
+
+.btn1 {
+  padding: 10px 20px;
+  background-color: var(--light-green);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.btn2 {
+  cursor: pointer;
+  background-color: var(--yellow);
+  color: var(--black);
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.div2 {
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  padding: 50px 100px;
+}
+
+.termsDiv {
+  padding: 20px;
+  border: 1px solid var(--gray2);
+  border-radius: 4px;
+}
+
+.para2 {
+  padding: 0 20px;
+}
+
+.location {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--gold);
+  margin: 0;
+}
+
+.div3 {
+  font-family: "Poppins", sans-serif;
+  padding: 50px 100px 100px 100px;
+}
+
+.featureDiv {
+  display: flex;
+  flex-wrap: wrap;
+  /* justify-content: center;
+  align-items: center; */
+  gap: 50px;
+  max-width: 600px;
+}
+
+@media only screen and (max-width: 1350px) {
+  .div1 {
+    padding: 50px;
+  }
+}
+
+@media only screen and (max-width: 1300px) {
+  .imageDiv {
+    padding: 50px 100px;
+  }
+
+  .detailsDiv {
+    width: fit-content;
+  }
+}
+
+@media only screen and (max-width: 1100px) {
+  .imageDiv {
+    padding: 50px;
+  }
+}
+
+@media only screen and (max-width: 1000px) {
+  .bikeImage {
+    width: 250px;
+  }
+
+  .detailsDiv {
+    max-width: 350px;
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .div1 {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+  }
+
+  .imageDiv {
+    max-width: 600px;
+  }
+
+  .detailsDiv {
+    max-width: 80vw;
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .div1 {
+    padding: 50px 20px;
+    gap: 30px;
+  }
+  .imageDiv {
+    padding: 50px 20px;
+  }
+
+  .para {
+    text-align: center;
+  }
+}
