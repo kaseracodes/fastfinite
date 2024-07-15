@@ -5,15 +5,18 @@ import styles from "./Navbar.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import Modal from "../Modal/Modal";
+import SignIn from "../SignIn/SignIn";
 
 const Navbar = ({ bgColor }) => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 1000);
+  const [user, setUser] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const showNavbar = () => {
-    // navRef.current.classList.toggle("responsive_nav");
     setNavbarOpen(!navbarOpen);
   };
 
@@ -44,75 +47,67 @@ const Navbar = ({ bgColor }) => {
     };
   }, []);
 
+  const handleClick = () => {
+    if (user) {
+      navigate("/user");
+    } else {
+      setOpenModal(true);
+    }
+  };
+
   return (
-    <div
-      // className={`${styles.container} ${
-      //   isScrolled || bgColor ? styles.active : ""
-      // }`}
-      // style={{ backgroundColor: bgColor && bgColor }}
-      className={styles.container}
-    >
-      <div onClick={() => navigate("/")} className={styles.logoDiv}>
-        <img src="/images/logo.png" alt="logo" className={styles.logo} />
-        <img src="/images/logo2.png" alt="logo" className={styles.logo2} />
-      </div>
+    <>
+      <div className={styles.container}>
+        <div onClick={() => navigate("/")} className={styles.logoDiv}>
+          <img src="/images/logo.png" alt="logo" className={styles.logo} />
+          <img src="/images/logo2.png" alt="logo" className={styles.logo2} />
+        </div>
 
-      <div
-        className={`${styles.rightContainer} ${
-          navbarOpen ? styles.responsive_nav : ""
-        }`}
-      >
-        {/* <Link
-          to="/"
-          className={styles.link}
+        <div
+          className={`${styles.rightContainer} ${
+            navbarOpen ? styles.responsive_nav : ""
+          }`}
         >
-          Home
-        </Link> */}
-        <Link to="/about-us" className={styles.link}>
-          About Us
-        </Link>
+          <Link to="/about-us" className={styles.link}>
+            About Us
+          </Link>
 
-        <Link to="/#testimonials" className={styles.link}>
-          Testimonials
-        </Link>
+          <Link to="/#testimonials" className={styles.link}>
+            Testimonials
+          </Link>
 
-        <Link to="/bikes" className={styles.link}>
-          Book Your Bike
-        </Link>
+          <Link to="/bikes" className={styles.link}>
+            Book Your Bike
+          </Link>
 
-        <Link to="/list" className={styles.link}>
-          List Bike
-        </Link>
+          <Link to="/list" className={styles.link}>
+            List Bike
+          </Link>
 
-        {/* <Link to="/login" className={styles.link}>
-          Login
-        </Link> */}
+          <img
+            src="/images/avatar.png"
+            alt="image"
+            className={styles.avator}
+            onClick={handleClick}
+          />
 
-        <img src="/images/avatar.png" alt="image" className={styles.avator} />
+          <button
+            className={`${styles.faIcon} ${styles.closeBtn}`}
+            onClick={showNavbar}
+          >
+            <FaTimes />
+          </button>
+        </div>
 
-        <button
-          className={`${styles.faIcon} ${styles.closeBtn}`}
-          // style={{ color: COLORS.black }}
-          onClick={showNavbar}
-        >
-          <FaTimes />
+        <button className={styles.faIcon} onClick={showNavbar}>
+          <FaBars />
         </button>
       </div>
 
-      <button
-        className={styles.faIcon}
-        // style={{
-        //   color: bgColor
-        //     ? COLORS.blue
-        //     : isScrolled
-        //     ? COLORS.blue
-        //     : COLORS.white,
-        // }}
-        onClick={showNavbar}
-      >
-        <FaBars />
-      </button>
-    </div>
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
+        <SignIn />
+      </Modal>
+    </>
   );
 };
 
