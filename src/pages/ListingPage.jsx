@@ -15,7 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import { BikesData } from "../assets/BikesData";
 import ListingCard from "../components/ListingCard/ListingCard";
@@ -26,9 +26,14 @@ const ListingPage = () => {
   const transmissionType = new URLSearchParams(window.location.search).get(
     "transmissionType"
   );
-  const [pickupDate, setPickupDate] = useState(dayjs());
-  const [dropoffDate, setDropoffDate] = useState(dayjs());
+  const [pickupDate, setPickupDate] = useState(
+    dayjs().startOf("hour").add(1, "hour")
+  );
+  const [dropoffDate, setDropoffDate] = useState(
+    dayjs().startOf("hour").add(2, "hour")
+  );
   const [duration, setDuration] = useState("daily");
+
   const [transmission, setTransmission] = useState({
     scooty: transmissionType === "scooty",
     electricScooty: transmissionType === "electricScooty",
@@ -40,6 +45,29 @@ const ListingPage = () => {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down(700));
+
+  useEffect(() => {
+    // Adjust drop-off date based on duration
+    if (duration === "daily") {
+      setDropoffDate(pickupDate.add(1, "day").startOf("hour"));
+    } else if (duration === "weekly") {
+      setDropoffDate(pickupDate.add(1, "week").startOf("hour"));
+    } else if (duration === "monthly") {
+      setDropoffDate(pickupDate.add(1, "month").startOf("hour"));
+    }
+  }, [pickupDate, duration]);
+
+  useEffect(() => {
+    // Adjust duration based on date difference
+    const diff = dropoffDate.diff(pickupDate, "hour");
+    if (diff >= 24 && diff < 24 * 7) {
+      setDuration("daily");
+    } else if (diff >= 24 * 7 && diff < 24 * 30) {
+      setDuration("weekly");
+    } else if (diff >= 24 * 30) {
+      setDuration("monthly");
+    }
+  }, [dropoffDate, pickupDate]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -67,6 +95,16 @@ const ListingPage = () => {
     });
   };
 
+  const handlePickupDateChange = (newValue) => {
+    const ceiledDate = newValue.startOf("hour").add(1, "hour");
+    setPickupDate(ceiledDate);
+  };
+
+  const handleDropoffDateChange = (newValue) => {
+    const ceiledDate = newValue.startOf("hour").add(1, "hour");
+    setDropoffDate(ceiledDate);
+  };
+
   const FILTER = () => {
     return (
       <div className={styles.filterContainer}>
@@ -76,18 +114,21 @@ const ListingPage = () => {
             <DateTimePicker
               label="Pickup Date & Time"
               value={pickupDate}
-              onChange={(newValue) => setPickupDate(newValue)}
+              onChange={handlePickupDateChange}
               renderInput={(props) => (
                 <TextField {...props} fullWidth margin="normal" />
               )}
+              shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
             />
             <DateTimePicker
               label="Dropoff Date & Time"
               value={dropoffDate}
-              onChange={(newValue) => setDropoffDate(newValue)}
+              onChange={handleDropoffDateChange}
               renderInput={(props) => (
                 <TextField {...props} fullWidth margin="normal" />
               )}
+              shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
+              minDateTime={pickupDate.add(1, "hour")}
             />
           </div>
         </LocalizationProvider>
