@@ -8,6 +8,7 @@ const SignIn = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
+  const [otp, setOtp] = useState("");
 
   const validatePhoneNo = (phone) => {
     const indianPhonePattern = /^[6-9]\d{9}$/;
@@ -70,7 +71,10 @@ const SignIn = () => {
           className={`${styles.btn1} ${
             form === "signup" ? styles.activeBtn : ""
           }`}
-          onClick={() => setForm("signup")}
+          onClick={() => {
+            setForm("signup");
+            setOtp("");
+          }}
         >
           Sign Up
         </button>
@@ -105,6 +109,8 @@ const SignIn = () => {
                 placeholder="Enter OTP..."
                 className={styles.input}
                 required={true}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
                 Log In
@@ -157,6 +163,8 @@ const SignIn = () => {
                 placeholder="Enter OTP..."
                 className={styles.input}
                 required={true}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
                 Log In
