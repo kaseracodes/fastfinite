@@ -11,4 +11,5 @@ export const COLORS = {
   green: "#155724",
   lightGreen: "#D4EDDA",
   gold: "#856404",
+  white2: "#fafbfd",
 };
