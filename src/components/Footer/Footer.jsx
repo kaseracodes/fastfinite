@@ -40,11 +40,11 @@ const Footer = () => {
           <Link to="/about-us" className={styles.link}>
             About Us
           </Link>
-          <Link to="mailto:support@fastfinite.com" className={styles.link}>
+          <Link to="mailto:reach.fastfinite@gmail.com" className={styles.link}>
             support@fastfinite.com
           </Link>
-          <Link to="tel:+918448444897" className={styles.link}>
-            +918448444897
+          <Link to="tel:+919007074744" className={styles.link}>
+            +919007074744
           </Link>
         </div>
       </div>

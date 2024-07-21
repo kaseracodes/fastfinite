@@ -35,7 +35,8 @@ const AccordionSection = () => {
             {item.question}
           </AccordionSummary>
           <AccordionDetails className={styles.accordionDetails}>
-            {item.answer}
+            <p dangerouslySetInnerHTML={{ __html: item.answer }}></p>
+            {/* {item.answer} */}
           </AccordionDetails>
         </CustomAccordion>
       ))}

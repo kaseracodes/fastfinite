@@ -81,7 +81,7 @@ const Navbar = ({ bgColor }) => {
           </Link>
 
           <Link to="/list" className={styles.link}>
-            List Bike
+            List Vehicle
           </Link>
 
           <img

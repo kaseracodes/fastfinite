@@ -1,9 +1,9 @@
 export const AccordionData = [
   {
     id: 0,
-    question: "Is fuel included in the tariff?",
+    question: "Is fuel included in the cost?",
     answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "All prices are exclusive of fuel. We provide a minimal amount of fuel to get the vehicle to the nearest fuel station. In case there is excess fuel in the vehicle at the time of return, GoBikes is not liable for any refunds for the same.",
   },
 
   {
@@ -11,41 +11,40 @@ export const AccordionData = [
     question:
       "Can the bike booked be delivered to my home/office? If yes, then what are the charges?",
     answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "Delivery depends on many factors. You can call us and check if the delivery is possible or not.",
   },
 
   {
     id: 2,
-    question: "How can I book a bike without seeing it physically?",
+    question: "I have a Learner's Licence. Will that work?",
     answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "We don't give bikes/scooters on learner's licence. You need to have a driver's licence.",
   },
 
   {
     id: 3,
-    question: "I have a Learner's Licence. Will that work?",
-    answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+    question: "Are the helmets chargeable?",
+    answer: "Yes, the cost per helmet per day is 50/-.",
   },
 
   {
     id: 4,
     question: "Can I cancel my booking? If yes then how?",
     answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "Absolutely, you have the option to cancel your booking by visiting the Bookings section under your Profile tab. When you reserve a bike through any of our dealers, they allocate the bike specifically for you. Cancellations can inconvenience the dealer, leading to potential financial loss. Therefore, cancellation charges apply as outlined below:<br />• No Show or After Pickup-time: 100% deduction.<br />• Partial payment made: 100% deduction.<br />• Full payment:<br />&nbsp;&nbsp;&nbsp;&nbsp;° Cancelled before 72 hours of pickup time: 25% deduction.<br />&nbsp;&nbsp;&nbsp;&nbsp;° Cancelled between 24-72 hours of pickup time: 75% deduction.<br />&nbsp;&nbsp;&nbsp;&nbsp;° Cancelled between 0-24 hours of pickup time: 100% deduction.",
   },
 
   {
     id: 5,
-    question: "How does GoBikes handle security deposits?",
+    question: "Can i extend my trip?",
     answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "Reservations can be extended by going to the Bookings section in the Profile tab. You can select the new end date and time and make the payment for the extended dates/hours accordingly.",
   },
 
   {
     id: 6,
-    question: "Will I be getting a complimentary helmet?",
+    question: "What happens if the bike incurs any kind of damage on the trip?",
     answer:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "For any form of damage or harm that has come to the bike while on the trip, the compensation amount will be deducted from the security deposit of the customer.",
   },
 ];

@@ -15,12 +15,13 @@ import {
   useTheme,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
 import { BikesData } from "../assets/BikesData";
 import ListingCard from "../components/ListingCard/ListingCard";
 import Footer from "../components/Footer/Footer";
 import FilterModal from "../components/FilterModal/FilterModal";
+import { calculateRent } from "../utils/Calculations";
 
 const ListingPage = () => {
   const transmissionType = new URLSearchParams(window.location.search).get(
@@ -30,14 +31,14 @@ const ListingPage = () => {
     dayjs().startOf("hour").add(1, "hour")
   );
   const [dropoffDate, setDropoffDate] = useState(
-    dayjs().startOf("hour").add(2, "hour")
+    dayjs().startOf("hour").add(1, "day").add(1, "hour")
   );
   const [duration, setDuration] = useState("daily");
 
   const [transmission, setTransmission] = useState({
-    scooty: transmissionType === "scooty",
-    electricScooty: transmissionType === "electricScooty",
-    bikes: transmissionType === "bike",
+    petrolScooter: transmissionType === "petrolScooter",
+    eScooter: transmissionType === "eScooter",
+    petrolBike: transmissionType === "petrolBike",
   });
   const [brands, setBrands] = useState({
     honda: false,
@@ -46,39 +47,12 @@ const ListingPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down(700));
 
-  useEffect(() => {
-    // Adjust drop-off date based on duration
-    if (duration === "daily") {
-      setDropoffDate(pickupDate.add(1, "day").startOf("hour"));
-    } else if (duration === "weekly") {
-      setDropoffDate(pickupDate.add(1, "week").startOf("hour"));
-    } else if (duration === "monthly") {
-      setDropoffDate(pickupDate.add(1, "month").startOf("hour"));
-    }
-  }, [pickupDate, duration]);
-
-  useEffect(() => {
-    // Adjust duration based on date difference
-    const diff = dropoffDate.diff(pickupDate, "hour");
-    if (diff >= 24 && diff < 24 * 7) {
-      setDuration("daily");
-    } else if (diff >= 24 * 7 && diff < 24 * 30) {
-      setDuration("weekly");
-    } else if (diff >= 24 * 30) {
-      setDuration("monthly");
-    }
-  }, [dropoffDate, pickupDate]);
-
   const handleClickOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const handleDurationChange = (event) => {
-    setDuration(event.target.value);
   };
 
   const handleTransmissionChange = (event) => {
@@ -96,42 +70,73 @@ const ListingPage = () => {
   };
 
   const handlePickupDateChange = (newValue) => {
-    const ceiledDate = newValue.startOf("hour").add(1, "hour");
+    const ceiledDate = newValue.startOf("hour");
     setPickupDate(ceiledDate);
+
+    setDropoffDate((currentDropoffDate) => {
+      const updatedPickupDate = ceiledDate;
+      let newDropoffDate = currentDropoffDate;
+      let newDuration = "daily";
+
+      if (
+        currentDropoffDate.diff(updatedPickupDate, "hour") < 24 ||
+        updatedPickupDate.isAfter(currentDropoffDate)
+      ) {
+        newDropoffDate = updatedPickupDate.add(1, "day");
+      } else {
+        const diff = currentDropoffDate.diff(updatedPickupDate, "hour");
+        if (diff >= 24 && diff < 24 * 7) {
+          newDuration = "daily";
+        } else if (diff >= 24 * 7 && diff < 24 * 30) {
+          newDuration = "weekly";
+        } else if (diff >= 24 * 30) {
+          newDuration = "monthly";
+        }
+      }
+
+      setDuration(newDuration);
+      return newDropoffDate;
+    });
   };
 
   const handleDropoffDateChange = (newValue) => {
-    const ceiledDate = newValue.startOf("hour").add(1, "hour");
+    const ceiledDate = newValue.startOf("hour");
     setDropoffDate(ceiledDate);
+
+    setPickupDate((currentPickupDate) => {
+      const updatedDropoffDate = ceiledDate;
+      const diff = updatedDropoffDate.diff(currentPickupDate, "hour");
+      let newDuration = "daily";
+
+      if (diff >= 24 && diff < 24 * 7) {
+        newDuration = "daily";
+      } else if (diff >= 24 * 7 && diff < 24 * 30) {
+        newDuration = "weekly";
+      } else if (diff >= 24 * 30) {
+        newDuration = "monthly";
+      }
+
+      setDuration(newDuration);
+      return currentPickupDate;
+    });
+  };
+
+  const handleDurationChange = (event) => {
+    const newDuration = event.target.value;
+    setDuration(newDuration);
+
+    if (newDuration === "daily") {
+      setDropoffDate(pickupDate.add(1, "day").startOf("hour"));
+    } else if (newDuration === "weekly") {
+      setDropoffDate(pickupDate.add(1, "week").startOf("hour"));
+    } else if (newDuration === "monthly") {
+      setDropoffDate(pickupDate.add(1, "month").startOf("hour"));
+    }
   };
 
   const FILTER = () => {
     return (
-      <div className={styles.filterContainer}>
-        <h5 className={styles.heading}>FILTERS</h5>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <div className={styles.dateInputContainer}>
-            <DateTimePicker
-              label="Pickup Date & Time"
-              value={pickupDate}
-              onChange={handlePickupDateChange}
-              renderInput={(props) => (
-                <TextField {...props} fullWidth margin="normal" />
-              )}
-              shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
-            />
-            <DateTimePicker
-              label="Dropoff Date & Time"
-              value={dropoffDate}
-              onChange={handleDropoffDateChange}
-              renderInput={(props) => (
-                <TextField {...props} fullWidth margin="normal" />
-              )}
-              shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
-              minDateTime={pickupDate.add(1, "hour")}
-            />
-          </div>
-        </LocalizationProvider>
+      <div>
         <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Booking Duration</FormLabel>
           <RadioGroup
@@ -163,32 +168,32 @@ const ListingPage = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={transmission.scooty}
+                checked={transmission.petrolScooter}
                 onChange={handleTransmissionChange}
-                name="scooty"
+                name="petrolScooter"
               />
             }
-            label="Scooty"
+            label="Petrol Scooter"
           />
           <FormControlLabel
             control={
               <Checkbox
-                checked={transmission.electricScooty}
+                checked={transmission.eScooter}
                 onChange={handleTransmissionChange}
-                name="electricScooty"
+                name="eScooter"
               />
             }
-            label="Electric Scooty"
+            label="E-Scooter"
           />
           <FormControlLabel
             control={
               <Checkbox
-                checked={transmission.bikes}
+                checked={transmission.petrolBike}
                 onChange={handleTransmissionChange}
-                name="bikes"
+                name="petrolBike"
               />
             }
-            label="Bikes"
+            label="Petrol Bike"
           />
         </FormControl>
         <Divider />
@@ -216,6 +221,36 @@ const ListingPage = () => {
       <div className={styles.mainContainer}>
         {isMobile ? (
           <>
+            <div className={styles.filterContainer}>
+              <h5 className={styles.heading}>Select Dates</h5>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <div className={styles.dateInputContainer}>
+                  <DateTimePicker
+                    label="Pickup Date & Time"
+                    value={pickupDate}
+                    onChange={handlePickupDateChange}
+                    renderInput={(props) => (
+                      <TextField {...props} fullWidth margin="normal" />
+                    )}
+                    shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
+                    minDateTime={dayjs().startOf("hour").add(1, "hour")}
+                    views={["year", "month", "day", "hours"]}
+                  />
+                  <DateTimePicker
+                    label="Dropoff Date & Time"
+                    value={dropoffDate}
+                    onChange={handleDropoffDateChange}
+                    renderInput={(props) => (
+                      <TextField {...props} fullWidth margin="normal" />
+                    )}
+                    shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
+                    minDateTime={pickupDate.add(1, "day")}
+                    views={["year", "month", "day", "hours"]}
+                  />
+                </div>
+              </LocalizationProvider>
+            </div>
+
             <button className={styles.filterBtn} onClick={handleClickOpen}>
               Open Filters
             </button>
@@ -224,7 +259,36 @@ const ListingPage = () => {
             </FilterModal>
           </>
         ) : (
-          <FILTER />
+          <div className={styles.filterContainer}>
+            <h5 className={styles.heading}>Filters</h5>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <div className={styles.dateInputContainer}>
+                <DateTimePicker
+                  label="Pickup Date & Time"
+                  value={pickupDate}
+                  onChange={handlePickupDateChange}
+                  renderInput={(props) => (
+                    <TextField {...props} fullWidth margin="normal" />
+                  )}
+                  shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
+                  minDateTime={dayjs().startOf("hour").add(1, "hour")}
+                  views={["year", "month", "day", "hours"]}
+                />
+                <DateTimePicker
+                  label="Dropoff Date & Time"
+                  value={dropoffDate}
+                  onChange={handleDropoffDateChange}
+                  renderInput={(props) => (
+                    <TextField {...props} fullWidth margin="normal" />
+                  )}
+                  shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
+                  minDateTime={pickupDate.add(1, "day")}
+                  views={["year", "month", "day", "hours"]}
+                />
+              </div>
+            </LocalizationProvider>
+            <FILTER />
+          </div>
         )}
 
         <div className={styles.resultContainer}>
@@ -234,14 +298,14 @@ const ListingPage = () => {
               <ListingCard
                 key={index}
                 id={item.id}
-                imagePath={item.imagePath}
+                imagePath={item.image}
                 name={item.name}
-                year={item.year}
+                year={item.make_year}
                 mileage={item.mileage}
-                location={item.location}
-                rent={item.rent}
-                deposit={item.deposit}
-                duration="Monthly"
+                location={item.pickup_point}
+                rent={calculateRent(pickupDate, dropoffDate, item.package)}
+                deposit={item.package[duration].deposit}
+                duration={duration.toUpperCase()}
               />
             ))}
           </div>

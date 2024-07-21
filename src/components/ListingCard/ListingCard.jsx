@@ -17,7 +17,7 @@ const ListingCard = ({
   const navigate = useNavigate();
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onClick={() => navigate(`/bikes/${id}`)}>
       <div className={styles.imageDiv}>
         <img src={imagePath} />
       </div>
@@ -49,9 +49,7 @@ const ListingCard = ({
         </div>
       </div>
 
-      <button className={styles.btn} onClick={() => navigate(`/bikes/${id}`)}>
-        Book Your Ride
-      </button>
+      <button className={styles.btn}>Book Your Ride</button>
     </div>
   );
 };
