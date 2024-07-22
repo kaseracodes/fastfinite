@@ -95,6 +95,10 @@
     padding: 15px 50px;
     gap: 15px;
   }
+
+  .rightContainer {
+    gap: 30px;
+  }
 }
 
 @media only screen and (max-width: 1000px) {

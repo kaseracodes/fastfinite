@@ -44,7 +44,7 @@ const Footer = () => {
             +919007074744
           </Link>
           <Link to="mailto:reach.fastfinite@gmail.com" className={styles.link}>
-            support@fastfinite.com
+            reach.fastfinite@gmail.com
           </Link>
         </div>
       </div>

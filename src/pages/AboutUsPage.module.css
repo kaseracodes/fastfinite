@@ -5,6 +5,7 @@
   background-size: cover;
   padding: 100px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -23,6 +24,16 @@
   text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
 }
 
+.bannerDesc {
+  font-family: "Open Sans", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--white);
+  max-width: 800px;
+  text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+}
+
 .div2 {
   padding: 50px 100px;
   display: flex;
@@ -37,7 +48,7 @@
 }
 
 .descDiv {
-  max-width: 500px;
+  max-width: 700px;
 }
 
 .heading {
@@ -47,12 +58,12 @@
   color: var(--black);
   margin: 10px 0 0 0;
   text-align: center;
-  line-height: 100%;
+  line-height: 150%;
 }
 
 .desc {
   font-family: "Open Sans", sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   margin-top: 30px;
   text-align: center;
@@ -81,7 +92,7 @@
   }
 
   .div2 img {
-    width: 550px;
+    width: 500px;
   }
 }
 
@@ -107,13 +118,17 @@
 
 @media only screen and (max-width: 550px) {
   .bannerContainer {
-    height: 20vh;
+    height: 30vh;
     padding: 55px 10px;
     gap: 20px;
   }
 
   .bannerHeading {
     font-size: 35px;
+  }
+
+  .bannerDesc {
+    font-size: 15px;
   }
 
   .div2 {

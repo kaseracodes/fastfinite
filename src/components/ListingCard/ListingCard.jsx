@@ -40,7 +40,7 @@ const ListingCard = ({
 
       <div className={styles.bottomDiv}>
         <div className={styles.duration}>
-          <button>{duration}</button>
+          <button>Total Price</button>
         </div>
 
         <div className={styles.priceDiv}>

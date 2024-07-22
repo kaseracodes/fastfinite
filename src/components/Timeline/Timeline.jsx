@@ -8,11 +8,10 @@ const Timeline = () => {
       <div className={styles.row}>
         <section>
           <div className={styles.number}>1</div>
-          <h5 className={styles.title}>Find Your Ride</h5>
+          <h5 className={styles.title}>Choose Your Ride</h5>
           <p className={styles.desc}>
-            Enter the basic details like, city, pick up and drop date and time
-            to choose from a list of available two - wheelers at your desired
-            go- hub.
+            Select your desired two-wheeler according to your needs and
+            preferences.
           </p>
         </section>
       </div>
@@ -22,7 +21,7 @@ const Timeline = () => {
           <div className={styles.number}>2</div>
           <h5 className={styles.title}>Book Your Ride</h5>
           <p className={styles.desc}>
-            Select your package and choose from the available payment options.
+            Select your package and your preferred payment option.
           </p>
         </section>
       </div>
@@ -30,11 +29,10 @@ const Timeline = () => {
       <div className={styles.row}>
         <section>
           <div className={styles.number}>3</div>
-          <h5 className={styles.title}>Get Ready to Ride</h5>
+          <h5 className={styles.title}>Pick Your Ride</h5>
           <p className={styles.desc}>
-            You will receive all the ride details via message and email. Reach
-            the pick up point in time and pay the security deposit (if
-            applicable). Enjoy every moment of your ride.
+            You will receive a confirmation message. Reach the pick up point on
+            time and pay the security deposit.
           </p>
         </section>
       </div>
@@ -44,9 +42,9 @@ const Timeline = () => {
           <div className={styles.number}>4</div>
           <h5 className={styles.title}>End Your Ride</h5>
           <p className={styles.desc}>
-            Once you have had the time of your life, drop the vehicle at the
-            same pick up point. Security deposit is refunded after checking for
-            damages and challans (if any).
+            After having enjoyed every moment of your ride you can drop the
+            vehicle at the same location as the pick up point. Security deposit
+            will be refunded after checking for damages and challan (if any).
           </p>
         </section>
       </div>

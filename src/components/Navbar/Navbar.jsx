@@ -68,16 +68,20 @@ const Navbar = ({ bgColor }) => {
             navbarOpen ? styles.responsive_nav : ""
           }`}
         >
+          <Link to="/" className={styles.link}>
+            Home
+          </Link>
+
           <Link to="/about-us" className={styles.link}>
             About Us
           </Link>
 
-          <Link to="/#testimonials" className={styles.link}>
-            Testimonials
-          </Link>
-
           <Link to="/bikes" className={styles.link}>
             Book Your Bike
+          </Link>
+
+          <Link to="/#testimonials" className={styles.link}>
+            Testimonials
           </Link>
 
           <Link to="/list" className={styles.link}>

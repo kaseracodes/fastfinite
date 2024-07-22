@@ -48,22 +48,49 @@ const AboutUsPage = () => {
           Your <span style={{ color: COLORS.yellow }}>Urban Adventure</span>{" "}
           Starts Here !
         </h1>
+
+        <p className={styles.bannerDesc}>
+          Join us in this exciting new journey. Discover the ease,
+          affordability, and benefits of bike rentals with Speed Group, and
+          experience the city like never before.
+        </p>
       </div>
 
       <div className={styles.div2}>
         <div className={styles.descDiv}>
-          <h5 className={styles.heading}>About Us</h5>
+          <h5 className={styles.heading}>A Legacy of Mobility</h5>
           <hr className={styles.hr} />
           <p className={styles.desc}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry&apos;s standard dummy
-            text ever since the 1500s, when an unknown printer took a galley of
-            type and scrambled it to make a type specimen book. It has survived
-            not only five centuries, but also the leap into electronic
-            typesetting, remaining essentially unchanged. It was popularised in
-            the 1960s with the release of Letraset sheets containing Lorem Ipsum
-            passages, and more recently with desktop publishing software like
-            Aldus PageMaker including versions of Lorem Ipsum.
+            Speed Group, a name synonymous with quality and reliability in the
+            automotive sector, is excited to introduce its latest venture: bike
+            rentals. With a deep-rooted understanding of transportation needs,
+            we&apos;re committed to providing innovative solutions that cater to
+            the evolving demands of city dwellers.
+            <br />
+            <br />
+            The benefits of bike rentals are numerous and cater to a wide range
+            of lifestyles and requirements. For the young, office-going
+            generation, bikes offer a convenient and efficient way to navigate
+            through city traffic, ensuring you arrive at work on time without
+            the hassle of parking or public transport delays. You also save on
+            the costs of maintenance, fuel, insurance, and parking, making it an
+            economical choice for students, young professionals, and anyone
+            looking to reduce their transportation expenses.
+            <br />
+            <br />
+            For temporary residents of a city, such as students or business
+            travellers, bike rentals provide the perfect solution for short-term
+            mobility needs. Whether you&apos;re in town for a semester or a few
+            months on a work assignment, you can enjoy the freedom of moving
+            around the city without the long-term commitment of purchasing a
+            bike.
+            <br />
+            <br />
+            At Speed Group, we understand the importance of sustainability. Our
+            bike rental service not only offers convenience and savings but also
+            contributes to reducing carbon emissions and easing urban
+            congestion. By choosing to rent a bike, you&apos;re making a
+            positive impact on the environment and supporting a greener future.
           </p>
         </div>
         <img src="/images/about_us/image1.jpg" alt="bike" />

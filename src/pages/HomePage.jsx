@@ -188,7 +188,7 @@ const HomePage = () => {
       <div className={styles.div5} id="faq">
         <h5 className={styles.heading}>Have Questions? We got you.</h5>
         <p className={styles.subHeading}>
-          Contact us on +91-8448444897 WhatsApp/Call in case of any other query.
+          Contact us on +919007074744 WhatsApp/Call in case of any other query.
         </p>
 
         <AccordionSection />
