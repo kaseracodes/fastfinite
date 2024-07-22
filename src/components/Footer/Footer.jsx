@@ -13,7 +13,7 @@ const Footer = () => {
 
       <div className={styles.linkDiv}>
         <div className={styles.innerLinkDiv}>
-          <Link to="/" className={styles.link}>
+          <Link to="/about-us#contactUs" className={styles.link}>
             Contact Us
           </Link>
           {/* <Link to="/" className={styles.link}>
@@ -28,11 +28,11 @@ const Footer = () => {
           {/* <Link to="/" className={styles.link}>
             Offers
           </Link> */}
-          <Link to="/" className={styles.link}>
-            List Your Vehicle
-          </Link>
           <Link to="/#faq" className={styles.link}>
             FAQs
+          </Link>
+          <Link to="/" className={styles.link}>
+            List Your Vehicle
           </Link>
         </div>
 
@@ -40,11 +40,11 @@ const Footer = () => {
           {/* <Link to="/about-us" className={styles.link}>
             About Us
           </Link> */}
-          <Link to="mailto:reach.fastfinite@gmail.com" className={styles.link}>
-            support@fastfinite.com
-          </Link>
           <Link to="tel:+919007074744" className={styles.link}>
             +919007074744
+          </Link>
+          <Link to="mailto:reach.fastfinite@gmail.com" className={styles.link}>
+            support@fastfinite.com
           </Link>
         </div>
       </div>

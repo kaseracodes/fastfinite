@@ -1,11 +1,40 @@
+import { useLocation } from "react-router-dom";
 import { COLORS } from "../assets/constants";
+import ContactUs from "../components/ContactUs/ContactUs";
 import Footer from "../components/Footer/Footer";
 import Navbar from "../components/Navbar/Navbar";
 import QualityPolicy from "../components/QualityPolicy/QualityPolicy";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./AboutUsPage.module.css";
+import { useEffect } from "react";
 
 const AboutUsPage = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash) {
+        const sectionId = hash.substring(1); // Remove the "#" from the hash
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    };
+
+    // Call the handler initially in case there's already a hash in the URL
+    handleHashChange();
+
+    // Add event listener for hash change
+    window.addEventListener("hashchange", handleHashChange);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [location]);
+
   return (
     <Wrapper>
       <Navbar />
@@ -41,6 +70,8 @@ const AboutUsPage = () => {
       </div>
 
       <QualityPolicy />
+
+      <ContactUs />
 
       <Footer />
     </Wrapper>

@@ -3,7 +3,7 @@ export const AccordionData = [
     id: 0,
     question: "Is fuel included in the cost?",
     answer:
-      "All prices are exclusive of fuel. We provide a minimal amount of fuel to get the vehicle to the nearest fuel station. In case there is excess fuel in the vehicle at the time of return, GoBikes is not liable for any refunds for the same.",
+      "All prices are exclusive of fuel. We provide a minimal amount of fuel to get the vehicle to the nearest fuel station. In case there is excess fuel in the vehicle at the time of return, Fast Finite is not liable for any refunds for the same.",
   },
 
   {
