@@ -16,18 +16,18 @@ const Footer = () => {
           <Link to="/" className={styles.link}>
             Contact Us
           </Link>
-          <Link to="/" className={styles.link}>
+          {/* <Link to="/" className={styles.link}>
             Privacy Policy
-          </Link>
+          </Link> */}
           <Link to="/" className={styles.link}>
             Terms and Conditions
           </Link>
         </div>
 
         <div className={styles.innerLinkDiv}>
-          <Link to="/" className={styles.link}>
+          {/* <Link to="/" className={styles.link}>
             Offers
-          </Link>
+          </Link> */}
           <Link to="/" className={styles.link}>
             List Your Vehicle
           </Link>
@@ -37,9 +37,9 @@ const Footer = () => {
         </div>
 
         <div className={styles.innerLinkDiv}>
-          <Link to="/about-us" className={styles.link}>
+          {/* <Link to="/about-us" className={styles.link}>
             About Us
-          </Link>
+          </Link> */}
           <Link to="mailto:reach.fastfinite@gmail.com" className={styles.link}>
             support@fastfinite.com
           </Link>

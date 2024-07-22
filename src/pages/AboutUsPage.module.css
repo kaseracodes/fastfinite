@@ -1,0 +1,134 @@
+.bannerContainer {
+  height: 65vh;
+  background-image: url("/images/about_us_banner2.jpg");
+  /* background-image: url("/images/home_banner.png"); */
+  background-size: cover;
+  padding: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bannerHeading {
+  font-family: "Istok Web", sans-serif;
+  font-size: 75px;
+  font-weight: 700;
+  color: var(--white);
+  text-align: center;
+  max-width: 1000px;
+  text-transform: capitalize;
+  line-height: 120%;
+  margin: 0;
+  position: relative;
+  text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+}
+
+.div2 {
+  padding: 50px 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+}
+
+.div2 img {
+  width: 600px;
+  border-radius: 10px;
+}
+
+.descDiv {
+  max-width: 500px;
+}
+
+.heading {
+  font-family: "Open Sans", sans-serif;
+  font-size: 56px;
+  font-weight: 500;
+  color: var(--black);
+  margin: 10px 0 0 0;
+  text-align: center;
+  line-height: 100%;
+}
+
+.desc {
+  font-family: "Open Sans", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.hr {
+  width: 18vw;
+  border: 1px solid var(--yellow);
+}
+
+@media only screen and (max-width: 1300px) {
+  .bannerContainer {
+    height: 60vh;
+  }
+
+  .bannerHeading {
+    font-size: 65px;
+  }
+
+  .heading {
+    font-size: 50px;
+  }
+
+  .div2 {
+    padding: 50px;
+  }
+
+  .div2 img {
+    width: 550px;
+  }
+}
+
+@media only screen and (max-width: 1100px) {
+  .bannerContainer {
+    height: 40vh;
+    padding: 100px 50px;
+  }
+
+  .bannerHeading {
+    font-size: 55px;
+  }
+
+  .hr {
+    width: 24vw;
+  }
+
+  .div2 {
+    flex-direction: column-reverse;
+    gap: 20px;
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .bannerContainer {
+    height: 20vh;
+    padding: 55px 10px;
+    gap: 20px;
+  }
+
+  .bannerHeading {
+    font-size: 35px;
+  }
+
+  .div2 img {
+    width: 90vw;
+  }
+
+  .heading {
+    font-size: 30px;
+  }
+
+  .desc {
+    font-size: 15px;
+  }
+
+  .hr {
+    width: 30vw;
+  }
+}

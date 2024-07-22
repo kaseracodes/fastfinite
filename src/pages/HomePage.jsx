@@ -19,7 +19,8 @@ const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const heading = `Your<br /><span style="color:${COLORS.yellow}">Urban Adventure</span><br />Starts Here !`;
+  // const heading = `Your<br /><span style="color:${COLORS.yellow}">Urban Adventure</span><br />Starts Here !`;
+  const heading = `Explore.<br /><span style="color:${COLORS.yellow}">Ride.</span> Repeat.`;
 
   const responsive1 = {
     superLargeDesktop: {
