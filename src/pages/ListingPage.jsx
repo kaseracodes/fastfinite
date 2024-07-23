@@ -305,7 +305,9 @@ const ListingPage = () => {
                 location={item.pickup_point}
                 rent={calculateRent(pickupDate, dropoffDate, item.package)}
                 deposit={item.package[duration].deposit}
-                duration={duration.toUpperCase()}
+                pickUpDate={pickupDate}
+                dropOffDate={dropoffDate}
+                duration={duration}
               />
             ))}
           </div>

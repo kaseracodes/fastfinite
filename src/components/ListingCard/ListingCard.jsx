@@ -12,12 +12,21 @@ const ListingCard = ({
   location,
   rent,
   deposit,
+  pickUpDate,
+  dropOffDate,
   duration,
 }) => {
   const navigate = useNavigate();
 
   return (
-    <div className={styles.container} onClick={() => navigate(`/bikes/${id}`)}>
+    <div
+      className={styles.container}
+      onClick={() =>
+        navigate(
+          `/bikes/${id}?pickUpDate=${pickUpDate}&dropOffDate=${dropOffDate}&duration=${duration}`
+        )
+      }
+    >
       <div className={styles.imageDiv}>
         <img src={imagePath} />
       </div>

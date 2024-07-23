@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./DetailPage.module.css";
@@ -43,14 +43,16 @@ const Card2 = ({ imagePath, heading, detail, textColor }) => {
 
 const DetailPage = () => {
   const params = useParams();
+  const query = new URLSearchParams(useLocation().search);
   const [bike, setBike] = useState(null);
   const [pickupDate, setPickupDate] = useState(
-    dayjs().startOf("hour").add(1, "hour")
+    dayjs(query.get("pickUpDate")) || dayjs().startOf("hour").add(1, "hour")
   );
   const [dropoffDate, setDropoffDate] = useState(
-    dayjs().startOf("hour").add(1, "day").add(1, "hour")
+    dayjs(query.get("dropOffDate")) ||
+      dayjs().startOf("hour").add(1, "day").add(1, "hour")
   );
-  const [duration, setDuration] = useState("daily");
+  const [duration, setDuration] = useState(query.get("duration") || "daily");
 
   useEffect(() => {
     setBike(BikesData.find((obj) => obj.id === params.id));
