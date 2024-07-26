@@ -84,9 +84,13 @@ const Navbar = ({ bgColor }) => {
             Testimonials
           </Link>
 
-          <Link to="/list" className={styles.link}>
-            List Vehicle
-          </Link>
+          <a
+            href="https://forms.gle/qHLa8LJe6HcqxPT39"
+            target="_blank"
+            className={styles.link}
+          >
+            Become A Dealer
+          </a>
 
           <img
             src="/images/avatar.png"
