@@ -1,6 +1,11 @@
 import { useState } from "react";
 import styles from "./SignIn.module.css";
-// import { COLORS } from "../../assets/constants";
+import { validateEmail, validatePhoneNo } from "../../utils/validations";
+import signUpWithPhone from "../../utils/signUpWithPhone";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import verifyOTP from "../../utils/verifyOTP";
+import login from "../../utils/login";
 
 const SignIn = () => {
   const [form, setForm] = useState("login");
@@ -9,49 +14,61 @@ const SignIn = () => {
   const [email, setEmail] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
   const [otp, setOtp] = useState("");
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
-  const validatePhoneNo = (phone) => {
-    const indianPhonePattern = /^[6-9]\d{9}$/;
-    return indianPhonePattern.test(phone);
-  };
-
-  const validateEmail = (email) => {
-    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailPattern.test(email);
-  };
-
-  const handleLoginGetOtp = (e) => {
+  const handleLoginGetOtp = async (e) => {
     e.preventDefault();
 
     if (!validatePhoneNo(phoneNo)) {
-      alert("Enter a valid phone number");
+      toast.error("Enter valid phone no");
       setPhoneNo("");
       return;
+    }
+
+    try {
+      const formattedPhoneNo = "+91" + phoneNo;
+      const cnf = await login(formattedPhoneNo);
+      setConfirmationResult(cnf);
+    } catch (error) {
+      console.log(error.message);
+      toast.error("Error! Try again later...");
     }
 
     setOtpFieldVisible(!otpFieldVisible);
   };
 
-  const handleSignupGetOtp = (e) => {
+  const handleSignupGetOtp = async (e) => {
     e.preventDefault();
 
-    if (
-      !validatePhoneNo(phoneNo) ||
-      !validateEmail(email) ||
-      name.trim().length === 0
-    ) {
-      alert("Enter a valid details");
-      setPhoneNo("");
+    if (!validateEmail(email)) {
+      toast.error("Enter valid email");
       setEmail("");
-      setName("");
       return;
+    }
+
+    if (!validatePhoneNo(phoneNo)) {
+      toast.error("Enter valid phone no");
+      setPhoneNo("");
+      return;
+    }
+
+    try {
+      const formattedPhoneNo = "+91" + phoneNo;
+      const cnf = await signUpWithPhone(formattedPhoneNo);
+      setConfirmationResult(cnf);
+    } catch (error) {
+      console.log(error.message);
+      toast.error("Error! Try again later...");
     }
 
     setOtpFieldVisible(!otpFieldVisible);
   };
 
-  const handleSubmitOtp = (e) => {
+  const handleSubmitOtp = async (e) => {
     e.preventDefault();
+
+    const res = await verifyOTP(confirmationResult, otp);
+    console.log(res);
 
     setOtpFieldVisible(!otpFieldVisible);
   };
@@ -89,7 +106,7 @@ const SignIn = () => {
             >
               <input
                 type="tel"
-                placeholder="Enter Phone no..."
+                placeholder="Enter Phone no"
                 className={styles.input}
                 required={true}
                 value={phoneNo}
@@ -98,6 +115,8 @@ const SignIn = () => {
               <button className={styles.btn2} type="submit">
                 Get OTP
               </button>
+
+              <div id="recaptcha"></div>
             </form>
           ) : (
             <form className={styles.inputContainer} onSubmit={handleSubmitOtp}>
@@ -106,14 +125,14 @@ const SignIn = () => {
               </p>
               <input
                 type="text"
-                placeholder="Enter OTP..."
+                placeholder="Enter OTP"
                 className={styles.input}
                 required={true}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
-                Log In
+                Submit
               </button>
             </form>
           )}
@@ -127,7 +146,7 @@ const SignIn = () => {
             >
               <input
                 type="text"
-                placeholder="Enter Your Name..."
+                placeholder="Enter Your Name"
                 className={styles.input}
                 required={true}
                 value={name}
@@ -135,7 +154,7 @@ const SignIn = () => {
               />
               <input
                 type="email"
-                placeholder="Enter Email..."
+                placeholder="Enter Email"
                 className={styles.input}
                 required={true}
                 value={email}
@@ -143,7 +162,7 @@ const SignIn = () => {
               />
               <input
                 type="tel"
-                placeholder="Enter Phone no..."
+                placeholder="Enter 10-digit Phone no."
                 className={styles.input}
                 required={true}
                 value={phoneNo}
@@ -152,6 +171,8 @@ const SignIn = () => {
               <button className={styles.btn2} type="submit">
                 Get OTP
               </button>
+
+              <div id="recaptcha"></div>
             </form>
           ) : (
             <form className={styles.inputContainer} onSubmit={handleSubmitOtp}>
@@ -160,19 +181,21 @@ const SignIn = () => {
               </p>
               <input
                 type="text"
-                placeholder="Enter OTP..."
+                placeholder="Enter OTP"
                 className={styles.input}
                 required={true}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
-                Log In
+                Submit
               </button>
             </form>
           )}
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 };
