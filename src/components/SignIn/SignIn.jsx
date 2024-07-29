@@ -32,6 +32,7 @@ const SignIn = () => {
     } catch (error) {
       console.log(error.message);
       toast.error("Error! Try again later...");
+      return;
     }
 
     setOtpFieldVisible(!otpFieldVisible);
@@ -59,6 +60,7 @@ const SignIn = () => {
     } catch (error) {
       console.log(error.message);
       toast.error("Error! Try again later...");
+      return;
     }
 
     setOtpFieldVisible(!otpFieldVisible);
@@ -67,8 +69,14 @@ const SignIn = () => {
   const handleSubmitOtp = async (e) => {
     e.preventDefault();
 
-    const res = await verifyOTP(confirmationResult, otp);
-    console.log(res);
+    try {
+      const res = await verifyOTP(confirmationResult, otp);
+      console.log(res);
+    } catch (error) {
+      console.log(error.message);
+      toast.error("Wrong OTP");
+      return;
+    }
 
     setOtpFieldVisible(!otpFieldVisible);
   };
@@ -106,7 +114,7 @@ const SignIn = () => {
             >
               <input
                 type="tel"
-                placeholder="Enter Phone no"
+                placeholder="Enter 10-digit Phone no"
                 className={styles.input}
                 required={true}
                 value={phoneNo}
