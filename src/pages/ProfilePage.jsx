@@ -1,13 +1,25 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Footer from "../components/Footer/Footer";
 import Navbar from "../components/Navbar/Navbar";
 import Wrapper from "../components/Wrapper/Wrapper";
 import { CgProfile } from "react-icons/cg";
 import { MdOutlineBookmarks } from "react-icons/md";
 import styles from "./ProfilePage.module.css";
+import { useDispatch, useSelector } from "react-redux";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/config";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { logoutUser } from "../store/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.userReducer.user);
+  console.log(user);
+
   const [tab, setTab] = useState("profile");
   const [bookingTab, setBookingTab] = useState("confirmed");
   const [isEditing, setIsEditing] = useState({
@@ -18,11 +30,13 @@ const ProfilePage = () => {
   });
 
   const [profile, setProfile] = useState({
-    name: "John Doe",
-    email: "johndoe@gmail.com",
-    mobile: "8569475962",
-    address: "",
-    profilePic: "/images/avatar.jpg",
+    name: user && user.name,
+    email: user && user.email,
+    mobile: user && user.phoneNo,
+    address: user && user.address,
+    profilePic:
+      user && user.profilePic ? user.profilePic : "/images/avatar.jpg",
+    // bookings: user && user.bookings,
     bookings: {
       confirmed: [],
       pending: [],
@@ -51,6 +65,19 @@ const ProfilePage = () => {
         setProfile({ ...profile, profilePic: reader.result });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+
+    try {
+      await signOut(auth);
+      dispatch(logoutUser());
+      toast.success("Users logged out successfully");
+      navigate("/");
+    } catch (error) {
+      toast.error("Error logging out");
     }
   };
 
@@ -111,101 +138,110 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {tab === "profile" ? (
-          <div className={styles.rightDiv}>
-            <div className={styles.innerRightDiv}>
-              <h5 className={styles.heading}>Profile</h5>
-              <p className={styles.subHeading}>User Details</p>
-            </div>
-            <div className={styles.profileDetails}>
-              {Object.keys(profile).map(
-                (field) =>
-                  field !== "profilePic" &&
-                  field !== "bookings" && (
-                    <div key={field} className={styles.innerRightDiv}>
-                      <label className={styles.subHeading}>
-                        {field.charAt(0).toUpperCase() + field.slice(1)}
-                      </label>
-                      {isEditing[field] ? (
-                        <div>
-                          <input
-                            type="text"
-                            name={field}
-                            value={profile[field]}
-                            onChange={handleChange}
-                            className={styles.input}
-                          />
+        <div className={styles.outerRightDiv}>
+          {tab === "profile" ? (
+            <div className={styles.rightDiv}>
+              <div className={styles.innerRightDiv}>
+                <h5 className={styles.heading}>Profile</h5>
+                <p className={styles.subHeading}>User Details</p>
+              </div>
+              <div className={styles.profileDetails}>
+                {Object.keys(profile).map(
+                  (field) =>
+                    field !== "profilePic" &&
+                    field !== "bookings" && (
+                      <div key={field} className={styles.innerRightDiv}>
+                        <label className={styles.subHeading}>
+                          {field.charAt(0).toUpperCase() + field.slice(1)}
+                        </label>
+                        {isEditing[field] ? (
+                          <div>
+                            <input
+                              type="text"
+                              name={field}
+                              value={profile[field]}
+                              onChange={handleChange}
+                              className={styles.input}
+                            />
 
-                          <button
-                            onClick={() => handleSaveClick(field)}
-                            className={styles.editBtn2}
-                          >
-                            Save
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          <span className={styles.para}>{profile[field]}</span>
-                          {field !== "mobile" && (
                             <button
-                              onClick={() => handleEditClick(field)}
+                              onClick={() => handleSaveClick(field)}
                               className={styles.editBtn2}
                             >
-                              Edit
+                              Save
                             </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )
-              )}
+                          </div>
+                        ) : (
+                          <div>
+                            <span className={styles.para}>
+                              {profile[field]}
+                            </span>
+                            {field !== "mobile" && (
+                              <button
+                                onClick={() => handleEditClick(field)}
+                                className={styles.editBtn2}
+                              >
+                                Edit
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                )}
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className={styles.rightDiv}>
-            <div className={styles.innerRightDiv}>
-              <h5 className={styles.heading}>Bookings</h5>
-              <p className={styles.subHeading}>Manage your bookings</p>
+          ) : (
+            <div className={styles.rightDiv}>
+              <div className={styles.innerRightDiv}>
+                <h5 className={styles.heading}>Bookings</h5>
+                <p className={styles.subHeading}>Manage your bookings</p>
+              </div>
+              <div className={styles.bookingTabContainer}>
+                <button
+                  className={`${styles.bookingTab} ${
+                    bookingTab === "confirmed" ? styles.activeBookingTab : ""
+                  }`}
+                  onClick={() => setBookingTab("confirmed")}
+                >
+                  Confirmed
+                </button>
+                <button
+                  className={`${styles.bookingTab} ${
+                    bookingTab === "pending" ? styles.activeBookingTab : ""
+                  }`}
+                  onClick={() => setBookingTab("pending")}
+                >
+                  Pending
+                </button>
+                <button
+                  className={`${styles.bookingTab} ${
+                    bookingTab === "cancelled" ? styles.activeBookingTab : ""
+                  }`}
+                  onClick={() => setBookingTab("cancelled")}
+                >
+                  Cancelled
+                </button>
+              </div>
+              <div className={styles.bookingsContainer}>
+                {bookingTab === "confirmed" && (
+                  <BookingsCard bookings={profile.bookings.confirmed} />
+                )}
+                {bookingTab === "pending" && (
+                  <BookingsCard bookings={profile.bookings.pending} />
+                )}
+                {bookingTab === "cancelled" && (
+                  <BookingsCard bookings={profile.bookings.cancelled} />
+                )}
+              </div>
             </div>
-            <div className={styles.bookingTabContainer}>
-              <button
-                className={`${styles.bookingTab} ${
-                  bookingTab === "confirmed" ? styles.activeBookingTab : ""
-                }`}
-                onClick={() => setBookingTab("confirmed")}
-              >
-                Confirmed
-              </button>
-              <button
-                className={`${styles.bookingTab} ${
-                  bookingTab === "pending" ? styles.activeBookingTab : ""
-                }`}
-                onClick={() => setBookingTab("pending")}
-              >
-                Pending
-              </button>
-              <button
-                className={`${styles.bookingTab} ${
-                  bookingTab === "cancelled" ? styles.activeBookingTab : ""
-                }`}
-                onClick={() => setBookingTab("cancelled")}
-              >
-                Cancelled
-              </button>
-            </div>
-            <div className={styles.bookingsContainer}>
-              {bookingTab === "confirmed" && (
-                <BookingsCard bookings={profile.bookings.confirmed} />
-              )}
-              {bookingTab === "pending" && (
-                <BookingsCard bookings={profile.bookings.pending} />
-              )}
-              {bookingTab === "cancelled" && (
-                <BookingsCard bookings={profile.bookings.cancelled} />
-              )}
-            </div>
-          </div>
-        )}
+          )}
+          <button className={styles.logout} onClick={handleLogout}>
+            Log out
+          </button>
+        </div>
+
+        <ToastContainer />
       </div>
 
       <Footer />

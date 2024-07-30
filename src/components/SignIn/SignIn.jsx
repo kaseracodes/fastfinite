@@ -6,8 +6,14 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import verifyOTP from "../../utils/verifyOTP";
 import login from "../../utils/login";
+import { BeatLoader } from "react-spinners";
+import { COLORS } from "../../assets/constants";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../../store/userSlice";
 
 const SignIn = () => {
+  const dispatch = useDispatch();
+
   const [form, setForm] = useState("login");
   const [otpFieldVisible, setOtpFieldVisible] = useState(false);
   const [name, setName] = useState("");
@@ -15,6 +21,7 @@ const SignIn = () => {
   const [phoneNo, setPhoneNo] = useState("");
   const [otp, setOtp] = useState("");
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleLoginGetOtp = async (e) => {
     e.preventDefault();
@@ -25,17 +32,30 @@ const SignIn = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const formattedPhoneNo = "+91" + phoneNo;
-      const cnf = await login(formattedPhoneNo);
-      setConfirmationResult(cnf);
+      const { message, confirmation, statusCode } = await login(
+        formattedPhoneNo
+      );
+
+      if (statusCode !== 200) {
+        toast.error(message);
+        setLoading(false);
+        return;
+      }
+
+      setConfirmationResult(confirmation);
     } catch (error) {
       console.log(error.message);
       toast.error("Error! Try again later...");
+      setLoading(false);
       return;
     }
 
     setOtpFieldVisible(!otpFieldVisible);
+    setLoading(false);
   };
 
   const handleSignupGetOtp = async (e) => {
@@ -53,32 +73,69 @@ const SignIn = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const formattedPhoneNo = "+91" + phoneNo;
-      const cnf = await signUpWithPhone(formattedPhoneNo);
-      setConfirmationResult(cnf);
+      const { message, confirmation, statusCode } = await signUpWithPhone(
+        email,
+        formattedPhoneNo
+      );
+
+      if (statusCode !== 200) {
+        toast.error(message);
+        setLoading(false);
+        return;
+      }
+
+      setConfirmationResult(confirmation);
     } catch (error) {
       console.log(error.message);
       toast.error("Error! Try again later...");
+      setLoading(false);
       return;
     }
 
     setOtpFieldVisible(!otpFieldVisible);
+    setLoading(false);
   };
 
   const handleSubmitOtp = async (e) => {
     e.preventDefault();
 
+    setLoading(true);
+
     try {
-      const res = await verifyOTP(confirmationResult, otp);
-      console.log(res);
+      const formattedPhoneNo = "+91" + phoneNo;
+      const { message, statusCode, user } = await verifyOTP(
+        confirmationResult,
+        otp,
+        email,
+        name,
+        formattedPhoneNo
+      );
+      if (statusCode !== 200) {
+        toast.error(message);
+        setLoading(false);
+        return;
+      }
+      console.log(user);
+      setOtp("");
+      setName("");
+      setEmail("");
+      setPhoneNo("");
+
+      dispatch(loginUser({ ...user }));
+      toast.success(message);
     } catch (error) {
       console.log(error.message);
-      toast.error("Wrong OTP");
+      toast.error("Error! Try again later...");
+      setLoading(false);
       return;
     }
 
     setOtpFieldVisible(!otpFieldVisible);
+    setLoading(false);
   };
 
   return (
@@ -88,7 +145,12 @@ const SignIn = () => {
           className={`${styles.btn1} ${
             form === "login" ? styles.activeBtn : ""
           }`}
-          onClick={() => setForm("login")}
+          onClick={() => {
+            if (!loading) {
+              setForm("login");
+              setOtpFieldVisible(false);
+            }
+          }}
         >
           Log In
         </button>
@@ -97,8 +159,10 @@ const SignIn = () => {
             form === "signup" ? styles.activeBtn : ""
           }`}
           onClick={() => {
-            setForm("signup");
-            setOtp("");
+            if (!loading) {
+              setForm("signup");
+              setOtpFieldVisible(false);
+            }
           }}
         >
           Sign Up
@@ -121,7 +185,11 @@ const SignIn = () => {
                 onChange={(e) => setPhoneNo(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
-                Get OTP
+                {loading ? (
+                  <BeatLoader color={COLORS.black} size={18} />
+                ) : (
+                  "Get OTP"
+                )}
               </button>
 
               <div id="recaptcha"></div>
@@ -140,7 +208,11 @@ const SignIn = () => {
                 onChange={(e) => setOtp(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
-                Submit
+                {loading ? (
+                  <BeatLoader color={COLORS.black} size={18} />
+                ) : (
+                  "Submit"
+                )}
               </button>
             </form>
           )}
@@ -177,7 +249,11 @@ const SignIn = () => {
                 onChange={(e) => setPhoneNo(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
-                Get OTP
+                {loading ? (
+                  <BeatLoader color={COLORS.black} size={18} />
+                ) : (
+                  "Get OTP"
+                )}
               </button>
 
               <div id="recaptcha"></div>
@@ -196,7 +272,11 @@ const SignIn = () => {
                 onChange={(e) => setOtp(e.target.value)}
               />
               <button className={styles.btn2} type="submit">
-                Submit
+                {loading ? (
+                  <BeatLoader color={COLORS.black} size={18} />
+                ) : (
+                  "Submit"
+                )}
               </button>
             </form>
           )}

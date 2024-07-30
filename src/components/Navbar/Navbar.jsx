@@ -7,14 +7,15 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import Modal from "../Modal/Modal";
 import SignIn from "../SignIn/SignIn";
+import { useSelector } from "react-redux";
 
 const Navbar = ({ bgColor }) => {
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [navbarOpen, setNavbarOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth <= 1000);
-  const [user, setUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const user = useSelector((state) => state.userReducer.user);
 
   const showNavbar = () => {
     setNavbarOpen(!navbarOpen);
@@ -47,9 +48,13 @@ const Navbar = ({ bgColor }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (user) setOpenModal(false);
+  }, [user]);
+
   const handleClick = () => {
     if (user) {
-      navigate("/user");
+      navigate("/profile");
     } else {
       setOpenModal(true);
     }
