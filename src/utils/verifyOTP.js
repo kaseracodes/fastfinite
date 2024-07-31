@@ -12,6 +12,7 @@ const verifyOTP = async (confirmationResult, otp, email, name, phoneNo) => {
 
     if (!userDocSnap.exists()) {
       const userData = {
+        uid,
         email,
         name,
         phoneNo,

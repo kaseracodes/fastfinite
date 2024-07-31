@@ -9,10 +9,11 @@ import styles from "./ProfilePage.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { logoutUser } from "../store/userSlice";
+import { loginUser, logoutUser } from "../store/userSlice";
 import { useNavigate } from "react-router-dom";
+import { notification } from "antd";
+import updateProfile from "../utils/updateProfile";
+import AuthHoc from "../hoc/AuthHoc";
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
@@ -25,14 +26,15 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState({
     name: false,
     email: false,
-    mobile: false,
+    phoneNo: false,
     address: false,
   });
 
   const [profile, setProfile] = useState({
+    uid: user && user.uid,
     name: user && user.name,
     email: user && user.email,
-    mobile: user && user.phoneNo,
+    phoneNo: user && user.phoneNo,
     address: user && user.address,
     profilePic:
       user && user.profilePic ? user.profilePic : "/images/avatar.jpg",
@@ -48,8 +50,34 @@ const ProfilePage = () => {
     setIsEditing({ ...isEditing, [field]: true });
   };
 
-  const handleSaveClick = (field) => {
+  const handleSaveClick = async (field) => {
     setIsEditing({ ...isEditing, [field]: false });
+
+    try {
+      const { statusCode, message } = await updateProfile(
+        field,
+        profile[field],
+        profile.uid
+      );
+      if (statusCode === 200) {
+        dispatch(loginUser(profile));
+
+        notification["success"]({
+          message: `${message}`,
+          duration: 3,
+        });
+      } else {
+        notification["error"]({
+          message: `${message}`,
+          duration: 3,
+        });
+      }
+    } catch (error) {
+      notification["error"]({
+        message: `Error updating profile`,
+        duration: 3,
+      });
+    }
   };
 
   const handleChange = (event) => {
@@ -74,10 +102,16 @@ const ProfilePage = () => {
     try {
       await signOut(auth);
       dispatch(logoutUser());
-      toast.success("Users logged out successfully");
+      notification["success"]({
+        message: `Logged out successfully`,
+        duration: 3,
+      });
       navigate("/");
     } catch (error) {
-      toast.error("Error logging out");
+      notification["error"]({
+        message: `Error logging out`,
+        duration: 3,
+      });
     }
   };
 
@@ -149,7 +183,8 @@ const ProfilePage = () => {
                 {Object.keys(profile).map(
                   (field) =>
                     field !== "profilePic" &&
-                    field !== "bookings" && (
+                    field !== "bookings" &&
+                    field != "uid" && (
                       <div key={field} className={styles.innerRightDiv}>
                         <label className={styles.subHeading}>
                           {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -176,7 +211,7 @@ const ProfilePage = () => {
                             <span className={styles.para}>
                               {profile[field]}
                             </span>
-                            {field !== "mobile" && (
+                            {field !== "phoneNo" && (
                               <button
                                 onClick={() => handleEditClick(field)}
                                 className={styles.editBtn2}
@@ -240,8 +275,6 @@ const ProfilePage = () => {
             Log out
           </button>
         </div>
-
-        <ToastContainer />
       </div>
 
       <Footer />
@@ -249,4 +282,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default AuthHoc(ProfilePage);

@@ -2,14 +2,13 @@ import { useState } from "react";
 import styles from "./SignIn.module.css";
 import { validateEmail, validatePhoneNo } from "../../utils/validations";
 import signUpWithPhone from "../../utils/signUpWithPhone";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import verifyOTP from "../../utils/verifyOTP";
 import login from "../../utils/login";
 import { BeatLoader } from "react-spinners";
 import { COLORS } from "../../assets/constants";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../../store/userSlice";
+import { notification } from "antd";
 
 const SignIn = () => {
   const dispatch = useDispatch();
@@ -27,7 +26,10 @@ const SignIn = () => {
     e.preventDefault();
 
     if (!validatePhoneNo(phoneNo)) {
-      toast.error("Enter valid phone no");
+      notification["error"]({
+        message: `Enter valid phone no`,
+        duration: 3,
+      });
       setPhoneNo("");
       return;
     }
@@ -41,7 +43,10 @@ const SignIn = () => {
       );
 
       if (statusCode !== 200) {
-        toast.error(message);
+        notification["error"]({
+          message: `${message}`,
+          duration: 3,
+        });
         setLoading(false);
         return;
       }
@@ -49,7 +54,10 @@ const SignIn = () => {
       setConfirmationResult(confirmation);
     } catch (error) {
       console.log(error.message);
-      toast.error("Error! Try again later...");
+      notification["error"]({
+        message: `Error! Try again later...`,
+        duration: 3,
+      });
       setLoading(false);
       return;
     }
@@ -62,13 +70,19 @@ const SignIn = () => {
     e.preventDefault();
 
     if (!validateEmail(email)) {
-      toast.error("Enter valid email");
+      notification["error"]({
+        message: `Enter valid email`,
+        duration: 3,
+      });
       setEmail("");
       return;
     }
 
     if (!validatePhoneNo(phoneNo)) {
-      toast.error("Enter valid phone no");
+      notification["error"]({
+        message: `Enter valid phone no`,
+        duration: 3,
+      });
       setPhoneNo("");
       return;
     }
@@ -83,7 +97,10 @@ const SignIn = () => {
       );
 
       if (statusCode !== 200) {
-        toast.error(message);
+        notification["error"]({
+          message: `${message}`,
+          duration: 3,
+        });
         setLoading(false);
         return;
       }
@@ -91,7 +108,10 @@ const SignIn = () => {
       setConfirmationResult(confirmation);
     } catch (error) {
       console.log(error.message);
-      toast.error("Error! Try again later...");
+      notification["error"]({
+        message: `Error! Try again later...`,
+        duration: 3,
+      });
       setLoading(false);
       return;
     }
@@ -115,7 +135,10 @@ const SignIn = () => {
         formattedPhoneNo
       );
       if (statusCode !== 200) {
-        toast.error(message);
+        notification["error"]({
+          message: `${message}`,
+          duration: 3,
+        });
         setLoading(false);
         return;
       }
@@ -126,10 +149,16 @@ const SignIn = () => {
       setPhoneNo("");
 
       dispatch(loginUser({ ...user }));
-      toast.success(message);
+      notification["success"]({
+        message: `${message}`,
+        duration: 3,
+      });
     } catch (error) {
       console.log(error.message);
-      toast.error("Error! Try again later...");
+      notification["error"]({
+        message: `Error! Try again later...`,
+        duration: 3,
+      });
       setLoading(false);
       return;
     }
@@ -282,8 +311,6 @@ const SignIn = () => {
           )}
         </div>
       )}
-
-      <ToastContainer />
     </div>
   );
 };
