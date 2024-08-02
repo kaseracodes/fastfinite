@@ -23,12 +23,12 @@ const ListingCard = ({
       className={styles.container}
       onClick={() =>
         navigate(
-          `/bikes/${id}?pickUpDate=${pickUpDate}&dropOffDate=${dropOffDate}&duration=${duration}`
+          `/vehicles/${id}?pickUpDate=${pickUpDate}&dropOffDate=${dropOffDate}`
         )
       }
     >
       <div className={styles.imageDiv}>
-        <img src={imagePath} />
+        <img src={imagePath} className={styles.image} />
       </div>
 
       <div className={styles.infoDiv}>

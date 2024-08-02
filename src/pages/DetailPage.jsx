@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./DetailPage.module.css";
 import { useEffect, useState } from "react";
-import { BikesData } from "../assets/BikesData";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TextField } from "@mui/material";
@@ -14,6 +13,9 @@ import "leaflet/dist/leaflet.css";
 import { COLORS } from "../assets/constants";
 import Footer from "../components/Footer/Footer";
 import { calculateRent } from "../utils/Calculations";
+import fetchVehicle from "../utils/fetchVehicle";
+import { notification } from "antd";
+import PageLoader from "../components/PageLoader/PageLoader";
 
 const Card = ({ imagePath, heading, detail, textColor }) => {
   return (
@@ -43,7 +45,9 @@ const Card2 = ({ imagePath, heading, detail, textColor }) => {
 
 const DetailPage = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const query = new URLSearchParams(useLocation().search);
+
   const [bike, setBike] = useState(null);
   const [pickupDate, setPickupDate] = useState(
     dayjs(query.get("pickUpDate")) || dayjs().startOf("hour").add(1, "hour")
@@ -55,7 +59,33 @@ const DetailPage = () => {
   const [duration, setDuration] = useState(query.get("duration") || "daily");
 
   useEffect(() => {
-    setBike(BikesData.find((obj) => obj.id === params.id));
+    // setBike(BikesData.find((obj) => obj.id === params.id));
+
+    const diff = dropoffDate.diff(pickupDate, "hour");
+    if (diff >= 24 && diff < 24 * 7) {
+      setDuration("daily");
+    } else if (diff >= 24 * 7 && diff < 24 * 30) {
+      setDuration("weekly");
+    } else if (diff >= 24 * 30) {
+      setDuration("monthly");
+    }
+
+    const getVehicle = async () => {
+      const { statusCode, vehicle, message } = await fetchVehicle(params.id);
+
+      if (statusCode !== 200) {
+        notification["error"]({
+          message: `${message}`,
+          duration: 3,
+        });
+
+        navigate(-1);
+      }
+
+      setBike(vehicle);
+    };
+
+    getVehicle();
   }, []);
 
   const handlePickupDateChange = (newValue) => {
@@ -125,7 +155,7 @@ const DetailPage = () => {
   return (
     <Wrapper>
       <Navbar />
-      {bike && (
+      {bike ? (
         <>
           <div className={styles.div1}>
             <div className={styles.imageDiv}>
@@ -286,50 +316,91 @@ const DetailPage = () => {
           <div className={styles.div3}>
             <h5 className={styles.title}>Bike Features</h5>
             <div className={styles.featureDiv}>
-              <Card2
-                imagePath="/images/engine.png"
-                heading="Displacement"
-                detail={bike.displacement + " cc"}
-                textColor={COLORS.gold}
-              />
+              {bike.displacement && (
+                <Card2
+                  imagePath="/images/engine.png"
+                  heading="Displacement"
+                  detail={bike.displacement + " cc"}
+                  textColor={COLORS.gold}
+                />
+              )}
 
-              <Card2
-                imagePath="/images/speed.png"
-                heading="Top Speed"
-                detail={bike.top_speed + " kmph"}
-                textColor={COLORS.gold}
-              />
+              {bike.top_speed && (
+                <Card2
+                  imagePath="/images/speed.png"
+                  heading="Top Speed"
+                  detail={bike.top_speed + " kmph"}
+                  textColor={COLORS.gold}
+                />
+              )}
 
-              <Card2
-                imagePath="/images/weight.png"
-                heading="Kerb Weight"
-                detail={bike.kerb_weight + " kg"}
-                textColor={COLORS.gold}
-              />
+              {bike.kerb_weight && (
+                <Card2
+                  imagePath="/images/weight.png"
+                  heading="Kerb Weight"
+                  detail={bike.kerb_weight + " kg"}
+                  textColor={COLORS.gold}
+                />
+              )}
 
-              <Card2
-                imagePath="/images/fuel.png"
-                heading="Fuel Capacity"
-                detail={bike.fuel_tank_capacity + " L"}
-                textColor={COLORS.gold}
-              />
+              {bike.fuel_tank_capacity && (
+                <Card2
+                  imagePath="/images/fuel.png"
+                  heading="Fuel Capacity"
+                  detail={bike.fuel_tank_capacity + " L"}
+                  textColor={COLORS.gold}
+                />
+              )}
 
-              <Card2
-                imagePath="/images/seat.png"
-                heading="Seats"
-                detail={bike.seats + " seater"}
-                textColor={COLORS.gold}
-              />
+              {bike.seats && (
+                <Card2
+                  imagePath="/images/seat.png"
+                  heading="Seats"
+                  detail={bike.seats + " seater"}
+                  textColor={COLORS.gold}
+                />
+              )}
 
-              <Card2
-                imagePath="/images/speed.png"
-                heading="Mileage"
-                detail={bike.mileage + " kmpl"}
-                textColor={COLORS.gold}
-              />
+              {bike.mileage && (
+                <Card2
+                  imagePath="/images/speed.png"
+                  heading="Mileage"
+                  detail={bike.mileage + " kmpl"}
+                  textColor={COLORS.gold}
+                />
+              )}
+
+              {bike.range && (
+                <Card2
+                  imagePath="/images/speed.png"
+                  heading="Range"
+                  detail={bike.range + " km"}
+                  textColor={COLORS.gold}
+                />
+              )}
+
+              {bike.battery_capacity && (
+                <Card2
+                  imagePath="/images/speed.png"
+                  heading="Battery Capacity"
+                  detail={bike.battery_capacity + " kWhr"}
+                  textColor={COLORS.gold}
+                />
+              )}
+
+              {bike.charging_time && (
+                <Card2
+                  imagePath="/images/speed.png"
+                  heading="Charging Time"
+                  detail={bike.charging_time + " hr"}
+                  textColor={COLORS.gold}
+                />
+              )}
             </div>
           </div>
         </>
+      ) : (
+        <PageLoader />
       )}
 
       <Footer />

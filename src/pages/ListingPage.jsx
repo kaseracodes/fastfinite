@@ -15,15 +15,19 @@ import {
   useTheme,
 } from "@mui/material";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
-import { BikesData } from "../assets/BikesData";
+// import { BikesData } from "../assets/BikesData";
 import ListingCard from "../components/ListingCard/ListingCard";
 import Footer from "../components/Footer/Footer";
 import FilterModal from "../components/FilterModal/FilterModal";
 import { calculateRent } from "../utils/Calculations";
+import filterVehicles from "../utils/filterVehicles";
+import { notification } from "antd";
+import PageLoader from "../components/PageLoader/PageLoader";
 
 const ListingPage = () => {
+  const [vehiclesData, setVehiclesData] = useState([]);
   const transmissionType = new URLSearchParams(window.location.search).get(
     "transmissionType"
   );
@@ -36,14 +40,21 @@ const ListingPage = () => {
   const [duration, setDuration] = useState("daily");
 
   const [transmission, setTransmission] = useState({
+    // all: !transmissionType,
     petrolScooter: transmissionType === "petrolScooter",
     eScooter: transmissionType === "eScooter",
     petrolBike: transmissionType === "petrolBike",
   });
+  console.log(transmission);
+
   const [brands, setBrands] = useState({
-    honda: false,
+    Honda: false,
+    Vespa: false,
+    Aprilia: false,
+    Kawasaki: false,
   });
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down(700));
 
@@ -134,6 +145,36 @@ const ListingPage = () => {
     }
   };
 
+  const fetchVehicles = async () => {
+    setLoading(true);
+
+    const { statusCode, availableVehicles, message } = await filterVehicles(
+      pickupDate,
+      dropoffDate,
+      transmission,
+      brands
+    );
+
+    if (statusCode === 200) {
+      setVehiclesData(availableVehicles);
+    } else {
+      notification["error"]({
+        message: `${message}`,
+        duration: 3,
+      });
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const fetchVehiclesData = async () => {
+      await fetchVehicles();
+    };
+
+    fetchVehiclesData();
+  }, []);
+
   const FILTER = () => {
     return (
       <div>
@@ -202,14 +243,48 @@ const ListingPage = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={brands.honda}
+                checked={brands.Honda}
                 onChange={handleBrandsChange}
-                name="honda"
+                name="Honda"
               />
             }
             label="Honda"
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={brands.Vespa}
+                onChange={handleBrandsChange}
+                name="Vespa"
+              />
+            }
+            label="Vespa"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={brands.Aprilia}
+                onChange={handleBrandsChange}
+                name="Aprilia"
+              />
+            }
+            label="Aprilia"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={brands.Kawasaki}
+                onChange={handleBrandsChange}
+                name="Kawasaki"
+              />
+            }
+            label="Kawasaki"
+          />
         </FormControl>
+
+        <button className={styles.apply} onClick={fetchVehicles}>
+          Apply
+        </button>
       </div>
     );
   };
@@ -249,6 +324,10 @@ const ListingPage = () => {
                   />
                 </div>
               </LocalizationProvider>
+
+              <button className={styles.apply} onClick={fetchVehicles}>
+                Apply
+              </button>
             </div>
 
             <button className={styles.filterBtn} onClick={handleClickOpen}>
@@ -292,25 +371,33 @@ const ListingPage = () => {
         )}
 
         <div className={styles.resultContainer}>
-          <h5 className={styles.heading}>Displaying 6 available bikes</h5>
-          <div className={styles.cardContainer}>
-            {BikesData.map((item, index) => (
-              <ListingCard
-                key={index}
-                id={item.id}
-                imagePath={item.image}
-                name={item.name}
-                year={item.make_year}
-                mileage={item.mileage}
-                location={item.pickup_point}
-                rent={calculateRent(pickupDate, dropoffDate, item.package)}
-                deposit={item.package[duration].deposit}
-                pickUpDate={pickupDate}
-                dropOffDate={dropoffDate}
-                duration={duration}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <PageLoader />
+          ) : (
+            <>
+              <h5 className={styles.heading}>
+                Displaying {vehiclesData.length} available bikes
+              </h5>
+              <div className={styles.cardContainer}>
+                {vehiclesData.map((item, index) => (
+                  <ListingCard
+                    key={index}
+                    id={item.id}
+                    imagePath={item.image}
+                    name={item.name}
+                    year={item.make_year}
+                    mileage={item.mileage}
+                    location={item.pickup_point}
+                    rent={calculateRent(pickupDate, dropoffDate, item.package)}
+                    deposit={item.package[duration].deposit}
+                    pickUpDate={pickupDate}
+                    dropOffDate={dropoffDate}
+                    duration={duration}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 

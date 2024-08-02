@@ -3,6 +3,7 @@
   border-radius: 4px;
   font-family: "Poppins", sans-serif;
   cursor: pointer;
+  max-width: 290px;
 }
 
 .imageDiv {
@@ -13,8 +14,9 @@
   padding: 20px;
 }
 
-.imageDiv img {
-  width: 200px;
+.image {
+  width: 250px;
+  height: 200px;
 }
 
 .infoDiv {

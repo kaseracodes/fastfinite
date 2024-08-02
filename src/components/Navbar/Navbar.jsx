@@ -81,7 +81,7 @@ const Navbar = ({ bgColor }) => {
             About Us
           </Link>
 
-          <Link to="/bikes" className={styles.link}>
+          <Link to="/vehicles" className={styles.link}>
             Book Your Bike
           </Link>
 

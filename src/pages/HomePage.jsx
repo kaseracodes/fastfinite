@@ -128,7 +128,7 @@ const HomePage = () => {
                   className={styles.categoryDiv}
                   onClick={() =>
                     navigate(
-                      `/bikes/?transmissionType=${item.transmissionType}`
+                      `/vehicles/?transmissionType=${item.transmissionType}`
                     )
                   }
                 >
