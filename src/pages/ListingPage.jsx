@@ -25,8 +25,11 @@ import { calculateRent } from "../utils/Calculations";
 import filterVehicles from "../utils/filterVehicles";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 const ListingPage = () => {
+  const functions = getFunctions();
+
   const [vehiclesData, setVehiclesData] = useState([]);
   const transmissionType = new URLSearchParams(window.location.search).get(
     "transmissionType"
@@ -148,18 +151,43 @@ const ListingPage = () => {
   const fetchVehicles = async () => {
     setLoading(true);
 
-    const { statusCode, availableVehicles, message } = await filterVehicles(
-      pickupDate,
-      dropoffDate,
-      transmission,
-      brands
-    );
+    // const { statusCode, availableVehicles, message } = await filterVehicles(
+    //   pickupDate,
+    //   dropoffDate,
+    //   transmission,
+    //   brands
+    // );
 
-    if (statusCode === 200) {
-      setVehiclesData(availableVehicles);
-    } else {
+    // if (statusCode === 200) {
+    //   setVehiclesData(availableVehicles);
+    // } else {
+    //   notification["error"]({
+    //     message: `${message}`,
+    //     duration: 3,
+    //   });
+    // }
+
+    try {
+      const filterVehicles = httpsCallable(functions, "filterVehicles");
+      const { statusCode, availableVehicles, message } = await filterVehicles({
+        pickupDate,
+        dropoffDate,
+        transmission,
+        brands,
+      });
+
+      if (statusCode === 200) {
+        setVehiclesData(availableVehicles);
+      } else {
+        notification["error"]({
+          message: `${message}`,
+          duration: 3,
+        });
+      }
+    } catch (error) {
+      console.log(error);
       notification["error"]({
-        message: `${message}`,
+        message: `Error`,
         duration: 3,
       });
     }

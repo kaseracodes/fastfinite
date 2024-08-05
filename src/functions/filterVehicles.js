@@ -1,56 +1,48 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { db } from "../firebase/config";
+/* eslint-disable no-unused-vars */
+import { https } from "firebase-functions";
 import dayjs from "dayjs";
+import admin from "../firebaseAdmin/config";
 
-const filterVehicles = async (
-  pickupDate,
-  dropoffDate,
-  transmission,
-  brands
-) => {
+const db = admin.firestore;
+
+export const filterVehicles = https.onCall(async (data, context) => {
+  const { pickupDate, dropoffDate, transmission, brands } = data;
+
   try {
-    const vehiclesRef = collection(db, "vehicles");
-    let vehiclesQuery = query(vehiclesRef);
+    const vehiclesRef = db.collection("vehicles");
+    let vehiclesQuery = vehiclesRef;
 
     // Filter by transmission type if not 'all'
-    // if (!transmission.all) {
     const transmissionFilters = Object.keys(transmission).filter(
       (key) => transmission[key]
     );
 
     if (transmissionFilters.length > 0) {
-      vehiclesQuery = query(
-        vehiclesQuery,
-        where("type", "in", transmissionFilters)
-      );
+      vehiclesQuery = vehiclesQuery.where("type", "in", transmissionFilters);
     }
-    // }
 
     // Filter by brand if any are selected
     const selectedBrands = Object.keys(brands).filter((brand) => brands[brand]);
     if (selectedBrands.length > 0) {
-      vehiclesQuery = query(
-        vehiclesQuery,
-        where("brand", "in", selectedBrands)
-      );
+      vehiclesQuery = vehiclesQuery.where("brand", "in", selectedBrands);
     }
 
     // Fetch the vehicles
-    const querySnapshot = await getDocs(vehiclesQuery);
-    const vehicles = querySnapshot.docs.map((doc) => ({
+    const vehiclesSnapshot = await vehiclesQuery.get();
+    const vehicles = vehiclesSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
     // Fetch all bookings
-    const bookingsRef = collection(db, "bookings");
-    const bookingsSnapshot = await getDocs(bookingsRef);
+    const bookingsRef = db.collection("bookings");
+    const bookingsSnapshot = await bookingsRef.get();
     const bookings = bookingsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
-    // Rearrange bookings for every vehicles
+    // Rearrange bookings for every vehicle
     const bookingsMap = {};
     for (const booking of bookings) {
       if (!bookingsMap[booking.vehicle_id]) {
@@ -69,12 +61,12 @@ const filterVehicles = async (
       let isAvailable = true;
       for (const booking of vehicleBookings) {
         if (
-          (pickupDate.isBefore(booking.end) &&
-            dropoffDate.isAfter(booking.start)) ||
-          pickupDate.isSame(booking.start) ||
-          pickupDate.isSame(booking.end) ||
-          dropoffDate.isSame(booking.start) ||
-          dropoffDate.isSame(booking.end)
+          (dayjs(pickupDate).isBefore(booking.end) &&
+            dayjs(dropoffDate).isAfter(booking.start)) ||
+          dayjs(pickupDate).isSame(booking.start) ||
+          dayjs(pickupDate).isSame(booking.end) ||
+          dayjs(dropoffDate).isSame(booking.start) ||
+          dayjs(dropoffDate).isSame(booking.end)
         ) {
           isAvailable = false;
           break;
@@ -99,6 +91,4 @@ const filterVehicles = async (
       message: "Error fetching vehicles",
     };
   }
-};
-
-export default filterVehicles;
+});

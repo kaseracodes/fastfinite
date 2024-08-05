@@ -17,6 +17,8 @@ const ListingCard = ({
   duration,
 }) => {
   const navigate = useNavigate();
+  console.log(pickUpDate);
+  console.log(dropOffDate);
 
   return (
     <div

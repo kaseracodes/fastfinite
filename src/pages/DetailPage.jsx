@@ -16,6 +16,10 @@ import { calculateRent } from "../utils/Calculations";
 import fetchVehicle from "../utils/fetchVehicle";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { useSelector } from "react-redux";
+import Razorpay from "razorpay";
+import { BeatLoader } from "react-spinners";
 
 const Card = ({ imagePath, heading, detail, textColor }) => {
   return (
@@ -47,7 +51,9 @@ const DetailPage = () => {
   const params = useParams();
   const navigate = useNavigate();
   const query = new URLSearchParams(useLocation().search);
+  const firebaseFunctions = getFunctions();
 
+  const user = useSelector((state) => state.userReducer.user);
   const [bike, setBike] = useState(null);
   const [pickupDate, setPickupDate] = useState(
     dayjs(query.get("pickUpDate")) || dayjs().startOf("hour").add(1, "hour")
@@ -57,6 +63,7 @@ const DetailPage = () => {
       dayjs().startOf("hour").add(1, "day").add(1, "hour")
   );
   const [duration, setDuration] = useState(query.get("duration") || "daily");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // setBike(BikesData.find((obj) => obj.id === params.id));
@@ -71,22 +78,41 @@ const DetailPage = () => {
     }
 
     const getVehicle = async () => {
-      const { statusCode, vehicle, message } = await fetchVehicle(params.id);
+      // const { statusCode, vehicle, message } = await fetchVehicle(params.id);
 
-      if (statusCode !== 200) {
+      // if (statusCode !== 200) {
+      //   notification["error"]({
+      //     message: `${message}`,
+      //     duration: 3,
+      //   });
+      // }
+
+      try {
+        const fetchVehicle = httpsCallable(firebaseFunctions, "fetchVehicles");
+        const { statusCode, vehicle, message } = await fetchVehicle(params.id);
+
+        if (statusCode !== 200) {
+          notification["error"]({
+            message: `${message}`,
+            duration: 3,
+          });
+        } else {
+          navigate(-1);
+          setBike(vehicle);
+        }
+      } catch (error) {
+        console.log(error);
         notification["error"]({
-          message: `${message}`,
+          message: `Error`,
           duration: 3,
         });
-
-        navigate(-1);
       }
-
-      setBike(vehicle);
     };
 
     getVehicle();
   }, []);
+
+  useEffect(() => {}, [user]);
 
   const handlePickupDateChange = (newValue) => {
     const ceiledDate = newValue.startOf("hour");
@@ -149,6 +175,85 @@ const DetailPage = () => {
       setDropoffDate(pickupDate.add(1, "week").startOf("hour"));
     } else if (duration === "monthly") {
       setDropoffDate(pickupDate.add(1, "month").startOf("hour"));
+    }
+  };
+
+  const handlePayment = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      notification["error"]({
+        message: `Please login before booking your ride`,
+        duration: 3,
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const createOrder = httpsCallable(firebaseFunctions, "createOrder");
+      const data = await createOrder({
+        amount:
+          calculateRent(pickupDate, dropoffDate, bike.package) +
+          Number(bike.package[duration].deposit),
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
+      });
+
+      const options = {
+        key: "YOUR_RAZORPAY_KEY_ID",
+        amount: data.amount,
+        currency: data.currency,
+        name: "Fast Finite",
+        description: "Booking Payment",
+        order_id: data.id,
+        handler: async (response) => {
+          const verifyPaymentAndSaveBooking = httpsCallable(
+            firebaseFunctions,
+            "verifyPaymentAndSaveBooking"
+          );
+          const result = await verifyPaymentAndSaveBooking({
+            bikeId: bike.id,
+            uid: user.uid,
+            pickupDate,
+            dropoffDate,
+            amount:
+              calculateRent(pickupDate, dropoffDate, bike.package) +
+              Number(bike.package[duration].deposit),
+            deposit: Number(bike.package[duration].deposit),
+            paymentDetails: response,
+          });
+
+          if (result.data.status === "success") {
+            notification["success"]({
+              message: `Payment successful and booking saved!`,
+              duration: 3,
+            });
+          } else {
+            notification["error"]({
+              message: `Payment verification failed. Please try again.`,
+              duration: 3,
+            });
+          }
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+          contact: user.phoneNo,
+        },
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error(error);
+      notification["error"]({
+        message: `Payment failed. Please try again.`,
+        duration: 3,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -253,7 +358,13 @@ const DetailPage = () => {
                 refunded at the time of dropoff)
               </button>
 
-              <button className={styles.btn2}>Book Now</button>
+              <button className={styles.btn2} onClick={handlePayment}>
+                {loading ? (
+                  <BeatLoader color={COLORS.black} size={18} />
+                ) : (
+                  "Book Now"
+                )}
+              </button>
             </div>
           </div>
 
