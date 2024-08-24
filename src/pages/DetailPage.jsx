@@ -13,7 +13,7 @@ import "leaflet/dist/leaflet.css";
 import { COLORS } from "../assets/constants";
 import Footer from "../components/Footer/Footer";
 import { calculateRent } from "../utils/Calculations";
-import fetchVehicle from "../utils/fetchVehicle";
+// import fetchVehicle from "../utils/fetchVehicle";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";

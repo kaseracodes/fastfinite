@@ -26,18 +26,22 @@ const HomePage = () => {
     superLargeDesktop: {
       // the naming can be any, depends on you.
       breakpoint: { max: 4000, min: 1350 },
-      items: 3,
+      items: 4,
     },
     desktop: {
-      breakpoint: { max: 1350, min: 1024 },
-      items: 3,
+      breakpoint: { max: 1350, min: 1200 },
+      items: 4,
     },
     tablet: {
-      breakpoint: { max: 1024, min: 730 },
-      items: 2,
+      breakpoint: { max: 1200, min: 900 },
+      items: 3,
     },
     mobile: {
-      breakpoint: { max: 730, min: 0 },
+      breakpoint: { max: 900, min: 650 },
+      items: 2,
+    },
+    mini: {
+      breakpoint: { max: 650, min: 0 },
       items: 1,
     },
   };
@@ -62,11 +66,11 @@ const HomePage = () => {
     },
   };
 
-  const [showDots, setShowDots] = useState(window.innerWidth <= 730);
+  const [showDots, setShowDots] = useState(window.innerWidth <= 650);
 
   useEffect(() => {
     const handleResize = () => {
-      setShowDots(window.innerWidth <= 730);
+      setShowDots(window.innerWidth <= 650);
     };
 
     window.addEventListener("resize", handleResize);

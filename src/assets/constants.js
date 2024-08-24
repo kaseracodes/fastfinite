@@ -10,6 +10,7 @@ export const COLORS = {
   orange: "#ff9b42",
   green: "#155724",
   lightGreen: "#D4EDDA",
+  lightGreen2: "#C3E6CB",
   gold: "#856404",
   white2: "#fafbfd",
 };

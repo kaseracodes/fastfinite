@@ -3,11 +3,13 @@
   border-radius: 4px;
   font-family: "Poppins", sans-serif;
   cursor: pointer;
-  max-width: 290px;
+  max-width: 350px;
 }
 
 .imageDiv {
+  position: relative;
   display: flex;
+  /* flex-direction: column; */
   justify-content: center;
   align-items: center;
   border-bottom: 1px solid var(--gray2);
@@ -17,6 +19,23 @@
 .image {
   width: 250px;
   height: 200px;
+}
+
+.type {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  margin-bottom: -13px;
+  border-radius: 15px 0 0 15px;
+  background-color: var(--light-green2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 25px 2px 15px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
 }
 
 .infoDiv {

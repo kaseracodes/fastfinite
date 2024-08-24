@@ -17,19 +17,18 @@ import {
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
-// import { BikesData } from "../assets/BikesData";
+import { BikesData } from "../assets/BikesData";
 import ListingCard from "../components/ListingCard/ListingCard";
 import Footer from "../components/Footer/Footer";
 import FilterModal from "../components/FilterModal/FilterModal";
 import { calculateRent } from "../utils/Calculations";
-import filterVehicles from "../utils/filterVehicles";
+// import filterVehicles from "../utils/filterVehicles";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
+import { BrandOptions, TransmissionTypes } from "../assets/FilterData";
 
 const ListingPage = () => {
-  const functions = getFunctions();
-
   const [vehiclesData, setVehiclesData] = useState([]);
   const transmissionType = new URLSearchParams(window.location.search).get(
     "transmissionType"
@@ -47,6 +46,7 @@ const ListingPage = () => {
     petrolScooter: transmissionType === "petrolScooter",
     eScooter: transmissionType === "eScooter",
     petrolBike: transmissionType === "petrolBike",
+    premium: transmissionType === "premium",
   });
   console.log(transmission);
 
@@ -168,7 +168,7 @@ const ListingPage = () => {
     // }
 
     try {
-      const filterVehicles = httpsCallable(functions, "filterVehicles");
+      const filterVehicles = httpsCallable(getFunctions(), "filterVehicles");
       const { statusCode, availableVehicles, message } = await filterVehicles({
         pickupDate,
         dropoffDate,
@@ -178,6 +178,7 @@ const ListingPage = () => {
 
       if (statusCode === 200) {
         setVehiclesData(availableVehicles);
+        console.log(availableVehicles);
       } else {
         notification["error"]({
           message: `${message}`,
@@ -234,80 +235,36 @@ const ListingPage = () => {
         <Divider />
         <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Transmission Type</FormLabel>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={transmission.petrolScooter}
-                onChange={handleTransmissionChange}
-                name="petrolScooter"
-              />
-            }
-            label="Petrol Scooter"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={transmission.eScooter}
-                onChange={handleTransmissionChange}
-                name="eScooter"
-              />
-            }
-            label="E-Scooter"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={transmission.petrolBike}
-                onChange={handleTransmissionChange}
-                name="petrolBike"
-              />
-            }
-            label="Petrol Bike"
-          />
+          {TransmissionTypes.map((type) => (
+            <FormControlLabel
+              key={type.name}
+              control={
+                <Checkbox
+                  checked={transmission[type.name]}
+                  onChange={handleTransmissionChange}
+                  name={type.name}
+                />
+              }
+              label={type.label}
+            />
+          ))}
         </FormControl>
         <Divider />
         <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Brands</FormLabel>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={brands.Honda}
-                onChange={handleBrandsChange}
-                name="Honda"
-              />
-            }
-            label="Honda"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={brands.Vespa}
-                onChange={handleBrandsChange}
-                name="Vespa"
-              />
-            }
-            label="Vespa"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={brands.Aprilia}
-                onChange={handleBrandsChange}
-                name="Aprilia"
-              />
-            }
-            label="Aprilia"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={brands.Kawasaki}
-                onChange={handleBrandsChange}
-                name="Kawasaki"
-              />
-            }
-            label="Kawasaki"
-          />
+          {BrandOptions.map((brand) => (
+            <FormControlLabel
+              key={brand.name}
+              control={
+                <Checkbox
+                  checked={brands[brand.name]}
+                  onChange={handleBrandsChange}
+                  name={brand.name}
+                />
+              }
+              label={brand.label}
+            />
+          ))}
         </FormControl>
 
         <button className={styles.apply} onClick={fetchVehicles}>
@@ -404,10 +361,10 @@ const ListingPage = () => {
           ) : (
             <>
               <h5 className={styles.heading}>
-                Displaying {vehiclesData.length} available bikes
+                Displaying {BikesData.length} available bikes
               </h5>
               <div className={styles.cardContainer}>
-                {vehiclesData.map((item, index) => (
+                {BikesData.map((item, index) => (
                   <ListingCard
                     key={index}
                     id={item.id}
@@ -421,6 +378,7 @@ const ListingPage = () => {
                     pickUpDate={pickupDate}
                     dropOffDate={dropoffDate}
                     duration={duration}
+                    transmissionType={item.type}
                   />
                 ))}
               </div>

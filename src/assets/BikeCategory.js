@@ -16,4 +16,10 @@ export const BikeCategory = [
     imagePath: "/images/bike_category/image3.png",
     transmissionType: "petrolBike",
   },
+
+  {
+    name: "Premium",
+    imagePath: "/images/bike_category/image3.png",
+    transmissionType: "premium",
+  },
 ];

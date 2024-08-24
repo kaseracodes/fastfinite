@@ -15,6 +15,7 @@ const ListingCard = ({
   pickUpDate,
   dropOffDate,
   duration,
+  transmissionType,
 }) => {
   const navigate = useNavigate();
   console.log(pickUpDate);
@@ -31,6 +32,17 @@ const ListingCard = ({
     >
       <div className={styles.imageDiv}>
         <img src={imagePath} className={styles.image} />
+
+        <div className={styles.type}>
+          <img src="/images/icons/scooter.png" alt="icon" />
+          {transmissionType}
+        </div>
+        {/* <div className={styles.banner}>
+          <div className={styles.iconText}>
+            <div className={styles.icon}>🛵</div>
+            <div className={styles.text}>Scooty</div>
+          </div>
+        </div> */}
       </div>
 
       <div className={styles.infoDiv}>
