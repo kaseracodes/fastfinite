@@ -56,7 +56,8 @@ const DetailPage = () => {
   let cashfree;
   const initializeSDK = async () => {
     cashfree = await load({
-      mode: "sandbox",
+      // mode: "sandbox",
+      mode: "production",
     });
   };
   initializeSDK();
