@@ -37,8 +37,6 @@ const database = getDatabase(); // realtime database
 const storage = getStorage();
 const auth = getAuth(app);
 
-if (import.meta.env.NODE_ENV === "development") {
-  connectFunctionsEmulator(getFunctions(app), "localhost", 3001);
-}
+connectFunctionsEmulator(getFunctions(app), "localhost", 5000);
 
 export { app, db, database, storage, auth, analytics };

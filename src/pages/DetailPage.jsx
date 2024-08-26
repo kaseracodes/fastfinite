@@ -20,6 +20,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { useSelector } from "react-redux";
 import Razorpay from "razorpay";
 import { BeatLoader } from "react-spinners";
+import { load } from "@cashfreepayments/cashfree-js";
 
 const Card = ({ imagePath, heading, detail, textColor }) => {
   return (
@@ -51,7 +52,14 @@ const DetailPage = () => {
   const params = useParams();
   const navigate = useNavigate();
   const query = new URLSearchParams(useLocation().search);
-  const firebaseFunctions = getFunctions();
+
+  let cashfree;
+  const initializeSDK = async () => {
+    cashfree = await load({
+      mode: "sandbox",
+    });
+  };
+  initializeSDK();
 
   const user = useSelector((state) => state.userReducer.user);
   const [bike, setBike] = useState(null);
@@ -78,18 +86,10 @@ const DetailPage = () => {
     }
 
     const getVehicle = async () => {
-      // const { statusCode, vehicle, message } = await fetchVehicle(params.id);
-
-      // if (statusCode !== 200) {
-      //   notification["error"]({
-      //     message: `${message}`,
-      //     duration: 3,
-      //   });
-      // }
-
       try {
-        const fetchVehicle = httpsCallable(firebaseFunctions, "fetchVehicles");
-        const { statusCode, vehicle, message } = await fetchVehicle(params.id);
+        const fetchVehicle = httpsCallable(getFunctions(), "fetchVehicle");
+        const res = await fetchVehicle({ id: params.id });
+        const { statusCode, vehicle, message } = res.data;
 
         if (statusCode !== 200) {
           notification["error"]({
@@ -97,7 +97,6 @@ const DetailPage = () => {
             duration: 3,
           });
         } else {
-          navigate(-1);
           setBike(vehicle);
         }
       } catch (error) {
@@ -192,60 +191,63 @@ const DetailPage = () => {
     setLoading(true);
 
     try {
-      const createOrder = httpsCallable(firebaseFunctions, "createOrder");
-      const data = await createOrder({
+      const createOrder = httpsCallable(getFunctions(), "createOrder");
+      const res = await createOrder({
         amount:
           calculateRent(pickupDate, dropoffDate, bike.package) +
           Number(bike.package[duration].deposit),
-        currency: "INR",
-        receipt: `receipt_${Date.now()}`,
+        uid: user.uid,
+        phoneNo: user.phoneNo,
+        name: user.name,
+        email: user.email,
       });
 
-      const options = {
-        key: "YOUR_RAZORPAY_KEY_ID",
-        amount: data.amount,
-        currency: data.currency,
-        name: "Fast Finite",
-        description: "Booking Payment",
-        order_id: data.id,
-        handler: async (response) => {
-          const verifyPaymentAndSaveBooking = httpsCallable(
-            firebaseFunctions,
-            "verifyPaymentAndSaveBooking"
-          );
-          const result = await verifyPaymentAndSaveBooking({
-            bikeId: bike.id,
-            uid: user.uid,
-            pickupDate,
-            dropoffDate,
-            amount:
-              calculateRent(pickupDate, dropoffDate, bike.package) +
-              Number(bike.package[duration].deposit),
-            deposit: Number(bike.package[duration].deposit),
-            paymentDetails: response,
-          });
+      const { statusCode, orderData, message } = res.data;
 
-          if (result.data.status === "success") {
-            notification["success"]({
-              message: `Payment successful and booking saved!`,
-              duration: 3,
-            });
-          } else {
-            notification["error"]({
-              message: `Payment verification failed. Please try again.`,
-              duration: 3,
-            });
-          }
-        },
-        prefill: {
-          name: user.name,
-          email: user.email,
-          contact: user.phoneNo,
-        },
+      if (statusCode !== 200) {
+        notification["error"]({
+          message: `${message}`,
+          duration: 3,
+        });
+        return;
+      }
+
+      let checkoutOptions = {
+        paymentSessionId: orderData.payment_session_id,
+        redirectTarget: "_modal",
       };
 
-      const rzp = new Razorpay(options);
-      rzp.open();
+      await cashfree.checkout(checkoutOptions);
+
+      const verifyPayment = httpsCallable(getFunctions(), "verifyPayment");
+      const verificationRes = await verifyPayment({
+        bikeId: params.id,
+        uid: user.uid,
+        orderId: orderData.order_id,
+        pickupDate: pickupDate.toISOString(),
+        dropoffDate: dropoffDate.toISOString(),
+        // pickupDate,
+        // dropoffDate,
+        amount:
+          calculateRent(pickupDate, dropoffDate, bike.package) +
+          Number(bike.package[duration].deposit),
+        deposit: bike.package[duration].deposit,
+        createdAt: orderData.created_at,
+      });
+      const { verificationStatusCode, verified, verificationMessage } =
+        verificationRes.data;
+
+      if (verificationStatusCode === 200) {
+        notification["success"]({
+          message: `Payment verified. Booked your ride successfully`,
+          duration: 3,
+        });
+      } else {
+        notification["error"]({
+          message: `${verificationMessage}`,
+          duration: 3,
+        });
+      }
     } catch (error) {
       console.error(error);
       notification["error"]({
@@ -292,24 +294,26 @@ const DetailPage = () => {
                   <DateTimePicker
                     label="Pickup Date & Time"
                     value={pickupDate}
-                    onChange={handlePickupDateChange}
+                    // onChange={handlePickupDateChange}
                     renderInput={(props) => (
                       <TextField {...props} fullWidth margin="normal" />
                     )}
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
                     minDateTime={dayjs().startOf("hour").add(1, "hour")}
                     views={["year", "month", "day", "hours"]}
+                    disabled
                   />
                   <DateTimePicker
                     label="Dropoff Date & Time"
                     value={dropoffDate}
-                    onChange={handleDropoffDateChange}
+                    // onChange={handleDropoffDateChange}
                     renderInput={(props) => (
                       <TextField {...props} fullWidth margin="normal" />
                     )}
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
                     minDateTime={pickupDate.add(1, "day")}
                     views={["year", "month", "day", "hours"]}
+                    disabled
                   />
                 </div>
               </LocalizationProvider>

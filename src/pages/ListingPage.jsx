@@ -48,7 +48,6 @@ const ListingPage = () => {
     petrolBike: transmissionType === "petrolBike",
     premium: transmissionType === "premium",
   });
-  console.log(transmission);
 
   const [brands, setBrands] = useState({
     Honda: false,
@@ -168,13 +167,25 @@ const ListingPage = () => {
     // }
 
     try {
+      // const object = {
+      //   transmission,
+      //   brands,
+      //   pickupDate,
+      //   dropoffDate,
+      // };
+      // console.log(JSON.stringify(object));
+
       const filterVehicles = httpsCallable(getFunctions(), "filterVehicles");
-      const { statusCode, availableVehicles, message } = await filterVehicles({
-        pickupDate,
-        dropoffDate,
+      const res = await filterVehicles({
+        // pickupDate,
+        // dropoffDate,
+        pickupDate: pickupDate.toISOString(),
+        dropoffDate: dropoffDate.toISOString(),
         transmission,
         brands,
       });
+
+      const { statusCode, availableVehicles, message } = res.data;
 
       if (statusCode === 200) {
         setVehiclesData(availableVehicles);
@@ -361,10 +372,10 @@ const ListingPage = () => {
           ) : (
             <>
               <h5 className={styles.heading}>
-                Displaying {BikesData.length} available bikes
+                Displaying {vehiclesData.length} available bikes
               </h5>
               <div className={styles.cardContainer}>
-                {BikesData.map((item, index) => (
+                {vehiclesData.map((item, index) => (
                   <ListingCard
                     key={index}
                     id={item.id}

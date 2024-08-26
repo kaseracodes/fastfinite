@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useNavigate } from "react-router-dom";
 import styles from "./ListingCard.module.css";
@@ -18,8 +19,8 @@ const ListingCard = ({
   transmissionType,
 }) => {
   const navigate = useNavigate();
-  console.log(pickUpDate);
-  console.log(dropOffDate);
+  // console.log(imagePath);
+  // console.log(dropOffDate);
 
   return (
     <div
