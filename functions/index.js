@@ -158,6 +158,40 @@ export const filterVehicles = onCall(async (data, context) => {
   }
 });
 
+export const checkAvailability = onCall(async (data, context) => {
+  const { pickupDate, dropoffDate, vehicle_id } = data.data;
+
+  try {
+    const bookingsRef = db.collection("bookings");
+    const conflictingBookingsSnapshot = await bookingsRef
+      .where("vehicle_id", "==", vehicle_id)
+      .where("startTime", "<=", dropoffDate)
+      .where("endTime", ">=", pickupDate)
+      .get();
+
+    if (conflictingBookingsSnapshot.empty) {
+      return {
+        statusCode: 200,
+        isAvailable: true,
+        message: "Vehicle is available in the given time range",
+      };
+    } else {
+      return {
+        statusCode: 400,
+        isAvailable: false,
+        message: "Vehicle is not available in the given time range",
+      };
+    }
+  } catch (error) {
+    console.log(error.message);
+    return {
+      statusCode: 500,
+      isAvailable: false,
+      message: "Error checking vehicle availability",
+    };
+  }
+});
+
 export const createOrder = onCall(async (data, context) => {
   const { amount, uid, phoneNo, name, email } = data.data;
 

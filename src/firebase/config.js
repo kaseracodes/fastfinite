@@ -7,11 +7,6 @@ import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 // import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   // apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   // authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -29,11 +24,10 @@ const firebaseConfig = {
   measurementId: "G-4V23PHP2BL",
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const db = getFirestore(); // firestore database
-const database = getDatabase(); // realtime database
+const db = getFirestore();
+const database = getDatabase();
 const storage = getStorage();
 const auth = getAuth(app);
 

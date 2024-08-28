@@ -17,12 +17,10 @@ import {
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar/Navbar";
-import { BikesData } from "../assets/BikesData";
+// import { BikesData } from "../assets/BikesData";
 import ListingCard from "../components/ListingCard/ListingCard";
 import Footer from "../components/Footer/Footer";
 import FilterModal from "../components/FilterModal/FilterModal";
-import { calculateRent } from "../utils/Calculations";
-// import filterVehicles from "../utils/filterVehicles";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -36,9 +34,7 @@ const ListingPage = () => {
   const [pickupDate, setPickupDate] = useState(
     dayjs().startOf("hour").add(1, "hour")
   );
-  const [dropoffDate, setDropoffDate] = useState(
-    dayjs().startOf("hour").add(1, "day").add(1, "hour")
-  );
+  const [dropoffDate, setDropoffDate] = useState(pickupDate.add(1, "hour"));
   const [duration, setDuration] = useState("daily");
 
   const [transmission, setTransmission] = useState({
@@ -89,49 +85,21 @@ const ListingPage = () => {
     setDropoffDate((currentDropoffDate) => {
       const updatedPickupDate = ceiledDate;
       let newDropoffDate = currentDropoffDate;
-      let newDuration = "daily";
 
       if (
-        currentDropoffDate.diff(updatedPickupDate, "hour") < 24 ||
+        currentDropoffDate.diff(updatedPickupDate, "hour") < 1 ||
         updatedPickupDate.isAfter(currentDropoffDate)
       ) {
-        newDropoffDate = updatedPickupDate.add(1, "day");
-      } else {
-        const diff = currentDropoffDate.diff(updatedPickupDate, "hour");
-        if (diff >= 24 && diff < 24 * 7) {
-          newDuration = "daily";
-        } else if (diff >= 24 * 7 && diff < 24 * 30) {
-          newDuration = "weekly";
-        } else if (diff >= 24 * 30) {
-          newDuration = "monthly";
-        }
+        newDropoffDate = updatedPickupDate.add(1, "hour");
       }
 
-      setDuration(newDuration);
       return newDropoffDate;
     });
   };
 
   const handleDropoffDateChange = (newValue) => {
-    const ceiledDate = newValue.startOf("hour");
-    setDropoffDate(ceiledDate);
-
-    setPickupDate((currentPickupDate) => {
-      const updatedDropoffDate = ceiledDate;
-      const diff = updatedDropoffDate.diff(currentPickupDate, "hour");
-      let newDuration = "daily";
-
-      if (diff >= 24 && diff < 24 * 7) {
-        newDuration = "daily";
-      } else if (diff >= 24 * 7 && diff < 24 * 30) {
-        newDuration = "weekly";
-      } else if (diff >= 24 * 30) {
-        newDuration = "monthly";
-      }
-
-      setDuration(newDuration);
-      return currentPickupDate;
-    });
+    // const ceiledDate = newValue.startOf("hour");
+    setDropoffDate(newValue);
   };
 
   const handleDurationChange = (event) => {
@@ -150,22 +118,6 @@ const ListingPage = () => {
   const fetchVehicles = async () => {
     setLoading(true);
 
-    // const { statusCode, availableVehicles, message } = await filterVehicles(
-    //   pickupDate,
-    //   dropoffDate,
-    //   transmission,
-    //   brands
-    // );
-
-    // if (statusCode === 200) {
-    //   setVehiclesData(availableVehicles);
-    // } else {
-    //   notification["error"]({
-    //     message: `${message}`,
-    //     duration: 3,
-    //   });
-    // }
-
     try {
       // const object = {
       //   transmission,
@@ -177,8 +129,6 @@ const ListingPage = () => {
 
       const filterVehicles = httpsCallable(getFunctions(), "filterVehicles");
       const res = await filterVehicles({
-        // pickupDate,
-        // dropoffDate,
         pickupDate: pickupDate.toISOString(),
         dropoffDate: dropoffDate.toISOString(),
         transmission,
@@ -315,7 +265,7 @@ const ListingPage = () => {
                       <TextField {...props} fullWidth margin="normal" />
                     )}
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
-                    minDateTime={pickupDate.add(1, "day")}
+                    minDateTime={pickupDate.add(1, "hour")}
                     views={["year", "month", "day", "hours"]}
                   />
                 </div>
@@ -357,7 +307,7 @@ const ListingPage = () => {
                     <TextField {...props} fullWidth margin="normal" />
                   )}
                   shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
-                  minDateTime={pickupDate.add(1, "day")}
+                  minDateTime={pickupDate.add(1, "hour")}
                   views={["year", "month", "day", "hours"]}
                 />
               </div>
@@ -378,18 +328,9 @@ const ListingPage = () => {
                 {vehiclesData.map((item, index) => (
                   <ListingCard
                     key={index}
-                    id={item.id}
-                    imagePath={item.image}
-                    name={item.name}
-                    year={item.make_year}
-                    mileage={item.mileage}
-                    location={item.pickup_point}
-                    rent={calculateRent(pickupDate, dropoffDate, item.package)}
-                    deposit={item.package[duration].deposit}
+                    vehicle={item}
                     pickUpDate={pickupDate}
                     dropOffDate={dropoffDate}
-                    duration={duration}
-                    transmissionType={item.type}
                   />
                 ))}
               </div>

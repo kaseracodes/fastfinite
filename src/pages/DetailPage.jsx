@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./DetailPage.module.css";
@@ -13,12 +13,10 @@ import "leaflet/dist/leaflet.css";
 import { COLORS } from "../assets/constants";
 import Footer from "../components/Footer/Footer";
 import { calculateRent } from "../utils/Calculations";
-// import fetchVehicle from "../utils/fetchVehicle";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useSelector } from "react-redux";
-import Razorpay from "razorpay";
 import { BeatLoader } from "react-spinners";
 import { load } from "@cashfreepayments/cashfree-js";
 
@@ -50,8 +48,9 @@ const Card2 = ({ imagePath, heading, detail, textColor }) => {
 
 const DetailPage = () => {
   const params = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const query = new URLSearchParams(useLocation().search);
+  const { state } = useLocation();
 
   let cashfree;
   const initializeSDK = async () => {
@@ -68,49 +67,27 @@ const DetailPage = () => {
     dayjs(query.get("pickUpDate")) || dayjs().startOf("hour").add(1, "hour")
   );
   const [dropoffDate, setDropoffDate] = useState(
-    dayjs(query.get("dropOffDate")) ||
-      dayjs().startOf("hour").add(1, "day").add(1, "hour")
+    dayjs(query.get("dropOffDate")) || pickupDate.add(1, "hour")
   );
   const [duration, setDuration] = useState(query.get("duration") || "daily");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // setBike(BikesData.find((obj) => obj.id === params.id));
-
     const diff = dropoffDate.diff(pickupDate, "hour");
-    if (diff >= 24 && diff < 24 * 7) {
-      setDuration("daily");
+    let newDuration = "daily";
+    if (diff < 24 && state.vehicle.type === "premium") {
+      newDuration = "hourly";
+    } else if (diff >= 1 && diff < 24 * 7) {
+      newDuration = "daily";
     } else if (diff >= 24 * 7 && diff < 24 * 30) {
-      setDuration("weekly");
+      newDuration = "weekly";
     } else if (diff >= 24 * 30) {
-      setDuration("monthly");
+      newDuration = "monthly";
     }
+    setDuration(newDuration);
 
-    const getVehicle = async () => {
-      try {
-        const fetchVehicle = httpsCallable(getFunctions(), "fetchVehicle");
-        const res = await fetchVehicle({ id: params.id });
-        const { statusCode, vehicle, message } = res.data;
-
-        if (statusCode !== 200) {
-          notification["error"]({
-            message: `${message}`,
-            duration: 3,
-          });
-        } else {
-          setBike(vehicle);
-        }
-      } catch (error) {
-        console.log(error);
-        notification["error"]({
-          message: `Error`,
-          duration: 3,
-        });
-      }
-    };
-
-    getVehicle();
-  }, []);
+    setBike(state.vehicle);
+  }, [pickupDate, dropoffDate, state]);
 
   useEffect(() => {}, [user]);
 
@@ -178,9 +155,56 @@ const DetailPage = () => {
     }
   };
 
+  const handleCheckAvailability = async () => {
+    const checkAvailability = httpsCallable(
+      getFunctions(),
+      "checkAvailability"
+    );
+    const res = await checkAvailability({
+      pickupDate,
+      dropoffDate,
+      vehicle_id: bike.vehicle_id,
+    });
+    const { isAvailable, message } = res.data;
+
+    if (!isAvailable) {
+      notification["error"]({
+        message: `${message}`,
+        duration: 3,
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleCreateOrder = async () => {
+    const createOrder = httpsCallable(getFunctions(), "createOrder");
+    const res = await createOrder({
+      amount:
+        calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
+        Number(bike.package[duration].deposit),
+      uid: user.uid,
+      phoneNo: user.phoneNo,
+      name: user.name,
+      email: user.email,
+    });
+
+    const { statusCode, orderData, message } = res.data;
+
+    if (statusCode !== 200) {
+      notification["error"]({
+        message: `${message}`,
+        duration: 3,
+      });
+      return null;
+    }
+
+    return orderData;
+  };
+
   const handlePayment = async (e) => {
     e.preventDefault();
-
     if (!user) {
       notification["error"]({
         message: `Please login before booking your ride`,
@@ -192,26 +216,11 @@ const DetailPage = () => {
     setLoading(true);
 
     try {
-      const createOrder = httpsCallable(getFunctions(), "createOrder");
-      const res = await createOrder({
-        amount:
-          calculateRent(pickupDate, dropoffDate, bike.package) +
-          Number(bike.package[duration].deposit),
-        uid: user.uid,
-        phoneNo: user.phoneNo,
-        name: user.name,
-        email: user.email,
-      });
+      // const isAvailable = await handleCheckAvailability();
+      // if (!isAvailable) return;
 
-      const { statusCode, orderData, message } = res.data;
-
-      if (statusCode !== 200) {
-        notification["error"]({
-          message: `${message}`,
-          duration: 3,
-        });
-        return;
-      }
+      const orderData = await handleCreateOrder();
+      if (!orderData) return;
 
       let checkoutOptions = {
         paymentSessionId: orderData.payment_session_id,
@@ -227,15 +236,13 @@ const DetailPage = () => {
         orderId: orderData.order_id,
         pickupDate: pickupDate.toISOString(),
         dropoffDate: dropoffDate.toISOString(),
-        // pickupDate,
-        // dropoffDate,
         amount:
           calculateRent(pickupDate, dropoffDate, bike.package) +
           Number(bike.package[duration].deposit),
         deposit: bike.package[duration].deposit,
         createdAt: orderData.created_at,
       });
-      const { verificationStatusCode, verified, verificationMessage } =
+      const { verificationStatusCode, verificationMessage } =
         verificationRes.data;
 
       if (verificationStatusCode === 200) {
@@ -312,7 +319,7 @@ const DetailPage = () => {
                       <TextField {...props} fullWidth margin="normal" />
                     )}
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
-                    minDateTime={pickupDate.add(1, "day")}
+                    minDateTime={pickupDate.add(1, "hour")}
                     views={["year", "month", "day", "hours"]}
                     disabled
                   />
@@ -325,7 +332,9 @@ const DetailPage = () => {
                 value={duration}
                 className={styles.select}
                 onChange={handleDurationChange}
+                disabled
               >
+                <option value="hourly">Hourly Package</option>
                 <option value="daily">Daily Package</option>
                 <option value="weekly">Weekly Package</option>
                 <option value="monthly">Monthly Package</option>
@@ -337,7 +346,13 @@ const DetailPage = () => {
               <div className={styles.amountDiv}>
                 <p className={styles.amountText}>Rent Amount</p>
                 <p className={styles.amountText}>
-                  ₹ {calculateRent(pickupDate, dropoffDate, bike.package)}
+                  ₹{" "}
+                  {calculateRent(
+                    pickupDate,
+                    dropoffDate,
+                    bike.package,
+                    bike.type
+                  )}
                 </p>
               </div>
 
@@ -353,8 +368,12 @@ const DetailPage = () => {
                 <p className={styles.amountText2}>Amount Payable Today</p>
                 <p className={styles.amountText2}>
                   ₹{" "}
-                  {calculateRent(pickupDate, dropoffDate, bike.package) +
-                    Number(bike.package[duration].deposit)}
+                  {calculateRent(
+                    pickupDate,
+                    dropoffDate,
+                    bike.package,
+                    bike.type
+                  ) + Number(bike.package[duration].deposit)}
                 </p>
               </div>
 

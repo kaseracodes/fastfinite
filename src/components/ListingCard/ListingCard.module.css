@@ -3,7 +3,7 @@
   border-radius: 4px;
   font-family: "Poppins", sans-serif;
   cursor: pointer;
-  max-width: 350px;
+  max-width: 330px;
 }
 
 .imageDiv {
@@ -17,7 +17,7 @@
 }
 
 .image {
-  width: 250px;
+  width: 230px;
   height: 200px;
 }
 

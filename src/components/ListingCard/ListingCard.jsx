@@ -3,61 +3,63 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./ListingCard.module.css";
 import { IoLocationOutline } from "react-icons/io5";
+import { calculateRent } from "../../utils/Calculations";
+import { useEffect, useState } from "react";
 
-const ListingCard = ({
-  id,
-  name,
-  imagePath,
-  year,
-  mileage,
-  location,
-  rent,
-  deposit,
-  pickUpDate,
-  dropOffDate,
-  duration,
-  transmissionType,
-}) => {
+const ListingCard = ({ vehicle, pickUpDate, dropOffDate }) => {
   const navigate = useNavigate();
-  // console.log(imagePath);
-  // console.log(dropOffDate);
+  const [duration, setDuration] = useState("daily");
+
+  useEffect(() => {
+    const diff = dropOffDate.diff(pickUpDate, "hour");
+    let newDuration = "daily";
+    if (diff < 24 && vehicle.type === "premium") {
+      newDuration = "hourly";
+    } else if (diff >= 1 && diff < 24 * 7) {
+      newDuration = "daily";
+    } else if (diff >= 24 * 7 && diff < 24 * 30) {
+      newDuration = "weekly";
+    } else if (diff >= 24 * 30) {
+      newDuration = "monthly";
+    }
+    setDuration(newDuration);
+  }, [pickUpDate, dropOffDate, vehicle]);
 
   return (
     <div
       className={styles.container}
       onClick={() =>
         navigate(
-          `/vehicles/${id}?pickUpDate=${pickUpDate}&dropOffDate=${dropOffDate}`
+          `/vehicles/${vehicle.id}?pickUpDate=${pickUpDate}&dropOffDate=${dropOffDate}`,
+          {
+            state: {
+              vehicle,
+            },
+          }
         )
       }
     >
       <div className={styles.imageDiv}>
-        <img src={imagePath} className={styles.image} />
+        <img src={vehicle.image} className={styles.image} />
 
         <div className={styles.type}>
           <img src="/images/icons/scooter.png" alt="icon" />
-          {transmissionType}
+          {vehicle.type}
         </div>
-        {/* <div className={styles.banner}>
-          <div className={styles.iconText}>
-            <div className={styles.icon}>🛵</div>
-            <div className={styles.text}>Scooty</div>
-          </div>
-        </div> */}
       </div>
 
       <div className={styles.infoDiv}>
         <div className={styles.nameDiv}>
-          <h5 className={styles.name}>{name}</h5>
+          <h5 className={styles.name}>{vehicle.name}</h5>
           <p className={styles.para}>
-            {year} • {mileage}
+            {vehicle.make_year} • {vehicle.mileage}
           </p>
         </div>
 
         <div className={styles.locationDiv}>
           <p className={styles.para}>Pickup At:</p>
           <p className={styles.location}>
-            <IoLocationOutline /> {location}
+            <IoLocationOutline /> {vehicle.pickup_point}
           </p>
         </div>
       </div>
@@ -68,8 +70,18 @@ const ListingCard = ({
         </div>
 
         <div className={styles.priceDiv}>
-          <p className={styles.rent}>₹ {rent}</p>
-          <p className={styles.deposit}>Deposit: ₹{deposit}</p>
+          <p className={styles.rent}>
+            ₹{" "}
+            {calculateRent(
+              pickUpDate,
+              dropOffDate,
+              vehicle.package,
+              vehicle.type
+            )}
+          </p>
+          <p className={styles.deposit}>
+            Deposit: ₹{vehicle.package[duration].deposit}
+          </p>
         </div>
       </div>
 
