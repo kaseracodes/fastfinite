@@ -19,7 +19,7 @@ const Footer = () => {
           {/* <Link to="/" className={styles.link}>
             Privacy Policy
           </Link> */}
-          <Link to="/" className={styles.link}>
+          <Link to="/tnc" className={styles.link}>
             Terms and Conditions
           </Link>
         </div>
@@ -40,11 +40,11 @@ const Footer = () => {
           {/* <Link to="/about-us" className={styles.link}>
             About Us
           </Link> */}
-          <Link to="tel:+919007074744" className={styles.link}>
-            +919007074744
+          <Link to="tel:+918240530305" className={styles.link}>
+            +918240530305
           </Link>
-          <Link to="mailto:reach.fastfinite@gmail.com" className={styles.link}>
-            reach.fastfinite@gmail.com
+          <Link to="mailto:support@fastfinite.in" className={styles.link}>
+            support@fastfinite.in
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { COLORS } from "../assets/constants";
 import ContactUs from "../components/ContactUs/ContactUs";
 import Footer from "../components/Footer/Footer";
@@ -99,6 +99,37 @@ const AboutUsPage = () => {
       <QualityPolicy />
 
       <ContactUs />
+
+      <div className={styles.div3}>
+        <div className={styles.div3Content}>
+          <h5 className={styles.div3Heading}>
+            You may contact us using the information below:
+          </h5>
+          <p className={styles.para}>
+            Merchant Legal entity name: ATUL MAKHARIA
+          </p>
+          <p className={styles.para}>
+            Registered Address: 8, Beck Bagan Row, Kolkata, West Bengal, PIN:
+            700017
+          </p>
+          <p className={styles.para}>
+            Operational Address: 8, Beck Bagan Row, Kolkata, West Bengal, PIN:
+            700017
+          </p>
+          <p className={styles.para}>
+            Telephone No:{" "}
+            <Link to="tel:+918240530305" className={styles.link}>
+              +918240530305
+            </Link>
+          </p>
+          <p className={styles.para}>
+            E-Mail ID:{" "}
+            <Link to="mailto:support@fastfinite.in" className={styles.link}>
+              support@fastfinite.in
+            </Link>
+          </p>
+        </div>
+      </div>
 
       <Footer />
     </Wrapper>
