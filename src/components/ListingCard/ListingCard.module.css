@@ -3,7 +3,7 @@
   border-radius: 4px;
   font-family: "Poppins", sans-serif;
   cursor: pointer;
-  max-width: 330px;
+  max-width: 300px;
 }
 
 .imageDiv {
@@ -13,12 +13,12 @@
   justify-content: center;
   align-items: center;
   border-bottom: 1px solid var(--gray2);
-  padding: 20px;
+  /* padding: 20px; */
 }
 
 .image {
-  width: 230px;
-  height: 200px;
+  width: 300px;
+  height: 220px;
 }
 
 .type {
@@ -41,15 +41,16 @@
 .infoDiv {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  /* align-items: center; */
   padding: 20px;
   gap: 30px;
   border-bottom: 1px solid var(--gray2);
+  height: 100px;
 }
 
 .name {
   margin: 0 0 5px 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--black);
 }
@@ -63,7 +64,7 @@
 
 .location {
   margin: 5px 0 0 0;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 

@@ -5,10 +5,15 @@ import styles from "./ListingCard.module.css";
 import { IoLocationOutline } from "react-icons/io5";
 import { calculateRent } from "../../utils/Calculations";
 import { useEffect, useState } from "react";
+import { BikeCategory } from "../../assets/BikeCategory";
 
 const ListingCard = ({ vehicle, pickUpDate, dropOffDate }) => {
   const navigate = useNavigate();
   const [duration, setDuration] = useState("daily");
+  const transmissionType = BikeCategory.find(
+    (item) => item.transmissionType === vehicle.type
+  );
+  // let transmissionType;
 
   useEffect(() => {
     const diff = dropOffDate.diff(pickUpDate, "hour");
@@ -42,10 +47,12 @@ const ListingCard = ({ vehicle, pickUpDate, dropOffDate }) => {
       <div className={styles.imageDiv}>
         <img src={vehicle.image} className={styles.image} />
 
-        <div className={styles.type}>
-          <img src="/images/icons/scooter.png" alt="icon" />
-          {vehicle.type}
-        </div>
+        {transmissionType && (
+          <div className={styles.type}>
+            <img src="/images/icons/scooter.png" alt="icon" />
+            {transmissionType.name}
+          </div>
+        )}
       </div>
 
       <div className={styles.infoDiv}>

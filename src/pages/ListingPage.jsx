@@ -119,14 +119,6 @@ const ListingPage = () => {
     setLoading(true);
 
     try {
-      // const object = {
-      //   transmission,
-      //   brands,
-      //   pickupDate,
-      //   dropoffDate,
-      // };
-      // console.log(JSON.stringify(object));
-
       const filterVehicles = httpsCallable(getFunctions(), "filterVehicles");
       const res = await filterVehicles({
         pickupDate: pickupDate.toISOString(),
