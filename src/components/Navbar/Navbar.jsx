@@ -85,9 +85,9 @@ const Navbar = ({ bgColor }) => {
             Book Your Bike
           </Link>
 
-          <Link to="/#testimonials" className={styles.link}>
+          {/* <Link to="/#testimonials" className={styles.link}>
             Testimonials
-          </Link>
+          </Link> */}
 
           <a
             href="https://forms.gle/qHLa8LJe6HcqxPT39"

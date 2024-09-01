@@ -24,7 +24,8 @@ import FilterModal from "../components/FilterModal/FilterModal";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { BrandOptions, TransmissionTypes } from "../assets/FilterData";
+// import { BrandOptions } from "../assets/FilterData";
+import { BikeCategory } from "../assets/BikeCategory";
 
 const ListingPage = () => {
   const [vehiclesData, setVehiclesData] = useState([]);
@@ -42,7 +43,7 @@ const ListingPage = () => {
     petrolScooter: transmissionType === "petrolScooter",
     eScooter: transmissionType === "eScooter",
     petrolBike: transmissionType === "petrolBike",
-    premium: transmissionType === "premium",
+    premiumBike: transmissionType === "premiumBike",
   });
 
   const [brands, setBrands] = useState({
@@ -160,7 +161,7 @@ const ListingPage = () => {
   const FILTER = () => {
     return (
       <div>
-        <FormControl component="fieldset" margin="normal">
+        {/* <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Booking Duration</FormLabel>
           <RadioGroup
             aria-label="booking-duration"
@@ -184,25 +185,25 @@ const ListingPage = () => {
               label="Monthly Package"
             />
           </RadioGroup>
-        </FormControl>
-        <Divider />
+        </FormControl> */}
+        {/* <Divider /> */}
         <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Transmission Type</FormLabel>
-          {TransmissionTypes.map((type) => (
+          {BikeCategory.map((item) => (
             <FormControlLabel
-              key={type.name}
+              key={item.transmissionType}
               control={
                 <Checkbox
-                  checked={transmission[type.name]}
+                  checked={transmission[item.transmissionType]}
                   onChange={handleTransmissionChange}
-                  name={type.name}
+                  name={item.transmissionType}
                 />
               }
-              label={type.label}
+              label={item.name}
             />
           ))}
         </FormControl>
-        <Divider />
+        {/* <Divider />
         <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Brands</FormLabel>
           {BrandOptions.map((brand) => (
@@ -218,7 +219,7 @@ const ListingPage = () => {
               label={brand.label}
             />
           ))}
-        </FormControl>
+        </FormControl> */}
 
         <button className={styles.apply} onClick={fetchVehicles}>
           Apply

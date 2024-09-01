@@ -113,7 +113,7 @@ const HomePage = () => {
         heading={heading}
         buttonText="Book Your Bike"
         imagePath="/images/home_banner.png"
-        onClick={() => navigate("/bikes")}
+        onClick={() => navigate("/vehicles")}
       />
 
       <div className={styles.div1}>

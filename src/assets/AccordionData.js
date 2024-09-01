@@ -36,7 +36,7 @@ export const AccordionData = [
 
   {
     id: 5,
-    question: "Can i extend my trip?",
+    question: "Can I extend my trip?",
     answer:
       "Reservations can be extended by going to the Bookings section in the Profile tab. You can select the new end date and time and make the payment for the extended dates/hours accordingly.",
   },

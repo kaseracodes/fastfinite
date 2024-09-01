@@ -2,7 +2,7 @@ export const TransmissionTypes = [
   { name: "petrolScooter", label: "Petrol Scooter" },
   { name: "eScooter", label: "E-Scooter" },
   { name: "petrolBike", label: "Petrol Bike" },
-  { name: "premium", label: "Premium" },
+  { name: "premiumBike", label: "Premium Bike" },
 ];
 
 export const BrandOptions = [

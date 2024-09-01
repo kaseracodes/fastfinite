@@ -56,7 +56,7 @@ const QualityPolicy = () => {
 
   return (
     <div className={styles.container}>
-      <h5 className={styles.heading}>Quality Policy</h5>
+      <h5 className={styles.heading}>Why Choose Us?</h5>
       <hr className={styles.hr} />
 
       <div className={styles.cardContainer}>

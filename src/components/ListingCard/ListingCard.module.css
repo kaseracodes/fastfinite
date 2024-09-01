@@ -21,7 +21,8 @@
   height: 220px;
 }
 
-.type {
+.type,
+.specialType {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -36,6 +37,11 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--green);
+}
+
+.specialType {
+  background-color: var(--gold);
+  color: var(--white);
 }
 
 .infoDiv {

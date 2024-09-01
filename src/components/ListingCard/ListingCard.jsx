@@ -48,7 +48,13 @@ const ListingCard = ({ vehicle, pickUpDate, dropOffDate }) => {
         <img src={vehicle.image} className={styles.image} />
 
         {transmissionType && (
-          <div className={styles.type}>
+          <div
+            className={
+              transmissionType === "premiumBike"
+                ? styles.specialType
+                : styles.type
+            }
+          >
             <img src="/images/icons/scooter.png" alt="icon" />
             {transmissionType.name}
           </div>

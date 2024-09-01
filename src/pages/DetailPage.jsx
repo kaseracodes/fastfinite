@@ -20,6 +20,21 @@ import { useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { load } from "@cashfreepayments/cashfree-js";
 
+import L from "leaflet";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { BikeCategory } from "../assets/BikeCategory";
+
+// Fix for the marker not showing in production
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
 const Card = ({ imagePath, heading, detail, textColor }) => {
   return (
     <div className={styles.cardContainer}>
@@ -63,6 +78,7 @@ const DetailPage = () => {
 
   const user = useSelector((state) => state.userReducer.user);
   const [bike, setBike] = useState(null);
+  const [transmissionType, setTransmissionType] = useState("");
   const [pickupDate, setPickupDate] = useState(
     dayjs(query.get("pickUpDate")) || dayjs().startOf("hour").add(1, "hour")
   );
@@ -71,6 +87,8 @@ const DetailPage = () => {
   );
   const [duration, setDuration] = useState(query.get("duration") || "daily");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {}, [user]);
 
   useEffect(() => {
     const diff = dropoffDate.diff(pickupDate, "hour");
@@ -87,9 +105,10 @@ const DetailPage = () => {
     setDuration(newDuration);
 
     setBike(state.vehicle);
+    setTransmissionType(
+      BikeCategory.find((item) => item.transmissionType === state.vehicle.type)
+    );
   }, [pickupDate, dropoffDate, state]);
-
-  useEffect(() => {}, [user]);
 
   const handlePickupDateChange = (newValue) => {
     const ceiledDate = newValue.startOf("hour");
@@ -274,6 +293,19 @@ const DetailPage = () => {
         <>
           <div className={styles.div1}>
             <div className={styles.imageDiv}>
+              {transmissionType && (
+                <div
+                  className={
+                    transmissionType === "premiumBike"
+                      ? styles.specialType
+                      : styles.type
+                  }
+                >
+                  <img src="/images/icons/scooter.png" alt="icon" />
+                  {transmissionType.name}
+                </div>
+              )}
+
               <img src={bike.image} alt="image" className={styles.bikeImage} />
 
               <p className={styles.para}>
@@ -326,7 +358,7 @@ const DetailPage = () => {
                 </div>
               </LocalizationProvider>
 
-              <p className={styles.filterHeading}>Select Package</p>
+              {/* <p className={styles.filterHeading}>Select Package</p>
               <select
                 name="package"
                 value={duration}
@@ -338,7 +370,7 @@ const DetailPage = () => {
                 <option value="daily">Daily Package</option>
                 <option value="weekly">Weekly Package</option>
                 <option value="monthly">Monthly Package</option>
-              </select>
+              </select> */}
 
               <p className={styles.filterHeading}>Fair Details</p>
               <hr className={styles.hr} />
@@ -389,62 +421,6 @@ const DetailPage = () => {
                   "Book Now"
                 )}
               </button>
-            </div>
-          </div>
-
-          <div className={styles.div2}>
-            <div className={styles.termsDiv}>
-              <p className={styles.subHeading}>Terms & Conditions</p>
-
-              <p className={styles.para2}>
-                Documents Required:- Aadhar Card, Driving License and
-                Student/Employee ID Card.
-              </p>
-
-              <p className={styles.para2}>
-                One Govt address proof has to be submitted at the time of pickup
-                which will be returned at the time of drop.The riders needs to
-                present all the original documents at the time of pickup.
-              </p>
-
-              <p className={styles.para2}>
-                Fuel Charges are not included in the security deposit or rent.
-              </p>
-
-              <p className={styles.para2}>
-                In case of any damage to the vehicle, the customer is liable to
-                pay the repair charges plus the labour charges as per the
-                Authorised Service Center.
-              </p>
-
-              <p className={styles.para2}>
-                Charges to be borne by the customer:- Helmet Lost: Rs. 700, Key
-                Lost: Rs.1000, Full Insurance Declared Value of the vehicle in
-                case of any theft.
-              </p>
-
-              <p className={styles.para2}>Late fee 150/hr</p>
-            </div>
-
-            <div className={styles.map}>
-              <h5 className={styles.title}>Pickup Location</h5>
-              <p className={styles.location}>{bike.location}</p>
-
-              <MapContainer
-                center={bike.position}
-                zoom={13}
-                className={styles.mapContainer}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <Marker position={bike.position}>
-                  <Popup>
-                    A pretty CSS3 popup. <br /> Easily customizable.
-                  </Popup>
-                </Marker>
-              </MapContainer>
             </div>
           </div>
 
@@ -531,6 +507,62 @@ const DetailPage = () => {
                   textColor={COLORS.gold}
                 />
               )}
+            </div>
+          </div>
+
+          <div className={styles.div2}>
+            <div className={styles.termsDiv}>
+              <p className={styles.subHeading}>Terms & Conditions</p>
+
+              <p className={styles.para2}>
+                Documents Required:- Aadhar Card, Driving License and
+                Student/Employee ID Card.
+              </p>
+
+              <p className={styles.para2}>
+                One Govt address proof has to be submitted at the time of pickup
+                which will be returned at the time of drop.The riders needs to
+                present all the original documents at the time of pickup.
+              </p>
+
+              <p className={styles.para2}>
+                Fuel Charges are not included in the security deposit or rent.
+              </p>
+
+              <p className={styles.para2}>
+                In case of any damage to the vehicle, the customer is liable to
+                pay the repair charges plus the labour charges as per the
+                Authorised Service Center.
+              </p>
+
+              <p className={styles.para2}>
+                Charges to be borne by the customer:- Helmet Lost: Rs. 700, Key
+                Lost: Rs.1000, Full Insurance Declared Value of the vehicle in
+                case of any theft.
+              </p>
+
+              <p className={styles.para2}>Late fee 150/hr</p>
+            </div>
+
+            <div className={styles.map}>
+              <h5 className={styles.title}>Pickup Location</h5>
+              <p className={styles.location}>{bike.location}</p>
+
+              <MapContainer
+                center={bike.position}
+                zoom={13}
+                className={styles.mapContainer}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                <Marker position={bike.position}>
+                  <Popup>
+                    A pretty CSS3 popup. <br /> Easily customizable.
+                  </Popup>
+                </Marker>
+              </MapContainer>
             </div>
           </div>
         </>

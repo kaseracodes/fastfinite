@@ -42,6 +42,8 @@
   gap: 20px;
   justify-content: center;
   align-items: center;
+  max-height: 800px;
+  overflow-y: scroll;
 }
 
 .apply {
