@@ -163,13 +163,22 @@ export const checkAvailability = onCall(async (data, context) => {
 
   try {
     const bookingsRef = db.collection("bookings");
-    const conflictingBookingsSnapshot = await bookingsRef
+    const conflictingBookingsSnapshot1 = await bookingsRef
       .where("vehicle_id", "==", vehicle_id)
-      .where("startTime", "<=", dropoffDate)
+      .where("startTime", "<=", pickupDate)
       .where("endTime", ">=", pickupDate)
       .get();
 
-    if (conflictingBookingsSnapshot.empty) {
+    const conflictingBookingsSnapshot2 = await bookingsRef
+      .where("vehicle_id", "==", vehicle_id)
+      .where("startTime", "<=", dropoffDate)
+      .where("endTime", ">=", dropoffDate)
+      .get();
+
+    if (
+      conflictingBookingsSnapshot1.empty &&
+      conflictingBookingsSnapshot2.empty
+    ) {
       return {
         statusCode: 200,
         isAvailable: true,

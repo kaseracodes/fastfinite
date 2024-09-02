@@ -19,7 +19,6 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import { useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { load } from "@cashfreepayments/cashfree-js";
-
 import L from "leaflet";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -28,7 +27,6 @@ import { BikeCategory } from "../assets/BikeCategory";
 
 // Fix for the marker not showing in production
 delete L.Icon.Default.prototype._getIconUrl;
-
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
   iconUrl: markerIcon,
@@ -85,33 +83,24 @@ const DetailPage = () => {
   const [dropoffDate, setDropoffDate] = useState(
     dayjs(query.get("dropOffDate")) || pickupDate.add(1, "hour")
   );
+  const [prevPickupDate, setPrevPickupDate] = useState(pickupDate);
+  const [prevDropoffDate, setPrevDropoffDate] = useState(dropoffDate);
   const [duration, setDuration] = useState(query.get("duration") || "daily");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {}, [user]);
 
   useEffect(() => {
-    const diff = dropoffDate.diff(pickupDate, "hour");
-    let newDuration = "daily";
-    if (diff < 24 && state.vehicle.type === "premium") {
-      newDuration = "hourly";
-    } else if (diff >= 1 && diff < 24 * 7) {
-      newDuration = "daily";
-    } else if (diff >= 24 * 7 && diff < 24 * 30) {
-      newDuration = "weekly";
-    } else if (diff >= 24 * 30) {
-      newDuration = "monthly";
-    }
-    setDuration(newDuration);
-
     setBike(state.vehicle);
-    setTransmissionType(
-      BikeCategory.find((item) => item.transmissionType === state.vehicle.type)
+    const transmissionType = BikeCategory.find(
+      (item) => item.transmissionType === state.vehicle.type
     );
-  }, [pickupDate, dropoffDate, state]);
+    setTransmissionType(transmissionType);
+  }, [state]);
 
-  const handlePickupDateChange = (newValue) => {
+  const handlePickupDateChange = async (newValue) => {
     const ceiledDate = newValue.startOf("hour");
+    setPrevPickupDate(pickupDate);
     setPickupDate(ceiledDate);
 
     setDropoffDate((currentDropoffDate) => {
@@ -124,6 +113,7 @@ const DetailPage = () => {
         updatedPickupDate.isAfter(currentDropoffDate)
       ) {
         newDropoffDate = updatedPickupDate.add(1, "day");
+        setPrevDropoffDate(currentDropoffDate);
       } else {
         const diff = currentDropoffDate.diff(updatedPickupDate, "hour");
         if (diff >= 24 && diff < 24 * 7) {
@@ -138,10 +128,13 @@ const DetailPage = () => {
       setDuration(newDuration);
       return newDropoffDate;
     });
+
+    await handleCheckAvailability(bike || state.vehicle);
   };
 
-  const handleDropoffDateChange = (newValue) => {
+  const handleDropoffDateChange = async (newValue) => {
     const ceiledDate = newValue.startOf("hour");
+    setPrevDropoffDate(dropoffDate);
     setDropoffDate(ceiledDate);
 
     setPickupDate((currentPickupDate) => {
@@ -160,6 +153,8 @@ const DetailPage = () => {
       setDuration(newDuration);
       return currentPickupDate;
     });
+
+    await handleCheckAvailability(bike || state.vehicle);
   };
 
   const handleDurationChange = (event) => {
@@ -174,7 +169,9 @@ const DetailPage = () => {
     }
   };
 
-  const handleCheckAvailability = async () => {
+  const handleCheckAvailability = async (bike) => {
+    if (!bike) return false;
+
     const checkAvailability = httpsCallable(
       getFunctions(),
       "checkAvailability"
@@ -191,9 +188,16 @@ const DetailPage = () => {
         message: `${message}`,
         duration: 3,
       });
+
+      setPickupDate(prevPickupDate);
+      setDropoffDate(prevDropoffDate);
       return false;
     }
 
+    notification["success"]({
+      message: `Vehicle is available`,
+      duration: 3,
+    });
     return true;
   };
 
@@ -235,8 +239,10 @@ const DetailPage = () => {
     setLoading(true);
 
     try {
-      // const isAvailable = await handleCheckAvailability();
-      // if (!isAvailable) return;
+      const isAvailable = await handleCheckAvailability(bike || state.vehicle);
+      if (!isAvailable) {
+        return;
+      }
 
       const orderData = await handleCreateOrder();
       if (!orderData) return;
@@ -334,26 +340,26 @@ const DetailPage = () => {
                   <DateTimePicker
                     label="Pickup Date & Time"
                     value={pickupDate}
-                    // onChange={handlePickupDateChange}
+                    onChange={handlePickupDateChange}
                     renderInput={(props) => (
                       <TextField {...props} fullWidth margin="normal" />
                     )}
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
                     minDateTime={dayjs().startOf("hour").add(1, "hour")}
                     views={["year", "month", "day", "hours"]}
-                    disabled
+                    // disabled
                   />
                   <DateTimePicker
                     label="Dropoff Date & Time"
                     value={dropoffDate}
-                    // onChange={handleDropoffDateChange}
+                    onChange={handleDropoffDateChange}
                     renderInput={(props) => (
                       <TextField {...props} fullWidth margin="normal" />
                     )}
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
                     minDateTime={pickupDate.add(1, "hour")}
                     views={["year", "month", "day", "hours"]}
-                    disabled
+                    // disabled
                   />
                 </div>
               </LocalizationProvider>
