@@ -164,12 +164,67 @@
   color: var(--black);
 }
 
-.bookingsContainer {
+.cardContainer {
+  max-height: 600px;
+  overflow-y: scroll;
+}
+
+.card {
+  padding: 20px;
+  border-bottom: 1px solid var(--gray2);
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  height: 100%;
-  padding: 50px 0;
+  gap: 20px;
+}
+
+.vehicleImage {
+  width: 250px;
+  border-radius: 8px;
+}
+
+.contentDiv {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dateTime {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--light-gray);
+  margin: 0;
+}
+
+.vehicleName {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+}
+
+.bookingPara {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--light-gray);
+  margin: 0;
+}
+
+@media only screen and (max-width: 1250px) {
+  .vehicleImage {
+    width: 200px;
+  }
+
+  .dateTime {
+    font-size: 13px;
+  }
+
+  .vehicleName {
+    font-size: 18px;
+  }
+
+  .bookingPara {
+    font-size: 14px;
+  }
 }
 
 @media only screen and (max-width: 1100px) {
@@ -181,6 +236,16 @@
   .imageDiv img {
     width: 250px;
     height: 250px;
+  }
+}
+
+@media only screen and (max-width: 1050px) {
+  .card {
+    flex-direction: column;
+  }
+
+  .vehicleImage {
+    width: 250px;
   }
 }
 
@@ -202,7 +267,7 @@
   }
 
   .outerRightDiv {
-    width: 90%;
+    width: 100%;
   }
 
   .heading {
@@ -225,5 +290,23 @@
 
   .bookingTab {
     padding: 5px;
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .dateTime {
+    font-size: 12px;
+  }
+
+  .vehicleName {
+    font-size: 16px;
+  }
+
+  .bookingPara {
+    font-size: 13px;
+  }
+
+  .cardContainer {
+    max-height: 800px;
   }
 }

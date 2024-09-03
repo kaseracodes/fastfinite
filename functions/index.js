@@ -2,7 +2,6 @@
 /* eslint-disable no-unused-vars */
 import { onCall } from "firebase-functions/v2/https";
 import admin from "firebase-admin";
-import dayjs from "dayjs";
 import { Cashfree } from "cashfree-pg";
 
 if (admin.apps.length === 0) {
@@ -17,13 +16,10 @@ Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
 
 export const fetchVehicle = onCall(async (data, context) => {
   const { id } = data.data;
-  //   console.log(id);
-  //   console.log(typeof id);
 
   try {
     const vehicleRef = db.collection("vehicles").doc(id);
     const vehicleDoc = await vehicleRef.get();
-    // console.log(vehicleDoc);
 
     if (vehicleDoc.exists) {
       return {
@@ -50,13 +46,6 @@ export const fetchVehicle = onCall(async (data, context) => {
 
 export const filterVehicles = onCall(async (data, context) => {
   const { pickupDate, dropoffDate, transmission, brands } = data.data;
-  //   console.log("1: " + dayjs.isDayjs(pickupDate));
-  //   console.log("2" + dropoffDate);
-  //   console.log("3" + dayjs(pickupDate.$d));
-
-  //   const updatedPickupDate = dayjs(pickupDate);
-  //   const updatedDropoffDate = dayjs(dropoffDate);
-  //   console.log(updatedPickupDate);
   const pickupDateObj = new Date(pickupDate);
   const dropoffDateObj = new Date(dropoffDate);
 
@@ -139,8 +128,6 @@ export const filterVehicles = onCall(async (data, context) => {
         availableVehicles.push(vehicle);
       }
     }
-
-    // console.log(availableVehicles);
 
     return {
       statusCode: 200,
@@ -265,5 +252,50 @@ export const verifyPayment = onCall(async (data, context) => {
     };
   } catch (error) {
     throw new https.HttpsError("unknown", error.message, error);
+  }
+});
+
+export const getBookings = onCall(async (data, context) => {
+  const { uid } = data.data;
+
+  try {
+    const bookingsRef = db.collection("bookings");
+    const bookingsSnapshot = await bookingsRef
+      .where("uid", "==", uid)
+      .orderBy("createdAt", "desc")
+      .limit(5)
+      .get();
+
+    const bookings = await Promise.all(
+      bookingsSnapshot.docs.map(async (doc) => {
+        const bookingData = doc.data();
+        const vehicleRef = db
+          .collection("vehicles")
+          .doc(bookingData.vehicle_id);
+        const vehicleDoc = await vehicleRef.get();
+
+        return {
+          id: doc.id,
+          ...bookingData,
+          vehicleName: vehicleDoc.exists
+            ? vehicleDoc.data().name
+            : "Unknown Vehicle",
+          vehicleImage: vehicleDoc.exists ? vehicleDoc.data().image : "",
+        };
+      })
+    );
+
+    return {
+      statusCode: 200,
+      bookings: bookings,
+      message: "Bookings fetched successfully",
+    };
+  } catch (error) {
+    console.log(error.message);
+    return {
+      statusCode: 500,
+      bookings: [],
+      message: "Error fetching user bookings",
+    };
   }
 });

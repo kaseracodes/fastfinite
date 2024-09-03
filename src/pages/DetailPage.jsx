@@ -16,7 +16,7 @@ import { calculateRent } from "../utils/Calculations";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { BeatLoader } from "react-spinners";
 import { load } from "@cashfreepayments/cashfree-js";
 import L from "leaflet";
@@ -24,6 +24,8 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { BikeCategory } from "../assets/BikeCategory";
+import { auth } from "../firebase/config";
+import { logoutUser } from "../store/userSlice";
 
 // Fix for the marker not showing in production
 delete L.Icon.Default.prototype._getIconUrl;
@@ -61,7 +63,7 @@ const Card2 = ({ imagePath, heading, detail, textColor }) => {
 
 const DetailPage = () => {
   const params = useParams();
-  // const navigate = useNavigate();
+  const dispatch = useDispatch();
   const query = new URLSearchParams(useLocation().search);
   const { state } = useLocation();
 
@@ -91,6 +93,18 @@ const DetailPage = () => {
   useEffect(() => {}, [user]);
 
   useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
+      if (!authUser) {
+        dispatch(logoutUser());
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [dispatch]);
+
+  useEffect(() => {
     setBike(state.vehicle);
     const transmissionType = BikeCategory.find(
       (item) => item.transmissionType === state.vehicle.type
@@ -109,14 +123,19 @@ const DetailPage = () => {
       let newDuration = "daily";
 
       if (
-        currentDropoffDate.diff(updatedPickupDate, "hour") < 24 ||
+        currentDropoffDate.diff(updatedPickupDate, "hour") < 1 ||
         updatedPickupDate.isAfter(currentDropoffDate)
       ) {
         newDropoffDate = updatedPickupDate.add(1, "day");
         setPrevDropoffDate(currentDropoffDate);
       } else {
         const diff = currentDropoffDate.diff(updatedPickupDate, "hour");
-        if (diff >= 24 && diff < 24 * 7) {
+        if (
+          diff < 24 &&
+          (bike.type === "premium" || state.vehicle.type === "premium")
+        ) {
+          newDuration = "hourly";
+        } else if (diff >= 1 && diff < 24 * 7) {
           newDuration = "daily";
         } else if (diff >= 24 * 7 && diff < 24 * 30) {
           newDuration = "weekly";
@@ -142,7 +161,12 @@ const DetailPage = () => {
       const diff = updatedDropoffDate.diff(currentPickupDate, "hour");
       let newDuration = "daily";
 
-      if (diff >= 24 && diff < 24 * 7) {
+      if (
+        diff < 24 &&
+        (bike.type === "premium" || state.vehicle.type === "premium")
+      ) {
+        newDuration = "hourly";
+      } else if (diff >= 1 && diff < 24 * 7) {
         newDuration = "daily";
       } else if (diff >= 24 * 7 && diff < 24 * 30) {
         newDuration = "weekly";
@@ -236,6 +260,18 @@ const DetailPage = () => {
       return;
     }
 
+    const currDateTime = dayjs().startOf("hour").add(1, "hour");
+
+    if (currDateTime.isAfter(pickupDate)) {
+      notification["error"]({
+        message: `Please select valid pick up and drop off dates`,
+        duration: 3,
+      });
+      setPickupDate(currDateTime);
+      setDropoffDate(currDateTime.add(1, "hour"));
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -262,7 +298,7 @@ const DetailPage = () => {
         pickupDate: pickupDate.toISOString(),
         dropoffDate: dropoffDate.toISOString(),
         amount:
-          calculateRent(pickupDate, dropoffDate, bike.package) +
+          calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
           Number(bike.package[duration].deposit),
         deposit: bike.package[duration].deposit,
         createdAt: orderData.created_at,

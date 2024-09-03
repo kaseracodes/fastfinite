@@ -12,14 +12,17 @@ import { auth } from "../firebase/config";
 import { loginUser, logoutUser } from "../store/userSlice";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
+import { MoonLoader } from "react-spinners";
 import updateProfile from "../utils/updateProfile";
 import AuthHoc from "../hoc/AuthHoc";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { COLORS } from "../assets/constants";
+import PageLoader from "../components/PageLoader/PageLoader";
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.userReducer.user);
-  console.log(user);
 
   const [tab, setTab] = useState("profile");
   const [bookingTab, setBookingTab] = useState("confirmed");
@@ -39,12 +42,55 @@ const ProfilePage = () => {
     profilePic:
       user && user.profilePic ? user.profilePic : "/images/avatar.jpg",
     // bookings: user && user.bookings,
-    bookings: {
-      confirmed: [],
-      pending: [],
-      cancelled: [],
-    },
+    bookings: [],
   });
+  const [loading, setLoading] = useState(false);
+
+  const formatDate = (date) => {
+    const dateTimeOptions = {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    };
+    return new Date(date).toLocaleString("en-US", dateTimeOptions);
+  };
+
+  const fetchBookings = async () => {
+    setLoading(true);
+    try {
+      const getBookings = httpsCallable(getFunctions(), "getBookings");
+      const res = await getBookings({ uid: profile.uid });
+      const { statusCode, bookings, message } = res.data;
+
+      if (statusCode === 200) {
+        setProfile((prev) => ({ ...prev, bookings: bookings }));
+      } else {
+        notification["error"]({
+          message: message,
+          duration: 3,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      notification["error"]({
+        message: `Error fetching bookings`,
+        duration: 3,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTabChange = async (tab) => {
+    setTab(tab);
+
+    if (tab === "bookings") {
+      await fetchBookings();
+    }
+  };
 
   const handleEditClick = (field) => {
     setIsEditing({ ...isEditing, [field]: true });
@@ -119,11 +165,41 @@ const ProfilePage = () => {
     document.getElementById("profilePic").click();
   };
 
-  const BookingsCard = ({ bookings }) => {
+  const BookingsContainer = ({ bookings }) => {
     return (
       <>
         {bookings.length > 0 ? (
-          <></>
+          <div className={styles.cardContainer}>
+            {bookings.map((item, index) => (
+              <div key={index} className={styles.card}>
+                <div className={styles.contentDiv}>
+                  <p className={styles.dateTime}>
+                    Booking date and time: {formatDate(item.createdAt)}
+                  </p>
+                  <p className={styles.vehicleName}>{item.vehicleName}</p>
+                  <p className={styles.bookingPara}>
+                    Pick up date: {formatDate(item.startTime)}
+                  </p>
+                  <p className={styles.bookingPara}>
+                    Drop off date: {formatDate(item.endTime)}
+                  </p>
+                  <p className={styles.bookingPara}>
+                    Total amount paid: {item.amount}
+                  </p>
+                  <p className={styles.bookingPara}>
+                    Refundable deposit: {item.deposit}
+                  </p>
+                </div>
+                <div className={styles.vehicleImageDiv}>
+                  <img
+                    src={item.vehicleImage}
+                    alt="vehicle image"
+                    className={styles.vehicleImage}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <p className={styles.para}>No bookings found!</p>
         )}
@@ -157,7 +233,7 @@ const ProfilePage = () => {
               className={`${styles.tabBtn} ${
                 tab === "profile" ? styles.activeTabBtn : ""
               }`}
-              onClick={() => setTab("profile")}
+              onClick={() => handleTabChange("profile")}
             >
               <CgProfile /> Profile
             </button>
@@ -165,7 +241,7 @@ const ProfilePage = () => {
               className={`${styles.tabBtn} ${
                 tab === "bookings" ? styles.activeTabBtn : ""
               }`}
-              onClick={() => setTab("bookings")}
+              onClick={() => handleTabChange("bookings")}
             >
               <MdOutlineBookmarks /> Bookings
             </button>
@@ -230,9 +306,9 @@ const ProfilePage = () => {
             <div className={styles.rightDiv}>
               <div className={styles.innerRightDiv}>
                 <h5 className={styles.heading}>Bookings</h5>
-                <p className={styles.subHeading}>Manage your bookings</p>
+                <p className={styles.subHeading}>Your Recent Bookings</p>
               </div>
-              <div className={styles.bookingTabContainer}>
+              {/* <div className={styles.bookingTabContainer}>
                 <button
                   className={`${styles.bookingTab} ${
                     bookingTab === "confirmed" ? styles.activeBookingTab : ""
@@ -257,9 +333,9 @@ const ProfilePage = () => {
                 >
                   Cancelled
                 </button>
-              </div>
+              </div> */}
               <div className={styles.bookingsContainer}>
-                {bookingTab === "confirmed" && (
+                {/* {bookingTab === "confirmed" && (
                   <BookingsCard bookings={profile.bookings.confirmed} />
                 )}
                 {bookingTab === "pending" && (
@@ -267,6 +343,11 @@ const ProfilePage = () => {
                 )}
                 {bookingTab === "cancelled" && (
                   <BookingsCard bookings={profile.bookings.cancelled} />
+                )} */}
+                {loading ? (
+                  <PageLoader />
+                ) : (
+                  <BookingsContainer bookings={profile.bookings} />
                 )}
               </div>
             </div>

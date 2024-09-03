@@ -6,7 +6,9 @@ const PageLoader = () => {
     <div
       style={{
         width: "100%",
-        height: "100vh",
+        // height: "60vh",
+        height: "auto",
+        minHeight: "200px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
