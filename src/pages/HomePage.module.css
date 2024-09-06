@@ -92,19 +92,23 @@
 .reviewCard {
   padding: 0 100px;
   display: flex;
-  flex-direction: column;
+  /* flex-direction: column; */
   justify-content: center;
   align-items: center;
+  /* height: 350px; */
 }
 
 .reviewContent {
+  height: 250px;
+  border-radius: 5px;
   background-color: var(--white);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  padding: 70px 20px 20px 20px;
+  /* padding: 70px 20px 20px 20px; */
+  padding: 20px;
 }
 
 .profilePic {
@@ -197,6 +201,16 @@
 
   .div5 {
     padding: 50px;
+  }
+}
+
+@media only screen and (max-width: 650px) {
+  .reviewCard {
+    padding: 0 0 30px 0;
+  }
+
+  .reviewContent {
+    height: 200px;
   }
 }
 

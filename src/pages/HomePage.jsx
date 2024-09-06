@@ -171,11 +171,11 @@ const HomePage = () => {
           >
             {ReviewsData.map((item, index) => (
               <div key={index} className={styles.reviewCard}>
-                <img
+                {/* <img
                   src={item.profilePic}
                   alt="image"
                   className={styles.profilePic}
-                />
+                /> */}
                 <div className={styles.reviewContent}>
                   <p className={styles.reviewDesc}>
                     <RiDoubleQuotesL color={COLORS.orange} /> {item.review}{" "}
