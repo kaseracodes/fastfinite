@@ -105,8 +105,11 @@ const AboutUsPage = () => {
           <h5 className={styles.div3Heading}>
             You may contact us using the information below:
           </h5>
-          <p className={styles.para}>
+          {/* <p className={styles.para}>
             Merchant Legal entity name: ATUL MAKHARIA
+          </p> */}
+          <p className={styles.para}>
+            Company name: SPEED AUTO SERVICE PRIVATE LIMITED
           </p>
           <p className={styles.para}>
             Registered Address: 8, Beck Bagan Row, Kolkata, West Bengal, PIN:
