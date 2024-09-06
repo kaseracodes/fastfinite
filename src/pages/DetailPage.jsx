@@ -556,34 +556,39 @@ const DetailPage = () => {
             <div className={styles.termsDiv}>
               <p className={styles.subHeading}>Terms & Conditions</p>
 
-              <p className={styles.para2}>
-                Documents Required:- Aadhar Card, Driving License and
-                Student/Employee ID Card.
-              </p>
+              <ul>
+                <li className={styles.para2}>
+                  Documents Required - Aadhar Card, Driving License and
+                  Student/Employee ID Card.
+                </li>
 
-              <p className={styles.para2}>
-                One Govt address proof has to be submitted at the time of pickup
-                which will be returned at the time of drop.The riders needs to
-                present all the original documents at the time of pickup.
-              </p>
+                <li className={styles.para2}>
+                  One government address proof has to be submitted at the time
+                  of pickup which will be returned at the time of drop off. The
+                  riders needs to show all the original documents at the time of
+                  pickup.
+                </li>
 
-              <p className={styles.para2}>
-                Fuel Charges are not included in the security deposit or rent.
-              </p>
+                <li className={styles.para2}>
+                  Fuel Charges are not included in the security deposit or rent.
+                </li>
 
-              <p className={styles.para2}>
-                In case of any damage to the vehicle, the customer is liable to
-                pay the repair charges plus the labour charges as per the
-                Authorised Service Center.
-              </p>
+                <li className={styles.para2}>
+                  In case of any damage to the vehicle, the customer is liable
+                  to pay the repair charges plus the labour charges as per the
+                  Authorised Service Center.
+                </li>
 
-              <p className={styles.para2}>
-                Charges to be borne by the customer:- Helmet Lost: Rs. 700, Key
-                Lost: Rs.1000, Full Insurance Declared Value of the vehicle in
-                case of any theft.
-              </p>
+                <li className={styles.para2}>
+                  Charges to be borne by the customer - <br />
+                  &emsp;&emsp;Helmet Lost: Rs. 700, <br />
+                  &emsp;&emsp;Key Lost: Rs.1000, <br />
+                  &emsp;&emsp;Full Insurance Declared Value of the vehicle in
+                  case of any theft.
+                </li>
 
-              <p className={styles.para2}>Late fee 150/hr</p>
+                <li className={styles.para2}>Late fee: 150/hr</li>
+              </ul>
             </div>
 
             <div className={styles.map}>

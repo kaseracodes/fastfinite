@@ -13,10 +13,11 @@ const TncPage = () => {
           <h5 className={styles.heading}>Terms & Conditions</h5>
           <p className={styles.para}>
             These Terms and Conditions, along with privacy policy or other terms
-            (“Terms”) constitute a binding agreement by and between ATUL
-            MAKHARIA, ( “Website Owner” or “we” or “us” or “our”) and you (“you”
-            or “your”) and relate to your use of our website, goods (as
-            applicable) or services (as applicable) (collectively, “Services”).
+            (“Terms”) constitute a binding agreement by and between SPEED AUTO
+            SERVICE PRIVATE LIMITED, ( “Website Owner” or “we” or “us” or “our”)
+            and you (“you” or “your”) and relate to your use of our website,
+            goods (as applicable) or services (as applicable) (collectively,
+            “Services”).
           </p>
 
           <p className={styles.para}>

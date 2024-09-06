@@ -118,8 +118,8 @@ const AboutUsPage = () => {
           </p>
           <p className={styles.para}>
             Telephone No:{" "}
-            <Link to="tel:+918240530305" className={styles.link}>
-              +918240530305
+            <Link to="tel:+919007074744" className={styles.link}>
+              +919007074744
             </Link>
           </p>
           <p className={styles.para}>

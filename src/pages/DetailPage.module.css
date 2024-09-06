@@ -224,7 +224,8 @@
 }
 
 .para2 {
-  padding: 0 20px;
+  /* padding: 0 20px; */
+  margin: 10px 5px;
 }
 
 .location {
