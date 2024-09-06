@@ -33,7 +33,7 @@ const Footer = () => {
           <Link
             className={styles.iconLink}
             target="__blank"
-            to="https://wa.me/9007074744"
+            to="https://wa.me/+919007074744"
           >
             <RiWhatsappLine size={25} className={styles.icons} />
           </Link>
