@@ -10,10 +10,9 @@ import { BikeCategory } from "../../assets/BikeCategory";
 const ListingCard = ({ vehicle, pickUpDate, dropOffDate }) => {
   const navigate = useNavigate();
   const [duration, setDuration] = useState("daily");
-  const transmissionType = BikeCategory.find(
+  const category = BikeCategory.find(
     (item) => item.transmissionType === vehicle.type
   );
-  // let transmissionType;
 
   useEffect(() => {
     const diff = dropOffDate.diff(pickUpDate, "hour");
@@ -47,16 +46,20 @@ const ListingCard = ({ vehicle, pickUpDate, dropOffDate }) => {
       <div className={styles.imageDiv}>
         <img src={vehicle.image} className={styles.image} />
 
-        {transmissionType && (
+        {category && (
           <div
             className={
-              transmissionType === "premiumBike"
+              category.transmissionType === "premiumBike"
                 ? styles.specialType
                 : styles.type
             }
           >
-            <img src="/images/icons/scooter.png" alt="icon" />
-            {transmissionType.name}
+            {category.transmissionType === "premiumBike" ? (
+              <img src="/images/icons/bike.png" alt="icon" />
+            ) : (
+              <img src="/images/icons/scooter.png" alt="icon" />
+            )}
+            {category.name}
           </div>
         )}
       </div>

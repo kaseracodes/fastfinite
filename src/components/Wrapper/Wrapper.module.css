@@ -3,8 +3,40 @@
   max-width: 1800px;
 }
 
+.iconLink {
+  position: fixed;
+  z-index: 100;
+  right: 50px;
+  bottom: 50px;
+  border-radius: 50%;
+  padding: 5px;
+  background-color: var(--white);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 1px 1px 5px var(--black);
+}
+
+.icons {
+  height: 40px;
+  width: 40px;
+  color: var(--green);
+}
+
 @media only screen and (max-width: 1000px) {
   .container {
     width: 100vw;
+  }
+}
+
+@media only screen and (max-width: 650px) {
+  .iconLink {
+    right: 20px;
+    bottom: 30px;
+  }
+
+  .icons {
+    height: 35px;
+    width: 35px;
   }
 }

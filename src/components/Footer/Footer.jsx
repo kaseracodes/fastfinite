@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./Footer.module.css";
 import { RiFacebookCircleLine } from "react-icons/ri";
 import { FaInstagram } from "react-icons/fa";
-import { RiWhatsappLine } from "react-icons/ri";
+import { AiOutlineLinkedin } from "react-icons/ai";
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -30,12 +30,8 @@ const Footer = () => {
           >
             <FaInstagram size={25} className={styles.icons} />
           </Link>
-          <Link
-            className={styles.iconLink}
-            target="__blank"
-            to="https://wa.me/+919007074744"
-          >
-            <RiWhatsappLine size={25} className={styles.icons} />
+          <Link className={styles.iconLink} target="__blank" to="/">
+            <AiOutlineLinkedin size={25} className={styles.icons} />
           </Link>
         </div>
       </div>

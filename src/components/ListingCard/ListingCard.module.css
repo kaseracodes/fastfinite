@@ -40,8 +40,8 @@
 }
 
 .specialType {
-  background-color: var(--gold);
-  color: var(--white);
+  background-color: var(--yellow);
+  color: var(--gold);
 }
 
 .infoDiv {

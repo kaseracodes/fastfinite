@@ -78,7 +78,7 @@ const DetailPage = () => {
 
   const user = useSelector((state) => state.userReducer.user);
   const [bike, setBike] = useState(null);
-  const [transmissionType, setTransmissionType] = useState("");
+  const [category, setCategory] = useState("");
   const [pickupDate, setPickupDate] = useState(
     dayjs(query.get("pickUpDate")) || dayjs().startOf("hour").add(1, "hour")
   );
@@ -109,7 +109,7 @@ const DetailPage = () => {
     const transmissionType = BikeCategory.find(
       (item) => item.transmissionType === state.vehicle.type
     );
-    setTransmissionType(transmissionType);
+    setCategory(transmissionType);
   }, [state]);
 
   const handlePickupDateChange = async (newValue) => {
@@ -196,6 +196,18 @@ const DetailPage = () => {
   const handleCheckAvailability = async (bike) => {
     if (!bike) return false;
 
+    const currDateTime = dayjs().startOf("hour").add(1, "hour");
+
+    if (currDateTime.isAfter(pickupDate)) {
+      notification["error"]({
+        message: `Please select valid pick up and drop off dates`,
+        duration: 3,
+      });
+      setPickupDate(currDateTime);
+      setDropoffDate(currDateTime.add(1, "hour"));
+      return false;
+    }
+
     const checkAvailability = httpsCallable(
       getFunctions(),
       "checkAvailability"
@@ -257,18 +269,6 @@ const DetailPage = () => {
         message: `Please login before booking your ride`,
         duration: 3,
       });
-      return;
-    }
-
-    const currDateTime = dayjs().startOf("hour").add(1, "hour");
-
-    if (currDateTime.isAfter(pickupDate)) {
-      notification["error"]({
-        message: `Please select valid pick up and drop off dates`,
-        duration: 3,
-      });
-      setPickupDate(currDateTime);
-      setDropoffDate(currDateTime.add(1, "hour"));
       return;
     }
 
@@ -335,16 +335,20 @@ const DetailPage = () => {
         <>
           <div className={styles.div1}>
             <div className={styles.imageDiv}>
-              {transmissionType && (
+              {category && (
                 <div
                   className={
-                    transmissionType === "premiumBike"
+                    category.transmissionType === "premiumBike"
                       ? styles.specialType
                       : styles.type
                   }
                 >
-                  <img src="/images/icons/scooter.png" alt="icon" />
-                  {transmissionType.name}
+                  {category.transmissionType === "premiumBike" ? (
+                    <img src="/images/icons/bike.png" alt="icon" />
+                  ) : (
+                    <img src="/images/icons/scooter.png" alt="icon" />
+                  )}
+                  {category.name}
                 </div>
               )}
 
