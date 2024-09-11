@@ -46,7 +46,7 @@
 
 .bikeImage {
   margin-bottom: 30px;
-  max-width: 500px;
+  max-width: 450px;
 }
 
 .para,
@@ -276,9 +276,33 @@
   }
 }
 
+@media only screen and (max-width: 1200px) {
+  .imageDiv {
+    padding: 50px;
+  }
+
+  .bikeImage {
+    max-width: 400px;
+  }
+
+  .type,
+  .specialType {
+    top: 40px;
+    left: -65px;
+  }
+
+  .detailsDiv {
+    width: auto;
+  }
+}
+
 @media only screen and (max-width: 1100px) {
   .imageDiv {
     padding: 50px;
+  }
+
+  .bikeImage {
+    max-width: 350px;
   }
 
   .featureDiv {

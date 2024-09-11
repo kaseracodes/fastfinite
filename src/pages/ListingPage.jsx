@@ -315,7 +315,7 @@ const ListingPage = () => {
           ) : (
             <>
               <h5 className={styles.heading}>
-                Displaying {vehiclesData.length} available bikes
+                Displaying {vehiclesData.length} available vehicles
               </h5>
               <div className={styles.cardContainer}>
                 {vehiclesData.map((item, index) => (

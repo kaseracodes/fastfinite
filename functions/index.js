@@ -3,6 +3,8 @@
 import { onCall } from "firebase-functions/v2/https";
 import admin from "firebase-admin";
 import { Cashfree } from "cashfree-pg";
+import { createTransport } from "nodemailer";
+import Mailgen from "mailgen";
 
 if (admin.apps.length === 0) {
   admin.initializeApp();
@@ -12,7 +14,11 @@ const db = admin.firestore();
 
 Cashfree.XClientId = process.env.CASHFREE_CLIENT_ID;
 Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET;
-Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+// Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+Cashfree.XEnvironment = Cashfree.Environment.PRODUCTION;
+
+const EMAIL = process.env.EMAIL;
+const PASSWORD = process.env.PASSWORD;
 
 export const fetchVehicle = onCall(async (data, context) => {
   const { id } = data.data;
@@ -211,6 +217,8 @@ export const createOrder = onCall(async (data, context) => {
       message: "Order created successfully",
     };
   } catch (error) {
+    console.log(error);
+
     return {
       statusCode: 500,
       orderData: null,
@@ -252,6 +260,70 @@ export const verifyPayment = onCall(async (data, context) => {
     };
   } catch (error) {
     throw new https.HttpsError("unknown", error.message, error);
+  }
+});
+
+export const sendMail = onCall(async (data, context) => {
+  const { name, email, vehicleName, pickupDate, dropoffDate, amount } =
+    data.data;
+
+  try {
+    const config = {
+      service: "gmail",
+      auth: {
+        user: EMAIL,
+        pass: PASSWORD,
+      },
+    };
+    
+    const transporter = createTransport(config);
+
+    const mailGenerator = new Mailgen({
+      theme: "default",
+      product: {
+        name: "Fast Finite",
+        link: "https://fastfinite.in",
+      },
+    });
+
+    const response = {
+      body: {
+        name: name,
+        intro: "You have successfully booked your ride.",
+        table: {
+          data: [
+            {
+              Vehicle: vehicleName,
+              Pickup: pickupDate,
+              Dropoff: dropoffDate,
+              Amount: amount,
+            },
+          ],
+        },
+        outro: "Thank You!",
+      },
+    };
+
+    const mail = mailGenerator.generate(response);
+
+    const message = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Booking confirmation",
+      html: mail,
+    };
+
+    await transporter.sendMail(message);
+    return {
+      statusCode: 200,
+      message: "Confirmation mail sent",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      statusCode: 500,
+      message: "Error sending confirmation mail. Contact us if necessary",
+    };
   }
 });
 

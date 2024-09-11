@@ -26,6 +26,7 @@ import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { BikeCategory } from "../assets/BikeCategory";
 import { auth } from "../firebase/config";
 import { logoutUser } from "../store/userSlice";
+import { formatDate } from "../utils/formatDate";
 
 // Fix for the marker not showing in production
 delete L.Icon.Default.prototype._getIconUrl;
@@ -111,6 +112,13 @@ const DetailPage = () => {
     );
     setCategory(transmissionType);
   }, [state]);
+
+  const calculateAmount = () => {
+    return (
+      calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
+      Number(bike.package[duration].deposit)
+    );
+  };
 
   const handlePickupDateChange = async (newValue) => {
     const ceiledDate = newValue.startOf("hour");
@@ -240,9 +248,7 @@ const DetailPage = () => {
   const handleCreateOrder = async () => {
     const createOrder = httpsCallable(getFunctions(), "createOrder");
     const res = await createOrder({
-      amount:
-        calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
-        Number(bike.package[duration].deposit),
+      amount: calculateAmount(),
       uid: user.uid,
       phoneNo: user.phoneNo,
       name: user.name,
@@ -262,6 +268,25 @@ const DetailPage = () => {
     return orderData;
   };
 
+  const handleSendMail = async () => {
+    const sendMail = httpsCallable(getFunctions(), "sendMail");
+    const res = await sendMail({
+      name: user.name,
+      email: user.email,
+      vehicleName: bike.name,
+      pickupDate: formatDate(pickupDate.toISOString()),
+      dropoffDate: formatDate(dropoffDate.toISOString()),
+      amount: calculateAmount(),
+    });
+    const { statusCode, message } = res.data;
+
+    let status = statusCode === 200 ? "success" : "error";
+    notification[status]({
+      message: message,
+      duration: 3,
+    });
+  };
+
   const handlePayment = async (e) => {
     e.preventDefault();
     if (!user) {
@@ -275,14 +300,23 @@ const DetailPage = () => {
     setLoading(true);
 
     try {
+      // const f = true;
+      // await handleSendMail();
+      // if (f) return;
+
       const isAvailable = await handleCheckAvailability(bike || state.vehicle);
       if (!isAvailable) {
+        setLoading(false);
         return;
       }
 
       const orderData = await handleCreateOrder();
-      if (!orderData) return;
+      if (!orderData) {
+        setLoading(false);
+        return;
+      }
 
+      console.log(orderData);
       let checkoutOptions = {
         paymentSessionId: orderData.payment_session_id,
         redirectTarget: "_modal",
@@ -297,9 +331,7 @@ const DetailPage = () => {
         orderId: orderData.order_id,
         pickupDate: pickupDate.toISOString(),
         dropoffDate: dropoffDate.toISOString(),
-        amount:
-          calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
-          Number(bike.package[duration].deposit),
+        amount: calculateAmount(),
         deposit: bike.package[duration].deposit,
         createdAt: orderData.created_at,
       });
@@ -311,6 +343,9 @@ const DetailPage = () => {
           message: `Payment verified. Booked your ride successfully`,
           duration: 3,
         });
+        setLoading(false);
+
+        await handleSendMail();
       } else {
         notification["error"]({
           message: `${verificationMessage}`,
@@ -444,15 +479,7 @@ const DetailPage = () => {
 
               <div className={styles.amountDiv}>
                 <p className={styles.amountText2}>Amount Payable Today</p>
-                <p className={styles.amountText2}>
-                  ₹{" "}
-                  {calculateRent(
-                    pickupDate,
-                    dropoffDate,
-                    bike.package,
-                    bike.type
-                  ) + Number(bike.package[duration].deposit)}
-                </p>
+                <p className={styles.amountText2}>₹ {calculateAmount()}</p>
               </div>
 
               <button className={styles.btn1}>

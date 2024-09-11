@@ -12,12 +12,13 @@ import { auth } from "../firebase/config";
 import { loginUser, logoutUser } from "../store/userSlice";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
-import { MoonLoader } from "react-spinners";
+// import { MoonLoader } from "react-spinners";
 import updateProfile from "../utils/updateProfile";
 import AuthHoc from "../hoc/AuthHoc";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { COLORS } from "../assets/constants";
+// import { COLORS } from "../assets/constants";
 import PageLoader from "../components/PageLoader/PageLoader";
+import { formatDate } from "../utils/formatDate";
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ const ProfilePage = () => {
   const user = useSelector((state) => state.userReducer.user);
 
   const [tab, setTab] = useState("profile");
-  const [bookingTab, setBookingTab] = useState("confirmed");
+  // const [bookingTab, setBookingTab] = useState("confirmed");
   const [isEditing, setIsEditing] = useState({
     name: false,
     email: false,
@@ -45,18 +46,6 @@ const ProfilePage = () => {
     bookings: [],
   });
   const [loading, setLoading] = useState(false);
-
-  const formatDate = (date) => {
-    const dateTimeOptions = {
-      hour: "numeric",
-      minute: "numeric",
-      hour12: true,
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    };
-    return new Date(date).toLocaleString("en-US", dateTimeOptions);
-  };
 
   const fetchBookings = async () => {
     setLoading(true);
