@@ -345,7 +345,7 @@ const DetailPage = () => {
         });
         setLoading(false);
 
-        await handleSendMail();
+        // await handleSendMail();
       } else {
         notification["error"]({
           message: `${verificationMessage}`,
