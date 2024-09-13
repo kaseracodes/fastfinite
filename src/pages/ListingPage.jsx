@@ -24,7 +24,7 @@ import FilterModal from "../components/FilterModal/FilterModal";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
-// import { BrandOptions } from "../assets/FilterData";
+import { BrandOptions } from "../assets/FilterData";
 import { BikeCategory } from "../assets/BikeCategory";
 
 const ListingPage = () => {
@@ -161,7 +161,7 @@ const ListingPage = () => {
   const FILTER = () => {
     return (
       <div>
-        {/* <FormControl component="fieldset" margin="normal">
+        <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Booking Duration</FormLabel>
           <RadioGroup
             aria-label="booking-duration"
@@ -185,8 +185,8 @@ const ListingPage = () => {
               label="Monthly Package"
             />
           </RadioGroup>
-        </FormControl> */}
-        {/* <Divider /> */}
+        </FormControl>
+        <Divider />
         <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Transmission Type</FormLabel>
           {BikeCategory.map((item) => (
@@ -203,7 +203,7 @@ const ListingPage = () => {
             />
           ))}
         </FormControl>
-        {/* <Divider />
+        <Divider />
         <FormControl component="fieldset" margin="normal">
           <FormLabel component="legend">Brands</FormLabel>
           {BrandOptions.map((brand) => (
@@ -219,7 +219,7 @@ const ListingPage = () => {
               label={brand.label}
             />
           ))}
-        </FormControl> */}
+        </FormControl>
 
         <button className={styles.apply} onClick={fetchVehicles}>
           Apply

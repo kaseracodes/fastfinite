@@ -12,6 +12,8 @@
   border: 1px solid var(--gray2);
   border-radius: 4px;
   min-width: 250px;
+  max-height: 550px;
+  overflow-y: scroll;
 }
 
 .dateInputContainer {

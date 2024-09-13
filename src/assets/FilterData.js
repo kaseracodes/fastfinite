@@ -6,8 +6,9 @@ export const TransmissionTypes = [
 ];
 
 export const BrandOptions = [
-  { name: "Honda", label: "Honda" },
-  { name: "Vespa", label: "Vespa" },
   { name: "Aprilia", label: "Aprilia" },
+  { name: "Bounce Infinity", label: "Bounce Infinity" },
   { name: "Kawasaki", label: "Kawasaki" },
+  { name: "Triumph", label: "Triumph" },
+  { name: "Vespa", label: "Vespa" },
 ];
