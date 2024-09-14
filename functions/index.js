@@ -210,7 +210,7 @@ export const createOrder = onCall(async (data, context) => {
 
   try {
     const res = await Cashfree.PGCreateOrder("2023-08-01", request);
-    console.log(res.data);
+
     return {
       statusCode: 200,
       orderData: res.data,
@@ -252,14 +252,30 @@ export const verifyPayment = onCall(async (data, context) => {
 
   try {
     const res = await Cashfree.PGOrderFetchPayments("2023-08-01", orderId);
-    await db.collection("bookings").add(bookingData);
-    return {
-      verificationStatusCode: 200,
-      verified: res.data,
-      verificationMessage: "Booking saved successfully",
-    };
+    // console.log(res.data[0].payment_status);
+
+    if (res.data && res.data[0] && res.data[0].payment_status === "SUCCESS") {
+      await db.collection("bookings").add(bookingData);
+      return {
+        verificationStatusCode: 200,
+        verified: res.data,
+        verificationMessage: "Booking saved successfully",
+      };
+    } else {
+      return {
+        verificationStatusCode: 400,
+        verified: null,
+        verificationMessage: "Payment failed",
+      };
+    }
   } catch (error) {
-    throw new https.HttpsError("unknown", error.message, error);
+    console.log(error);
+
+    return {
+      verificationStatusCode: 500,
+      verified: null,
+      verificationMessage: "Error verifying payment",
+    };
   }
 });
 
@@ -275,7 +291,7 @@ export const sendMail = onCall(async (data, context) => {
         pass: PASSWORD,
       },
     };
-    
+
     const transporter = createTransport(config);
 
     const mailGenerator = new Mailgen({
