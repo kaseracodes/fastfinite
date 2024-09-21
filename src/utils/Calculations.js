@@ -62,3 +62,9 @@ export const calculateRent = (pickupDate, dropoffDate, packageRates, type) => {
 
   return totalRent;
 };
+
+export const calculateGST = (pickupDate, dropoffDate, packageRates, type) => {
+  const rent = calculateRent(pickupDate, dropoffDate, packageRates, type);
+  const gst = rent * 0.18;
+  return gst;
+};

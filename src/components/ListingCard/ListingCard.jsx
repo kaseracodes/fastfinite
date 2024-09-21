@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./ListingCard.module.css";
 import { IoLocationOutline } from "react-icons/io5";
-import { calculateRent } from "../../utils/Calculations";
+import { calculateGST, calculateRent } from "../../utils/Calculations";
 import { useEffect, useState } from "react";
 import { BikeCategory } from "../../assets/BikeCategory";
 
@@ -93,7 +93,13 @@ const ListingCard = ({ vehicle, pickUpDate, dropOffDate }) => {
               dropOffDate,
               vehicle.package,
               vehicle.type
-            )}
+            ) +
+              calculateGST(
+                pickUpDate,
+                dropOffDate,
+                vehicle.package,
+                vehicle.type
+              )}
           </p>
           <p className={styles.deposit}>
             Deposit: ₹{vehicle.package[duration].deposit}

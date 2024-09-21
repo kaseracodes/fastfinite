@@ -162,6 +162,13 @@
   font-weight: 500;
 }
 
+.checkbox {
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
+  gap: 10px;
+}
+
 .amountDiv {
   display: flex;
   justify-content: space-between;

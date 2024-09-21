@@ -12,7 +12,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { COLORS } from "../assets/constants";
 import Footer from "../components/Footer/Footer";
-import { calculateRent } from "../utils/Calculations";
+import { calculateGST, calculateRent } from "../utils/Calculations";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -89,6 +89,7 @@ const DetailPage = () => {
   const [prevPickupDate, setPrevPickupDate] = useState(pickupDate);
   const [prevDropoffDate, setPrevDropoffDate] = useState(dropoffDate);
   const [duration, setDuration] = useState(query.get("duration") || "daily");
+  const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {}, [user]);
@@ -116,6 +117,7 @@ const DetailPage = () => {
   const calculateAmount = () => {
     return (
       calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
+      calculateGST(pickupDate, dropoffDate, bike.package, bike.type) +
       Number(bike.package[duration].deposit)
     );
   };
@@ -289,6 +291,15 @@ const DetailPage = () => {
 
   const handlePayment = async (e) => {
     e.preventDefault();
+
+    if (!isChecked) {
+      notification["error"]({
+        message: `Please accept the terms and conditions`,
+        duration: 3,
+      });
+      return;
+    }
+
     if (!user) {
       notification["error"]({
         message: `Please login before booking your ride`,
@@ -392,7 +403,7 @@ const DetailPage = () => {
               <p className={styles.para}>
                 *Images are for representation purposes only.
               </p>
-              <div className={styles.infoCardDiv}>
+              {/* <div className={styles.infoCardDiv}>
                 <Card
                   imagePath="/images/mileage.png"
                   heading="Mileage"
@@ -405,7 +416,7 @@ const DetailPage = () => {
                   detail={bike.make_year}
                   textColor={COLORS.yellow}
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className={styles.detailsDiv}>
@@ -470,6 +481,19 @@ const DetailPage = () => {
               </div>
 
               <div className={styles.amountDiv}>
+                <p className={styles.amountText}>GST (18%)</p>
+                <p className={styles.amountText}>
+                  ₹{" "}
+                  {calculateGST(
+                    pickupDate,
+                    dropoffDate,
+                    bike.package,
+                    bike.type
+                  )}
+                </p>
+              </div>
+
+              <div className={styles.amountDiv}>
                 <p className={styles.amountText}>Refundable Deposit</p>
                 <p className={styles.amountText}>
                   ₹ {bike.package[duration].deposit}
@@ -486,6 +510,19 @@ const DetailPage = () => {
                 Refundable Deposit - ₹ {bike.package[duration].deposit} (To be
                 refunded at the time of dropoff)
               </button>
+
+              <div className={styles.checkbox}>
+                <input
+                  className={styles.amountText}
+                  type="checkbox"
+                  name="checkbox"
+                  checked={isChecked}
+                  onChange={() => setIsChecked(event.target.checked)}
+                />
+                <label htmlFor="checkbox">
+                  I agree to terms and conditions
+                </label>
+              </div>
 
               <button className={styles.btn2} onClick={handlePayment}>
                 {loading ? (
