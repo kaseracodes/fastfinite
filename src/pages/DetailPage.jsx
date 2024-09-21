@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./DetailPage.module.css";
@@ -65,6 +65,7 @@ const Card2 = ({ imagePath, heading, detail, textColor }) => {
 const DetailPage = () => {
   const params = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const query = new URLSearchParams(useLocation().search);
   const { state } = useLocation();
 
@@ -120,6 +121,20 @@ const DetailPage = () => {
       calculateGST(pickupDate, dropoffDate, bike.package, bike.type) +
       Number(bike.package[duration].deposit)
     );
+  };
+
+  const handleScrollToTerms = (e) => {
+    e.preventDefault();
+
+    // Keep existing query params and navigate
+    const currentSearch = location.search;
+    navigate(`${currentSearch}#terms`, { replace: true, state });
+
+    // Scroll to the 'terms' section
+    const termsElement = document.getElementById("terms");
+    if (termsElement) {
+      termsElement.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handlePickupDateChange = async (newValue) => {
@@ -520,7 +535,13 @@ const DetailPage = () => {
                   onChange={() => setIsChecked(event.target.checked)}
                 />
                 <label htmlFor="checkbox">
-                  I agree to terms and conditions
+                  I agree to{" "}
+                  <Link
+                    onClick={handleScrollToTerms}
+                    style={{ textDecoration: "none" }}
+                  >
+                    terms and conditions
+                  </Link>
                 </label>
               </div>
 
@@ -620,7 +641,7 @@ const DetailPage = () => {
             </div>
           </div>
 
-          <div className={styles.div2}>
+          <div className={styles.div2} id="terms">
             <div className={styles.termsDiv}>
               <p className={styles.subHeading}>Terms & Conditions</p>
 
