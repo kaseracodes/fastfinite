@@ -26,11 +26,15 @@ const Footer = () => {
           <Link
             className={styles.iconLink}
             target="__blank"
-            to="https://www.instagram.com/fast_finite_bike_scooty_rental?igsh=amtxaXI5aWU1am9u"
+            to="https://www.instagram.com/fastfinite.bikescootyrental/"
           >
             <FaInstagram size={25} className={styles.icons} />
           </Link>
-          <Link className={styles.iconLink} target="__blank" to="/">
+          <Link
+            className={styles.iconLink}
+            target="__blank"
+            to="https://www.linkedin.com/company/fast-finite-bike-scooty-rental/"
+          >
             <AiOutlineLinkedin size={25} className={styles.icons} />
           </Link>
         </div>
