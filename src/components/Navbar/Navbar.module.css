@@ -90,7 +90,7 @@
   margin-top: 20px;
 }
 
-@media only screen and (max-width: 1150px) {
+@media only screen and (max-width: 1200px) {
   .container {
     padding: 15px 50px;
     gap: 15px;
@@ -101,7 +101,7 @@
   }
 }
 
-@media only screen and (max-width: 910px) {
+@media only screen and (max-width: 1050px) {
   .container {
     padding: 15px 20px;
   }

@@ -105,6 +105,13 @@ const TncPage = () => {
             </li>
 
             <li className={styles.li}>
+              Refund of the security deposit will be processed within 24 hours
+              from availing the service.
+            </li>
+
+            <li className={styles.li}>We have a no-cancellation policy.</li>
+
+            <li className={styles.li}>
               Notwithstanding anything contained in these Terms, the parties
               shall not be liable for any failure to perform an obligation under
               these Terms if performance is prevented or delayed by a force

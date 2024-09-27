@@ -670,8 +670,10 @@ const DetailPage = () => {
 
                 <li className={styles.para2}>
                   Charges to be borne by the customer - <br />
-                  &emsp;&emsp;Helmet Lost: Rs. 700, <br />
-                  &emsp;&emsp;Key Lost: Rs.1000, <br />
+                  &emsp;&emsp;Helmet Lost: Rs. 700
+                  <br />
+                  &emsp;&emsp;Key Lost: Rs.1000
+                  <br />
                   &emsp;&emsp;Full Insurance Declared Value of the vehicle in
                   case of any theft.
                 </li>
