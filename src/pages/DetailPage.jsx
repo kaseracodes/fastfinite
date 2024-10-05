@@ -310,7 +310,7 @@ const DetailPage = () => {
 
     if (f) {
       notification["info"]({
-        message: `Booking is disabled till 10th October, 2024`,
+        message: `Booking is disabled till 13th October, 2024`,
         duration: 3,
       });
       return;
