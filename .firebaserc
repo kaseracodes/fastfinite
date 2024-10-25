@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "fastfinite-bike-rental"
-  }
+    "default": "fast-finite-bike-rental"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }

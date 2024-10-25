@@ -306,15 +306,15 @@ const DetailPage = () => {
 
   const handlePayment = async (e) => {
     e.preventDefault();
-    const f = true;
+    // const f = true;
 
-    if (f) {
-      notification["info"]({
-        message: `Booking is disabled till 13th October, 2024`,
-        duration: 3,
-      });
-      return;
-    }
+    // if (f) {
+    //   notification["info"]({
+    //     message: `Booking is disabled till 13th October, 2024`,
+    //     duration: 3,
+    //   });
+    //   return;
+    // }
 
     if (!isChecked) {
       notification["error"]({
