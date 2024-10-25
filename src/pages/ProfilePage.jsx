@@ -8,7 +8,7 @@ import { MdOutlineBookmarks } from "react-icons/md";
 import styles from "./ProfilePage.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase/config";
+import { auth, storage } from "../firebase/config";
 import { loginUser, logoutUser } from "../store/userSlice";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
@@ -19,6 +19,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 // import { COLORS } from "../assets/constants";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { formatDate } from "../utils/formatDate";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 const ProfilePage = () => {
   const dispatch = useDispatch();
@@ -120,14 +121,30 @@ const ProfilePage = () => {
     setProfile({ ...profile, [name]: value });
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = async (event) => {
     const file = event.target.files[0];
     if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfile({ ...profile, profilePic: reader.result });
-      };
-      reader.readAsDataURL(file);
+      const storageRef = ref(storage, `profilePictures/${file.name}`);
+
+      try {
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          profilePic: downloadURL,
+        }));
+
+        notification["success"]({
+          message: "Profile pic updated successfully",
+          duration: 3,
+        });
+      } catch (error) {
+        notification["success"]({
+          message: "Error uploading file",
+          duration: 3,
+        });
+      }
     }
   };
 
