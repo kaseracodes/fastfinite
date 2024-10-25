@@ -47,6 +47,7 @@ const ProfilePage = () => {
     bookings: [],
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -127,23 +128,40 @@ const ProfilePage = () => {
       const storageRef = ref(storage, `profilePictures/${file.name}`);
 
       try {
+        setUploading(true);
         const snapshot = await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(snapshot.ref);
 
-        setProfile((prevProfile) => ({
-          ...prevProfile,
-          profilePic: downloadURL,
-        }));
+        const { statusCode, message } = await updateProfile(
+          "profilePic",
+          downloadURL,
+          profile.uid
+        );
+        if (statusCode === 200) {
+          setProfile((prevProfile) => ({
+            ...prevProfile,
+            profilePic: downloadURL,
+          }));
 
-        notification["success"]({
-          message: "Profile pic updated successfully",
-          duration: 3,
-        });
+          dispatch(loginUser({ ...profile, profilePic: downloadURL }));
+
+          notification["success"]({
+            message: "Profile pic updated successfully",
+            duration: 3,
+          });
+        } else {
+          notification["error"]({
+            message: `${message}`,
+            duration: 3,
+          });
+        }
       } catch (error) {
         notification["success"]({
           message: "Error uploading file",
           duration: 3,
         });
+      } finally {
+        setUploading(false);
       }
     }
   };
@@ -223,7 +241,7 @@ const ProfilePage = () => {
             <img src={profile.profilePic} alt="profile-image" />
             <h5 className={styles.heading}>{profile.name}</h5>
             <button onClick={triggerFileInput} className={styles.editBtn}>
-              Change profile pic
+              {uploading ? "Uploading..." : "Change profile pic"}
             </button>
             <input
               id="profilePic"

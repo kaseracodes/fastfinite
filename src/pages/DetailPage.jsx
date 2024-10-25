@@ -116,10 +116,15 @@ const DetailPage = () => {
   }, [state]);
 
   const calculateAmount = () => {
+    // return (
+    //   calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
+    //   calculateGST(pickupDate, dropoffDate, bike.package, bike.type) +
+    //   Number(bike.package[duration].deposit)
+    // );
+
     return (
       calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
-      calculateGST(pickupDate, dropoffDate, bike.package, bike.type) +
-      Number(bike.package[duration].deposit)
+      calculateGST(pickupDate, dropoffDate, bike.package, bike.type)
     );
   };
 
@@ -517,12 +522,12 @@ const DetailPage = () => {
                 </p>
               </div>
 
-              <div className={styles.amountDiv}>
+              {/* <div className={styles.amountDiv}>
                 <p className={styles.amountText}>Refundable Deposit</p>
                 <p className={styles.amountText}>
                   ₹ {bike.package[duration].deposit}
                 </p>
-              </div>
+              </div> */}
               <hr className={styles.hr} />
 
               <div className={styles.amountDiv}>
@@ -532,7 +537,7 @@ const DetailPage = () => {
 
               <button className={styles.btn1}>
                 Refundable Deposit - ₹ {bike.package[duration].deposit} (To be
-                refunded at the time of dropoff)
+                paid at the time of pickup and refunded at the time of dropoff)
               </button>
 
               <div className={styles.checkbox}>
