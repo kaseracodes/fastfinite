@@ -343,6 +343,46 @@ export const sendMail = onCall(async (data, context) => {
   }
 });
 
+export const sendMailByUser = onCall(async (data, context) => {
+  const { name, email, subject, userMessage } = data.data;
+
+  try {
+    const config = {
+      service: "gmail",
+      auth: {
+        user: EMAIL,
+        pass: PASSWORD,
+      },
+    };
+
+    const transporter = createTransport(config);
+
+    const mailContent =
+      `<h3>From, ${name}</h3>` +
+      `<h4>Mail id: ${email}</h4>` +
+      `<p>${userMessage}</p>`;
+
+    const mail = {
+      from: email,
+      to: EMAIL,
+      subject: subject,
+      html: mailContent,
+    };
+
+    await transporter.sendMail(mail);
+    return {
+      statusCode: 200,
+      message: "Message sent",
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      statusCode: 500,
+      message: "Error sending message.",
+    };
+  }
+});
+
 export const getBookings = onCall(async (data, context) => {
   const { uid } = data.data;
 

@@ -72,6 +72,7 @@
   font-weight: 500;
   padding: 10px 20px;
   background-color: var(--yellow);
+  cursor: pointer;
 }
 
 @media only screen and (max-width: 1300px) {
