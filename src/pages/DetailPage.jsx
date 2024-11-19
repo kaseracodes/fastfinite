@@ -309,6 +309,25 @@ const DetailPage = () => {
     });
   };
 
+  const handleSendMailToAdmin = async () => {
+    const sendMail = httpsCallable(getFunctions(), "sendMail");
+    const res = await sendMail({
+      name: "Fast Finite",
+      email: "support@fastfinite.in",
+      vehicleName: bike.name,
+      pickupDate: formatDate(pickupDate.toISOString()),
+      dropoffDate: formatDate(dropoffDate.toISOString()),
+      amount: calculateAmount(),
+    });
+    const { statusCode, message } = res.data;
+
+    let status = statusCode === 200 ? "success" : "error";
+    notification[status]({
+      message: message,
+      duration: 3,
+    });
+  };
+
   const handlePayment = async (e) => {
     e.preventDefault();
     // const f = true;
@@ -386,6 +405,7 @@ const DetailPage = () => {
         setLoading(false);
 
         await handleSendMail();
+        await handleSendMailToAdmin();
       } else {
         notification["error"]({
           message: `${verificationMessage}`,
