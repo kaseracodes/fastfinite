@@ -5,6 +5,9 @@ import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { ReduxProvider } from "./store/provider.jsx";
 
+self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
