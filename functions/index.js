@@ -5,12 +5,24 @@ import admin from "firebase-admin";
 import { Cashfree } from "cashfree-pg";
 import { createTransport } from "nodemailer";
 import Mailgen from "mailgen";
+import { v4 as uuidv4 } from "uuid";
+import { onDocumentCreated } from "firebase-functions/v2/firestore";
+import fetch from "node-fetch";
+import { generateInvoicePDF } from './invoiceGenerator.js';
 
 if (admin.apps.length === 0) {
-  admin.initializeApp();
+  admin.initializeApp({
+    storageBucket: "fast-finite-bike-rental.appspot.com" // replace with your Firebase project bucket
+  });
+}
+
+if (process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
+  console.log("⚡ Using Firebase Storage Emulator at", process.env.FIREBASE_STORAGE_EMULATOR_HOST);
 }
 
 const db = admin.firestore();
+const bucket = admin.storage().bucket();
+
 
 Cashfree.XClientId = process.env.CASHFREE_CLIENT_ID;
 Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET;
@@ -18,6 +30,7 @@ Cashfree.XClientSecret = process.env.CASHFREE_CLIENT_SECRET;
 Cashfree.XEnvironment = Cashfree.Environment.PRODUCTION;
 
 const EMAIL = process.env.EMAIL;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const PASSWORD = process.env.PASSWORD;
 
 export const fetchVehicle = onCall(async (data, context) => {
@@ -194,9 +207,31 @@ export const checkAvailability = onCall(async (data, context) => {
   }
 });
 
+// PAYMENT FUNCTIONS COMMENTED OUT FOR TESTING
 export const createOrder = onCall(async (data, context) => {
   const { amount, uid, phoneNo, name, email } = data.data;
 
+  // // MOCK ORDER CREATION FOR TESTING
+  // console.log("TESTING MODE: Skipping actual payment gateway");
+  
+  // // Generate a mock order ID for testing
+  // const mockOrderId = `test_order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  
+  // const mockOrderData = {
+  //   order_id: mockOrderId,
+  //   order_amount: Number(amount),
+  //   order_currency: "INR",
+  //   customer_details: {
+  //     customer_id: uid,
+  //     customer_phone: phoneNo,
+  //     customer_name: name,
+  //     customer_email: email,
+  //   },
+  //   order_status: "ACTIVE", // Mock status
+  //   payment_session_id: `test_session_${Date.now()}`,
+  // };
+
+  // ORIGINAL PAYMENT CODE COMMENTED OUT
   const request = {
     order_amount: Number(amount),
     order_currency: "INR",
@@ -225,6 +260,22 @@ export const createOrder = onCall(async (data, context) => {
       message: "Error creating order",
     };
   }
+  
+
+  // try {
+  //   return {
+  //     statusCode: 200,
+  //     orderData: mockOrderData,
+  //     message: "Mock order created successfully (TESTING MODE)",
+  //   };
+  // } catch (error) {
+  //   console.log(error);
+  //   return {
+  //     statusCode: 500,
+  //     orderData: null,
+  //     message: "Error creating mock order",
+  //   };
+  // }
 });
 
 export const verifyPayment = onCall(async (data, context) => {
@@ -239,13 +290,17 @@ export const verifyPayment = onCall(async (data, context) => {
     createdAt,
   } = data.data;
 
+  // ✅ Ensure numeric values
+  const bookingAmount = Number(amount) || 0;
+  const bookingDeposit = Number(deposit) || 0;
+
   const bookingData = {
     vehicle_id: bikeId,
     uid,
     startTime: pickupDate,
     endTime: dropoffDate,
-    amount,
-    deposit,
+    amount: bookingAmount,
+    deposit: bookingDeposit,
     orderId,
     createdAt,
   };
@@ -270,7 +325,6 @@ export const verifyPayment = onCall(async (data, context) => {
     }
   } catch (error) {
     console.log(error);
-
     return {
       verificationStatusCode: 500,
       verified: null,
@@ -279,21 +333,137 @@ export const verifyPayment = onCall(async (data, context) => {
   }
 });
 
-export const sendMail = onCall(async (data, context) => {
-  const { name, email, vehicleName, pickupDate, dropoffDate, amount } =
-    data.data;
+const RUPEE = "₹";
+
+function getStorageUrl(fileName, downloadToken, projectId) {
+  // Check if we're running in the Firebase Storage emulator
+  if (process.env.FIREBASE_STORAGE_EMULATOR_HOST) {
+    // For emulator, use the local URL format
+    const emulatorHost = process.env.FIREBASE_STORAGE_EMULATOR_HOST;
+    return `http://${emulatorHost}/v0/b/${projectId}.appspot.com/o/${encodeURIComponent(fileName)}?alt=media&token=${downloadToken}`;
+  } else {
+    // For production, use the standard URL
+    return `https://firebasestorage.googleapis.com/v0/b/${projectId}.appspot.com/o/${encodeURIComponent(fileName)}?alt=media&token=${downloadToken}`;
+  }
+}
+
+export const onBookingCreated = onDocumentCreated("bookings/{bookingId}", async (event) => {
+  const booking = event.data.data();
+  const bookingId = event.params.bookingId;
 
   try {
-    const config = {
-      service: "gmail",
-      auth: {
-        user: EMAIL,
-        pass: PASSWORD,
+    console.log(`🎨 Starting invoice generation for booking: ${bookingId}`);
+    console.log(`📄 Booking data:`, booking);
+
+    // --- Fetch user & vehicle data ---
+    const userSnap = await db.collection("users").doc(booking.uid).get();
+    const vehicleSnap = await db.collection("vehicles").doc(booking.vehicle_id).get();
+
+    if (!userSnap.exists) {
+      console.error(`❌ User not found: ${booking.uid}`);
+      throw new Error("User not found for invoice");
+    }
+    if (!vehicleSnap.exists) {
+      console.error(`❌ Vehicle not found: ${booking.vehicle_id}`);
+      throw new Error("Vehicle not found for invoice");
+    }
+
+    const user = userSnap.data();
+    const vehicle = vehicleSnap.data();
+
+    const pdfBuffer = await generateInvoicePDF(booking, bookingId, user, vehicle);
+
+    // --- Upload to Firebase Storage ---
+    const downloadToken = uuidv4();
+    const fileName = `invoices/inv-${bookingId}.pdf`;
+    const file = bucket.file(fileName);
+
+    console.log(`☁️ Uploading to storage: ${fileName}`);
+
+    await file.save(pdfBuffer, {
+      metadata: {
+        contentType: "application/pdf",
+        metadata: { firebaseStorageDownloadTokens: downloadToken },
       },
-    };
+    });
 
-    const transporter = createTransport(config);
+    console.log("☁️ File uploaded successfully");
 
+    // Get the project ID more reliably
+    const projectId = process.env.GCLOUD_PROJECT || admin.app().options.projectId || "fast-finite-bike-rental";
+    const invoiceUrl = getStorageUrl(fileName, downloadToken, projectId);
+
+    console.log("🔗 Generated invoice URL:", invoiceUrl);
+
+    // --- UPDATE FIRESTORE DOCUMENT ---
+    console.log(`📝 Updating booking document ${bookingId} with invoice URL`);
+    
+    // Use a transaction to ensure the update succeeds
+    await db.runTransaction(async (transaction) => {
+      const bookingRef = db.collection("bookings").doc(bookingId);
+      const bookingDoc = await transaction.get(bookingRef);
+      
+      if (!bookingDoc.exists) {
+        throw new Error(`Booking document ${bookingId} not found during update`);
+      }
+      
+      transaction.update(bookingRef, { 
+        invoiceUrl: invoiceUrl
+      });
+      
+      console.log(`✅ Transaction committed for booking ${bookingId}`);
+    });
+
+    console.log("✅ Invoice generated and URL saved:", invoiceUrl);
+
+    // Send notification after successful update
+    try {
+      await sendNotificationInternal({ uid: booking.uid, bookingId, invoiceUrl, pdfBuffer });
+      console.log("📧 Notification sent successfully");
+    } catch (notificationError) {
+      console.error("📧 Notification failed (but invoice was saved):", notificationError);
+    }
+
+    return null;
+  } catch (error) {
+    console.error("❌ CRITICAL ERROR in invoice generation:", error);
+    console.error("❌ Error stack:", error.stack);
+    
+    // Try to update the document with error status
+    try {
+      await db.collection("bookings").doc(bookingId).update({
+        invoiceError: error.message,
+        invoiceErrorAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (updateError) {
+      console.error("❌ Failed to update error status:", updateError);
+    }
+    
+    return null;
+  }
+});
+
+
+async function sendNotificationInternal({ uid, bookingId, invoiceUrl, pdfBuffer }) {
+  try {
+    const userSnap = await db.collection("users").doc(uid).get();
+    if (!userSnap.exists) return;
+
+    const { name, email } = userSnap.data();
+
+    // Fetch booking and vehicle data for Mailgen content
+    const bookingSnap = await db.collection("bookings").doc(bookingId).get();
+    const booking = bookingSnap.data();
+    const vehicleSnap = await db.collection("vehicles").doc(booking.vehicle_id).get();
+    const vehicle = vehicleSnap.data();
+
+    // Email transport config
+    const transporter = createTransport({
+      service: "gmail",
+      auth: { user: EMAIL, pass: PASSWORD },
+    });
+
+    // ✅ Use Mailgen formatting
     const mailGenerator = new Mailgen({
       theme: "default",
       product: {
@@ -305,43 +475,168 @@ export const sendMail = onCall(async (data, context) => {
     const response = {
       body: {
         name: name,
-        intro: "You have successfully booked your ride.",
+        intro: "🎉 Booking Confirmation",
         table: {
           data: [
             {
-              Vehicle: vehicleName,
-              Pickup: pickupDate,
-              Dropoff: dropoffDate,
-              Amount: amount,
+              Vehicle: vehicle.name,
+              Pickup: new Date(booking.startTime).toLocaleString(),
+              Dropoff: new Date(booking.endTime).toLocaleString(),
+              Amount: `${RUPEE}${booking.amount}`,
+              Status: "Confirmed",
             },
           ],
         },
-        outro: "Thank You!",
+        outro: "Thank you for booking with Fast Finite! Your invoice is attached below.",
       },
     };
 
     const mail = mailGenerator.generate(response);
 
+    // ✅ Single email: confirmation + invoice attachment
     const message = {
-      from: process.env.EMAIL,
+      from: EMAIL,
       to: email,
-      subject: "Booking confirmation",
+      subject: "Booking Confirmation & Invoice",
       html: mail,
+      attachments: [
+        {
+          filename: `invoice-${bookingId}.pdf`,
+          content: pdfBuffer,
+          contentType: "application/pdf"
+        }
+      ]
     };
 
     await transporter.sendMail(message);
-    return {
-      statusCode: 200,
-      message: "Confirmation mail sent",
+    console.log(`📩 Booking confirmation + invoice sent to ${email}`);
+
+    const adminMessage = {
+      ...message,
+      to: ADMIN_EMAIL,  // overwrite receiver
+      subject: `Admin Copy - Booking Confirmation (${bookingId})`
     };
+    
+    await transporter.sendMail(adminMessage);
+    console.log(`📩 Booking confirmation + invoice also sent to admin ${ADMIN_EMAIL}`);
+
+    // WhatsApp (still optional)
+    const { phoneNo } = userSnap.data();
+    if (phoneNo) {
+      await sendWhatsAppMessageInternal({ phoneNo, name, invoiceUrl });
+    }
   } catch (error) {
-    console.log(error);
-    return {
-      statusCode: 500,
-      message: "Error sending confirmation mail. Contact us if necessary",
-    };
+    console.error("Error sending notification:", error);
   }
+}
+
+
+async function sendWhatsAppMessageInternal({ phoneNo, name, invoiceUrl }) {
+  try {
+    const WHATSAPP_API_URL = process.env.WHATSAPP_API_URL; 
+    const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+    const WHATSAPP_SENDER = process.env.WHATSAPP_SENDER; // e.g. phone number id
+
+    const messageBody = {
+      messaging_product: "whatsapp",
+      to: phoneNo, // recipient's phone number in international format
+      type: "text",
+      text: {
+        body: `Hello ${name}, your booking invoice is ready. Download here: ${invoiceUrl}`,
+      },
+    };
+
+    const res = await fetch(`${WHATSAPP_API_URL}/${WHATSAPP_SENDER}/messages`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${WHATSAPP_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(messageBody),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("WhatsApp send error:", err);
+    } else {
+      console.log(`WhatsApp message sent to ${phoneNo}`);
+    }
+  } catch (error) {
+    console.error("Error sending WhatsApp notification:", error);
+  }
+}
+
+export const sendNotification = onCall(async (data, context) => {
+  const { uid, bookingId, invoiceUrl } = data.data;
+
+  await sendNotificationInternal({ uid, bookingId, invoiceUrl });
+
+  return { statusCode: 200, message: "Notification sent" };
 });
+
+// export const sendMail = onCall(async (data, context) => {
+//   const { name, email, vehicleName, pickupDate, dropoffDate, amount } =
+//     data.data;
+
+//   try {
+//     const config = {
+//       service: "gmail",
+//       auth: {
+//         user: EMAIL,
+//         pass: PASSWORD,
+//       },
+//     };
+
+//     const transporter = createTransport(config);
+
+//     const mailGenerator = new Mailgen({
+//       theme: "default",
+//       product: {
+//         name: "Fast Finite",
+//         link: "https://fastfinite.in",
+//       },
+//     });
+
+//     const response = {
+//       body: {
+//         name: name,
+//         intro: "You have successfully booked your ride.",
+//         table: {
+//           data: [
+//             {
+//               Vehicle: vehicleName,
+//               Pickup: pickupDate,
+//               Dropoff: dropoffDate,
+//               Amount: amount,
+//             },
+//           ],
+//         },
+//         outro: "Thank You!",
+//       },
+//     };
+
+//     const mail = mailGenerator.generate(response);
+
+//     const message = {
+//       from: process.env.EMAIL,
+//       to: email,
+//       subject: "Booking confirmation",
+//       html: mail,
+//     };
+
+//     await transporter.sendMail(message);
+//     return {
+//       statusCode: 200,
+//       message: "Confirmation mail sent",
+//     };
+//   } catch (error) {
+//     console.log(error);
+//     return {
+//       statusCode: 500,
+//       message: "Error sending confirmation mail. Contact us if necessary",
+//     };
+//   }
+// });
 
 export const sendMailByUser = onCall(async (data, context) => {
   const { name, email, subject, userMessage } = data.data;
@@ -409,6 +704,7 @@ export const getBookings = onCall(async (data, context) => {
             ? vehicleDoc.data().name
             : "Unknown Vehicle",
           vehicleImage: vehicleDoc.exists ? vehicleDoc.data().image : "",
+          testMode: false, // Set to true if using mock data
         };
       })
     );

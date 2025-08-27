@@ -290,43 +290,43 @@ const DetailPage = () => {
     return orderData;
   };
 
-  const handleSendMail = async () => {
-    const sendMail = httpsCallable(getFunctions(), "sendMail");
-    const res = await sendMail({
-      name: user.name,
-      email: user.email,
-      vehicleName: bike.name,
-      pickupDate: formatDate(pickupDate.toISOString()),
-      dropoffDate: formatDate(dropoffDate.toISOString()),
-      amount: calculateAmount(),
-    });
-    const { statusCode, message } = res.data;
+  // const handleSendMail = async () => {
+  //   const sendMail = httpsCallable(getFunctions(), "sendMail");
+  //   const res = await sendMail({
+  //     name: user.name,
+  //     email: user.email,
+  //     vehicleName: bike.name,
+  //     pickupDate: formatDate(pickupDate.toISOString()),
+  //     dropoffDate: formatDate(dropoffDate.toISOString()),
+  //     amount: calculateAmount(),
+  //   });
+  //   const { statusCode, message } = res.data;
 
-    let status = statusCode === 200 ? "success" : "error";
-    notification[status]({
-      message: message,
-      duration: 3,
-    });
-  };
+  //   let status = statusCode === 200 ? "success" : "error";
+  //   notification[status]({
+  //     message: message,
+  //     duration: 3,
+  //   });
+  // };
 
-  const handleSendMailToAdmin = async () => {
-    const sendMail = httpsCallable(getFunctions(), "sendMail");
-    const res = await sendMail({
-      name: "Fast Finite",
-      email: "support@fastfinite.in",
-      vehicleName: bike.name,
-      pickupDate: formatDate(pickupDate.toISOString()),
-      dropoffDate: formatDate(dropoffDate.toISOString()),
-      amount: calculateAmount(),
-    });
-    const { statusCode, message } = res.data;
+  // const handleSendMailToAdmin = async () => {
+  //   const sendMail = httpsCallable(getFunctions(), "sendMail");
+  //   const res = await sendMail({
+  //     name: "Fast Finite",
+  //     email: "support@fastfinite.in",
+  //     vehicleName: bike.name,
+  //     pickupDate: formatDate(pickupDate.toISOString()),
+  //     dropoffDate: formatDate(dropoffDate.toISOString()),
+  //     amount: calculateAmount(),
+  //   });
+  //   const { statusCode, message } = res.data;
 
-    let status = statusCode === 200 ? "success" : "error";
-    notification[status]({
-      message: message,
-      duration: 3,
-    });
-  };
+  //   let status = statusCode === 200 ? "success" : "error";
+  //   notification[status]({
+  //     message: message,
+  //     duration: 3,
+  //   });
+  // };
 
   const handlePayment = async (e) => {
     e.preventDefault();
@@ -404,8 +404,8 @@ const DetailPage = () => {
         });
         setLoading(false);
 
-        await handleSendMail();
-        await handleSendMailToAdmin();
+        // await handleSendMail();
+        // await handleSendMailToAdmin(); Not using this one now, changed in the cloud function
       } else {
         notification["error"]({
           message: `${verificationMessage}`,
@@ -717,25 +717,29 @@ const DetailPage = () => {
             </div>
 
             <div className={styles.map}>
-              <h5 className={styles.title}>Pickup Location</h5>
-              <p className={styles.location}>{bike.location}</p>
+  <h5 className={styles.title}>Pickup Location</h5>
+  <p className={styles.location}>{bike.location}</p>
 
-              <MapContainer
-                center={bike.position}
-                zoom={13}
-                className={styles.mapContainer}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                <Marker position={bike.position}>
-                  <Popup>
-                    A pretty CSS3 popup. <br /> Easily customizable.
-                  </Popup>
-                </Marker>
-              </MapContainer>
-            </div>
+  {bike?.position && bike?.position.lat && bike?.position.lng ? (
+    <MapContainer
+      center={bike.position}
+      zoom={13}
+      className={styles.mapContainer}
+    >
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      />
+      <Marker position={bike.position}>
+        <Popup>{bike.location || "Pickup Location"}</Popup>
+      </Marker>
+    </MapContainer>
+  ) : (
+    <p style={{ padding: "1rem", color: "gray" }}>
+      Pickup location not available
+    </p>
+  )}
+</div>
           </div>
         </>
       ) : (
