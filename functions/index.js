@@ -132,15 +132,11 @@ export const filterVehicles = onCall(async (data, context) => {
         //   break;
         // }
 
-        if (
-          (pickupDateObj < booking.end && dropoffDateObj > booking.start) ||
-          pickupDateObj.getTime() === booking.start.getTime() ||
-          pickupDateObj.getTime() === booking.end.getTime() ||
-          dropoffDateObj.getTime() === booking.start.getTime() ||
-          dropoffDateObj.getTime() === booking.end.getTime()
-        ) {
+        // ✅ Corrected overlap check (simplified & covers all cases)
+        if (pickupDateObj < booking.end && dropoffDateObj > booking.start) {
           // Conflict found: Vehicle is not available
           isAvailable = false;
+          break; // stop checking further bookings for this vehicle
         }
       }
       if (isAvailable) {
@@ -169,22 +165,15 @@ export const checkAvailability = onCall(async (data, context) => {
 
   try {
     const bookingsRef = db.collection("bookings");
-    const conflictingBookingsSnapshot1 = await bookingsRef
+
+    // Check if there’s any booking that overlaps the requested interval
+    const conflictingBookingsSnapshot = await bookingsRef
       .where("vehicle_id", "==", vehicle_id)
-      .where("startTime", "<=", pickupDate)
-      .where("endTime", ">=", pickupDate)
+      .where("startTime", "<", dropoffDate)   // existing booking starts before requested drop
+      .where("endTime", ">", pickupDate)      // existing booking ends after requested pickup
       .get();
 
-    const conflictingBookingsSnapshot2 = await bookingsRef
-      .where("vehicle_id", "==", vehicle_id)
-      .where("startTime", "<=", dropoffDate)
-      .where("endTime", ">=", dropoffDate)
-      .get();
-
-    if (
-      conflictingBookingsSnapshot1.empty &&
-      conflictingBookingsSnapshot2.empty
-    ) {
+    if (conflictingBookingsSnapshot.empty) {
       return {
         statusCode: 200,
         isAvailable: true,
@@ -198,7 +187,7 @@ export const checkAvailability = onCall(async (data, context) => {
       };
     }
   } catch (error) {
-    console.log(error.message);
+    console.error("Error checking availability:", error.message);
     return {
       statusCode: 500,
       isAvailable: false,
@@ -294,23 +283,41 @@ export const verifyPayment = onCall(async (data, context) => {
   const bookingAmount = Number(amount) || 0;
   const bookingDeposit = Number(deposit) || 0;
 
-  const bookingData = {
-    vehicle_id: bikeId,
-    uid,
-    startTime: pickupDate,
-    endTime: dropoffDate,
-    amount: bookingAmount,
-    deposit: bookingDeposit,
-    orderId,
-    createdAt,
-  };
-
   try {
+    // ✅ Step 1: Check for conflicting bookings again
+    const bookingsRef = db.collection("bookings");
+    const conflictingBookingsSnapshot = await bookingsRef
+      .where("vehicle_id", "==", bikeId)
+      .where("startTime", "<", dropoffDate)   // booking starts before requested drop
+      .where("endTime", ">", pickupDate)      // booking ends after requested pickup
+      .get();
+
+    if (!conflictingBookingsSnapshot.empty) {
+      return {
+        verificationStatusCode: 409,
+        verified: null,
+        verificationMessage: "Vehicle already booked in the given time range",
+      };
+    }
+
+    // ✅ Step 2: Verify payment with Cashfree
     const res = await Cashfree.PGOrderFetchPayments("2023-08-01", orderId);
-    // console.log(res.data[0].payment_status);
 
     if (res.data && res.data[0] && res.data[0].payment_status === "SUCCESS") {
+      const bookingData = {
+        vehicle_id: bikeId,
+        uid,
+        startTime: pickupDate,
+        endTime: dropoffDate,
+        amount: bookingAmount,
+        deposit: bookingDeposit,
+        orderId,
+        createdAt,
+      };
+
+      // ✅ Step 3: Save booking only if no conflicts
       await db.collection("bookings").add(bookingData);
+
       return {
         verificationStatusCode: 200,
         verified: res.data,
@@ -332,6 +339,7 @@ export const verifyPayment = onCall(async (data, context) => {
     };
   }
 });
+
 
 const RUPEE = "₹";
 
@@ -443,6 +451,18 @@ export const onBookingCreated = onDocumentCreated("bookings/{bookingId}", async 
   }
 });
 
+const formatDateTimeIST = (date) => {
+  const options = {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true
+  };
+  return new Date(date).toLocaleString("en-IN", options);
+};
 
 async function sendNotificationInternal({ uid, bookingId, invoiceUrl, pdfBuffer }) {
   try {
@@ -480,8 +500,8 @@ async function sendNotificationInternal({ uid, bookingId, invoiceUrl, pdfBuffer 
           data: [
             {
               Vehicle: vehicle.name,
-              Pickup: new Date(booking.startTime).toLocaleString(),
-              Dropoff: new Date(booking.endTime).toLocaleString(),
+              Pickup: formatDateTimeIST(booking.startTime),
+              Dropoff: formatDateTimeIST(booking.endTime),
               Amount: `${RUPEE}${booking.amount}`,
               Status: "Confirmed",
             },
