@@ -2,10 +2,35 @@ import styles from "./TncPage.module.css";
 import Wrapper from "../components/Wrapper/Wrapper";
 import Navbar from "../components/Navbar/Navbar";
 import Footer from "../components/Footer/Footer";
+import { Helmet } from "react-helmet-async";
 
+
+const pageUrl = `https://fastfinite.in/tnc`;
 const TncPage = () => {
   return (
     <Wrapper>
+      <Helmet>
+        <title>Terms & Conditions | Fast Finite</title>
+        <meta
+          name="description"
+          content="Read the Terms & Conditions for using Fast Finite’s bike rentals and services. Learn about booking, payments, cancellations, and refund policies."
+        />
+        <meta
+          name="keywords"
+          content="Fast Finite terms, bike rental terms, cancellation policy, refund policy, Fast Finite legal"
+        />
+        <link rel="canonical" href={pageUrl} />
+
+        {/* Open Graph tags */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content="Terms & Conditions | Fast Finite" />
+        <meta
+          property="og:description"
+          content="Understand the Terms & Conditions before booking with Fast Finite. Includes booking rules, refunds, deposits, and cancellation policy."
+        />
+        <meta property="og:image" content="https://fastfinite.in/og-image.jpg" />
+        <meta property="og:url" content={pageUrl} />
+      </Helmet>
       <Navbar />
 
       <div className={styles.container}>

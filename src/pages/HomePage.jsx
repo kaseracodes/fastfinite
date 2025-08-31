@@ -13,6 +13,7 @@ import { RiDoubleQuotesR } from "react-icons/ri";
 import { BikeCategory } from "../assets/BikeCategory";
 import AccordionSection from "../components/Accordion/Accordion";
 import Footer from "../components/Footer/Footer";
+import { Helmet } from "react-helmet-async";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const HomePage = () => {
@@ -106,7 +107,80 @@ const HomePage = () => {
   }, [location]);
 
   return (
-    <Wrapper>
+
+      <Wrapper>
+<Helmet>
+  <title>Fast Finite – Premium Bike Rentals in Kolkata</title>
+  <meta
+    name="description"
+    content="Fast Finite offers premium bike rentals and guided tours in Kolkata, India. Explore our city and mountain bikes for every adventure."
+  />
+  <meta
+    name="keywords"
+    content="bike rental Kolkata, cycle tours West Bengal, mountain bike rent, premium bike rental India"
+  />
+  <link rel="canonical" href={pageUrl} />
+
+  {/* Open Graph */}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Fast Finite – Premium Bike Rentals in Kolkata" />
+  <meta property="og:description" content="Explore Kolkata on two wheels with Fast Finite’s premium bike rentals and guided tours." />
+  <meta property="og:image" content="https://fastfinite.in/og-image.jpg" />
+  <meta property="og:url" content={pageUrl} />
+
+  {/* ✅ JSON-LD: Rental Service */}
+  <script type="application/ld+json">
+    {`
+    {
+      "@context": "https://schema.org",
+      "@type": "RentalService",
+      "name": "Fast Finite",
+      "image": "https://fastfinite.in/logo.png",
+      "description": "Fast Finite provides premium bike rentals and guided tours in Kolkata, West Bengal, India.",
+      "telephone": "+91-9007074744",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "8 Beck Bagan Row ",
+        "addressLocality": "Kolkata",
+        "addressRegion": "West Bengal",
+        "postalCode": "700017",
+        "addressCountry": "IN"
+      },
+      "openingHours": "Mo-Su 08:00-19:00",
+      "priceRange": "₹₹",
+      "url": "https://fastfinite.in"
+    }
+    `}
+  </script>
+
+  {/* ✅ JSON-LD: FAQPage */}
+  <script type="application/ld+json">
+    {`
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What documents are required for bike rental?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Aadhar Card, Driving License and Student/Employee ID Card are required at pickup."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is fuel included in the rent?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No, fuel charges are not included in rent or deposit."
+          }
+        }
+      ]
+    }
+    `}
+  </script>
+</Helmet>
       <Navbar />
 
       <Banner
@@ -200,6 +274,9 @@ const HomePage = () => {
 
       <Footer />
     </Wrapper>
+
+      
+
   );
 };
 

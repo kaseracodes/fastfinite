@@ -7,6 +7,7 @@ import QualityPolicy from "../components/QualityPolicy/QualityPolicy";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./AboutUsPage.module.css";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 
 const AboutUsPage = () => {
   const location = useLocation();
@@ -36,6 +37,7 @@ const AboutUsPage = () => {
   }, [location]);
 
   return (
+    <Helmet>
     <Wrapper>
       <Navbar />
 
@@ -136,6 +138,7 @@ const AboutUsPage = () => {
 
       <Footer />
     </Wrapper>
+    </Helmet>
   );
 };
 

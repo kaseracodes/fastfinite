@@ -424,7 +424,54 @@ const DetailPage = () => {
   };
 
   return (
+    
     <Wrapper>
+{bike && (
+  <Helmet>
+    <title>{`${bike.name} Rental in Kolkata | Fast Finite`}</title>
+    <meta
+      name="description"
+      content={`Rent the ${bike.name} in Kolkata with Fast Finite. ${bike.mileage ? `Mileage: ${bike.mileage} kmpl.` : ""} ${bike.displacement ? `Displacement: ${bike.displacement}cc.` : ""} Book online today.`}
+    />
+    <meta
+      name="keywords"
+      content={`${bike.name} rental Kolkata, ${bike.name} rent Kolkata, ${bike.type} hire, premium bike rental India`}
+    />
+    <link rel="canonical" href={pageUrl} />
+
+    {/* Open Graph */}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${bike.name} Rental in Kolkata | Fast Finite`} />
+    <meta
+      property="og:description"
+      content={`Book ${bike.name} with Fast Finite. Affordable ${bike.type} rentals in Kolkata with flexible packages.`}
+    />
+    <meta property="og:image" content={bike.image || "https://fastfinite.in/og-image.jpg"} />
+    <meta property="og:url" content={pageUrl} />
+
+    {/* ✅ JSON-LD Structured Data for Product (Bike Rental) */}
+    <script type="application/ld+json">
+      {`
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "${bike.name}",
+        "image": "${bike.image}",
+        "description": "Rent the ${bike.name} in Kolkata with Fast Finite. ${bike.mileage ? `Mileage: ${bike.mileage} kmpl.` : ""} ${bike.displacement ? `Displacement: ${bike.displacement}cc.` : ""}",
+        "brand": { "@type": "Brand", "name": "Fast Finite" },
+        "sku": "${bike.vehicle_id}",
+        "offers": {
+          "@type": "Offer",
+          "url": "${window.location.href}",
+          "priceCurrency": "INR",
+          "price": "${calculateAmount()}",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+      `}
+    </script>
+  </Helmet>
+)}
       <Navbar />
       {bike ? (
         <>
@@ -748,6 +795,7 @@ const DetailPage = () => {
 
       <Footer />
     </Wrapper>
+   
   );
 };
 
