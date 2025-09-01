@@ -133,10 +133,14 @@ export const filterVehicles = onCall(async (data, context) => {
         // }
 
         // ✅ Corrected overlap check (simplified & covers all cases)
-        if (pickupDateObj < booking.end && dropoffDateObj > booking.start) {
-          // Conflict found: Vehicle is not available
+        if (
+          (pickupDateObj < booking.end && dropoffDateObj > booking.start) ||
+          pickupDateObj.getTime() === booking.start.getTime() ||
+          pickupDateObj.getTime() === booking.end.getTime() ||
+          dropoffDateObj.getTime() === booking.start.getTime() ||
+          dropoffDateObj.getTime() === booking.end.getTime()
+        ) {
           isAvailable = false;
-          break; // stop checking further bookings for this vehicle
         }
       }
       if (isAvailable) {
@@ -165,15 +169,20 @@ export const checkAvailability = onCall(async (data, context) => {
 
   try {
     const bookingsRef = db.collection("bookings");
+    const conflictingBookingsSnapshot1 = await bookingsRef
+    .where("vehicle_id", "==", vehicle_id)
+    .where("startTime", "<=", pickupDate)
+    .where("endTime", ">=", pickupDate)
+    .get();
 
-    // Check if there’s any booking that overlaps the requested interval
-    const conflictingBookingsSnapshot = await bookingsRef
+  const conflictingBookingsSnapshot2 = await bookingsRef
       .where("vehicle_id", "==", vehicle_id)
-      .where("startTime", "<", dropoffDate)   // existing booking starts before requested drop
-      .where("endTime", ">", pickupDate)      // existing booking ends after requested pickup
+      .where("startTime", "<=", dropoffDate)
+      .where("endTime", ">=", dropoffDate)
       .get();
 
-    if (conflictingBookingsSnapshot.empty) {
+    if (conflictingBookingsSnapshot1.empty &&
+      conflictingBookingsSnapshot2.empty) {
       return {
         statusCode: 200,
         isAvailable: true,
@@ -283,41 +292,51 @@ export const verifyPayment = onCall(async (data, context) => {
   const bookingAmount = Number(amount) || 0;
   const bookingDeposit = Number(deposit) || 0;
 
+  const bookingData = {
+    vehicle_id: bikeId,
+    uid,
+    startTime: pickupDate,
+    endTime: dropoffDate,
+    amount: bookingAmount,
+    deposit: bookingDeposit,
+    orderId,
+    createdAt,
+  };
+
   try {
-    // ✅ Step 1: Check for conflicting bookings again
-    const bookingsRef = db.collection("bookings");
-    const conflictingBookingsSnapshot = await bookingsRef
-      .where("vehicle_id", "==", bikeId)
-      .where("startTime", "<", dropoffDate)   // booking starts before requested drop
-      .where("endTime", ">", pickupDate)      // booking ends after requested pickup
-      .get();
+  //   // ✅ Step 1: Check for conflicting bookings again
+  //   const bookingsRef = db.collection("bookings");
+  //   const conflictingBookingsSnapshot = await bookingsRef
+  //     .where("vehicle_id", "==", bikeId)
+  //     .where("startTime", "<", dropoffDate)   // booking starts before requested drop
+  //     .where("endTime", ">", pickupDate)      // booking ends after requested pickup
+  //     .get();
 
-    if (!conflictingBookingsSnapshot.empty) {
-      return {
-        verificationStatusCode: 409,
-        verified: null,
-        verificationMessage: "Vehicle already booked in the given time range",
-      };
-    }
+  //   if (!conflictingBookingsSnapshot.empty) {
+  //     return {
+  //       verificationStatusCode: 409,
+  //       verified: null,
+  //       verificationMessage: "Vehicle already booked in the given time range",
+  //     };
+  //   }
 
-    // ✅ Step 2: Verify payment with Cashfree
+  //   // ✅ Step 2: Verify payment with Cashfree
     const res = await Cashfree.PGOrderFetchPayments("2023-08-01", orderId);
 
     if (res.data && res.data[0] && res.data[0].payment_status === "SUCCESS") {
-      const bookingData = {
-        vehicle_id: bikeId,
-        uid,
-        startTime: pickupDate,
-        endTime: dropoffDate,
-        amount: bookingAmount,
-        deposit: bookingDeposit,
-        orderId,
-        createdAt,
-      };
+      // const bookingData = {
+      //   vehicle_id: bikeId,
+      //   uid,
+      //   startTime: pickupDate,
+      //   endTime: dropoffDate,
+      //   amount: bookingAmount,
+      //   deposit: bookingDeposit,
+      //   orderId,
+      //   createdAt,
+      // };
 
-      // ✅ Step 3: Save booking only if no conflicts
+      // // ✅ Step 3: Save booking only if no conflicts
       await db.collection("bookings").add(bookingData);
-
       return {
         verificationStatusCode: 200,
         verified: res.data,
