@@ -230,6 +230,34 @@ const ListingPage = () => {
 
   return (
     <Wrapper>
+      <Helmet>
+        <title>Available Bikes & Scooters for Rent | Fast Finite Kolkata</title>
+        <meta
+          name="description"
+          content="Browse and book from a wide range of bikes and scooters available for rent in Kolkata. Fast Finite offers petrol, electric, and premium bikes with flexible packages."
+        />
+        <meta
+          name="keywords"
+          content="bike rental Bangalore, scooter rental Kolkata, premium bike hire, electric scooter rent, Fast Finite rentals"
+        />
+        <link rel="canonical" href={pageUrl} />
+
+        {/* Open Graph tags */}
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content="Available Bikes & Scooters for Rent | Fast Finite"
+        />
+        <meta
+          property="og:description"
+          content="Choose from petrol bikes, electric scooters, and premium motorcycles. Book your ride today with Fast Finite Kolkata."
+        />
+        <meta
+          property="og:image"
+          content="https://fastfinite.in/og-image.jpg"
+        />
+        <meta property="og:url" content={pageUrl} />
+      </Helmet>
       <Navbar />
 
       <div className={styles.mainContainer}>

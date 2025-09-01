@@ -22,16 +22,15 @@ const formatCurrency = (amount) => {
  * Helper function to format date/time to fit in column
  */
 const formatDateTime = (date, maxWidth = 100) => {
-  const fullDateTime = date.toLocaleString();
-  // If the date/time is too long, show date on one line and time on another
-  if (fullDateTime.length > 18) {
+    const optionsDate = { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric" };
+    const optionsTime = { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true };
+  
     return {
-      line1: date.toLocaleDateString(),
-      line2: date.toLocaleTimeString()
+      line1: date.toLocaleDateString("en-IN", optionsDate),
+      line2: date.toLocaleTimeString("en-IN", optionsTime),
     };
-  }
-  return { line1: fullDateTime, line2: null };
-};
+  };
+  
 
 /**
  * Helper function to draw multi-line text in a cell
@@ -121,13 +120,21 @@ export const generateInvoicePDF = async (booking, bookingId, user, vehicle) => {
     doc.moveTo(50, logoY + 30).lineTo(550, logoY + 30).stroke();
 
     const companyY = logoY + 40;
-    doc.text("41, J L Nehru Road", 50, companyY);
-    doc.text("Kolkata, West Bengal 700071", 50, companyY + 12);
-    doc.text("Email: support@fastfinite.in", 50, companyY + 24);
-    doc.text("Phone: +91 8584828210", 50, companyY + 36);
+    doc.text("Speed Auto Services Pvt. Ltd.", 50, companyY);
+    doc.text("8 Beck Bagan Row ", 50, companyY + 12);
+    doc.text("Kolkata, West Bengal 700017", 50, companyY + 24);
+    doc.text("GST No. : 19AAJCS0090E1ZE", 50, companyY + 36);
+    doc.text("Email: support@fastfinite.in", 50, companyY + 48);
+    doc.text("Phone: +91 8584828210", 50, companyY + 60);
 
     doc.text(` #INV-${bookingId}`, 300, companyY, { align: "right" });
-    doc.text(`Booking Date: ${new Date(booking.createdAt).toLocaleDateString()}`, 300, companyY + 12, { align: "right" });
+    doc.text(
+        `Booking Date: ${new Date(booking.createdAt).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" })}`,
+        300,
+        companyY + 12,
+        { align: "right" }
+      );
+      
 
     // --- Customer details ---
     let y = companyY + 70;

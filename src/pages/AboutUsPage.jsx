@@ -7,6 +7,7 @@ import QualityPolicy from "../components/QualityPolicy/QualityPolicy";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./AboutUsPage.module.css";
 import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 
 const AboutUsPage = () => {
   const location = useLocation();
@@ -15,7 +16,7 @@ const AboutUsPage = () => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (hash) {
-        const sectionId = hash.substring(1); // Remove the "#" from the hash
+        const sectionId = hash.substring(1); // Remove "#"
         const section = document.getElementById(sectionId);
         if (section) {
           section.scrollIntoView({ behavior: "smooth" });
@@ -23,32 +24,71 @@ const AboutUsPage = () => {
       }
     };
 
-    // Call the handler initially in case there's already a hash in the URL
     handleHashChange();
-
-    // Add event listener for hash change
     window.addEventListener("hashchange", handleHashChange);
 
-    // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
     };
   }, [location]);
 
+  // ✅ JSON-LD structured data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Speed Auto Service Pvt. Ltd.",
+    "url": "https://fastfinite.in/about-us",
+    "logo": "https://fastfinite.in/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+91-9007074744",
+      "contactType": "customer service",
+      "email": "support@fastfinite.in"
+    },
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "8, Beck Bagan Row",
+      "addressLocality": "Kolkata",
+      "addressRegion": "West Bengal",
+      "postalCode": "700017",
+      "addressCountry": "IN"
+    }
+  };
+
   return (
     <Wrapper>
+      {/* ✅ Helmet should only wrap head/meta info */}
+      <Helmet>
+        <title>About Us | Fast Finite Bike Rentals</title>
+        <meta
+          name="description"
+          content="Learn about Speed Group's bike rental services in Kolkata. Affordable, sustainable, and convenient urban mobility solutions."
+        />
+        <link rel="canonical" href="https://fastfinite.in/about-us" />
+
+        {/* Open Graph tags */}
+        <meta property="og:title" content="About Us | Fast Finite Bike Rentals" />
+        <meta
+          property="og:description"
+          content="Discover our bike rental service for affordable and sustainable city mobility."
+        />
+        <meta property="og:url" content="https://fastfinite.in/about-us" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://fastfinite.in/images/about_us/image1.jpg" />
+
+        {/* JSON-LD structured data */}
+        <script type="application/ld+json">
+          {JSON.stringify(jsonLd)}
+        </script>
+      </Helmet>
+
+      {/* ✅ Actual page content */}
       <Navbar />
 
       <div className={styles.bannerContainer}>
-        {/* <h1 className={styles.bannerHeading}>
-          <span style={{ color: COLORS.yellow }}>Ride the Future with Us:</span>
-          <br /> Your Ultimate Bike Rental Experience
-        </h1> */}
         <h1 className={styles.bannerHeading}>
-          Your <span style={{ color: COLORS.yellow }}>Urban Adventure</span>{" "}
-          Starts Here !
+          Your <span style={{ color: COLORS.yellow }}>Urban Adventure</span> Starts Here !
         </h1>
-
         <p className={styles.bannerDesc}>
           Join us in this exciting new journey. Discover the ease,
           affordability, and benefits of bike rentals with Speed Group, and
@@ -97,7 +137,6 @@ const AboutUsPage = () => {
       </div>
 
       <QualityPolicy />
-
       <ContactUs />
 
       <div className={styles.div3}>
@@ -105,9 +144,6 @@ const AboutUsPage = () => {
           <h5 className={styles.div3Heading}>
             You may contact us using the information below:
           </h5>
-          {/* <p className={styles.para}>
-            Merchant Legal entity name: ATUL MAKHARIA
-          </p> */}
           <p className={styles.para}>
             Company name: SPEED AUTO SERVICE PRIVATE LIMITED
           </p>

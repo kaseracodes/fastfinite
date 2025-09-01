@@ -12,6 +12,7 @@ import { auth, storage } from "../firebase/config";
 import { loginUser, logoutUser } from "../store/userSlice";
 import { useNavigate } from "react-router-dom";
 import { notification } from "antd";
+import { Helmet } from "react-helmet-async";
 // import { MoonLoader } from "react-spinners";
 import updateProfile from "../utils/updateProfile";
 import AuthHoc from "../hoc/AuthHoc";
@@ -231,8 +232,32 @@ const ProfilePage = () => {
     );
   };
 
+  const pageUrl = "https://fastfinite.in/profile";
+
   return (
     <Wrapper>
+      <Helmet>
+        <title>User Profile & Bookings | Fast Finite</title>
+        <meta
+          name="description"
+          content="Manage your Fast Finite profile, update personal details, view your past bookings, and track your upcoming bike rentals in Kolkata."
+        />
+        <meta
+          name="keywords"
+          content="Fast Finite user profile, my bookings, manage bike rentals, rental history, Kolkata bike hire"
+        />
+        <link rel="canonical" href={pageUrl} />
+
+        {/* Open Graph tags */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="User Profile & Bookings | Fast Finite" />
+        <meta
+          property="og:description"
+          content="Access your profile and booking history with Fast Finite. Update details and manage your bike rentals easily."
+        />
+        <meta property="og:image" content="https://fastfinite.in/og-image.jpg" />
+        <meta property="og:url" content={pageUrl} />
+      </Helmet>
       <Navbar />
 
       <div className={styles.div1}>
