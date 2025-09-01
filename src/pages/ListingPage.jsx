@@ -27,6 +27,7 @@ import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { BrandOptions } from "../assets/FilterData";
 import { BikeCategory } from "../assets/BikeCategory";
+import { Helmet } from "react-helmet-async";
 
 const ListingPage = () => {
   const [vehiclesData, setVehiclesData] = useState([]);
