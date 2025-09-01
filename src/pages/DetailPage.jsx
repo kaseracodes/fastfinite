@@ -66,9 +66,11 @@ const DetailPage = () => {
   const params = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const query = new URLSearchParams(useLocation().search);
   const { state } = useLocation();
 
+  const pageUrl = `https://fastfinite.in${location.pathname}${location.search}`;
   let cashfree;
   const initializeSDK = async () => {
     cashfree = await load({

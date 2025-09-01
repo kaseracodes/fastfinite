@@ -19,6 +19,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const pageUrl = `https://fastfinite.in${location.pathname}`;
 
   // const heading = `Your<br /><span style="color:${COLORS.yellow}">Urban Adventure</span><br />Starts Here !`;
   const heading = `EXPLORE.<br /><span style="color:${COLORS.yellow}">RIDE.</span> REPEAT.`;

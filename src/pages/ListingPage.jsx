@@ -2,6 +2,7 @@ import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./ListingPage.module.css";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useLocation } from "react-router-dom";
 import {
   FormControl,
   FormControlLabel,
@@ -32,6 +33,8 @@ const ListingPage = () => {
   const transmissionType = new URLSearchParams(window.location.search).get(
     "transmissionType"
   );
+  const location = useLocation();
+  const pageUrl = `https://fastfinite.in${location.pathname}${location.search}`;
   const [pickupDate, setPickupDate] = useState(
     dayjs().startOf("hour").add(1, "hour")
   );
