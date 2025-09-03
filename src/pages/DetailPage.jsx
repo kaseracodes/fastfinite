@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar/Navbar";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./DetailPage.module.css";
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TextField } from "@mui/material";
