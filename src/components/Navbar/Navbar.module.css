@@ -5,73 +5,105 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 100px;
+  padding: 14px 90px;
   background-color: var(--white);
-  /* background-color: black; */
-  /* margin-bottom: -10px; */
   border-bottom: 1px solid var(--gray3);
 }
 
-.logoDiv {
+/* overall logo area (clickable) */
+.logoWrap {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
   cursor: pointer;
 }
 
-.logoDiv h5 {
-  font-family: "Istok Web", sans-serif;
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--white);
+/* emblem (left) */
+.emblem {
+  width: 52px;          
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.06));
+  transition: transform 160ms ease;
+}
+
+/* wordmark + separator + tagline container (right of emblem) */
+.wordmarkWrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* FAST FINITE wordmark image (reduced size for premium look) */
+.wordmark {
+  height: 22px;        
+  width: auto;
+  display: block;
+  transform: translateY(-1px);
+  image-rendering: optimizeQuality;
+  filter: contrast(110%) brightness(0.95);
+}
+
+/* thin vertical separator (dash) */
+.sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 1px;
+  align-self: center;
+}
+
+/* tagline: Inter font, medium weight, slightly larger, premium feel */
+.tagline {
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;       /* medium */
+  font-size: 18px;        /* a bit larger for emphasis */
+  line-height: 1;
+  color: #222;            /* charcoal */
+  letter-spacing: 0.2px;
   margin: 0;
+  white-space: nowrap;
 }
 
-.logo {
-  height: 60px;
-}
-
-.logo2 {
-  height: 20px;
-}
-
-.active {
-  background-color: rgba(255, 255, 255);
-  border-bottom: 1px solid var(--gray3);
-}
-
+/* Right-side nav container */
 .rightContainer {
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 40px;
+  gap: 36px;
 }
 
+/* links */
 .link {
   font-family: "Poppins", sans-serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  cursor: pointer;
   color: var(--black2);
   text-decoration: none;
 }
 
+/* avatar */
 .avator {
-  height: 35px;
+  height: 36px;
   cursor: pointer;
+  border-radius: 50%;
 }
 
+/* hamburger icon */
 .faIcon {
-  padding: 5px;
+  padding: 6px;
   cursor: pointer;
   background: transparent;
   border: none;
   outline: none;
   display: none;
-  font-size: 30px;
+  font-size: 22px;
 }
 
+/* subtle hover on logo lockup */
+.logoWrap:hover .emblem { transform: translateY(-2px); }
+.logoWrap:hover .wordmark { transform: translateY(-2px); }
+
+/* other text blocks */
 .statusPara,
 .modalPara {
   font-size: 13px;
@@ -81,93 +113,46 @@
   text-align: center;
 }
 
-.modalPara {
-  margin-bottom: 30px;
-}
+.modalPara { margin-bottom: 30px; }
+.statusPara { color: var(--orange); margin-top: 20px; }
 
-.statusPara {
-  color: var(--orange);
-  margin-top: 20px;
-}
-
+/* responsive adjustments */
 @media only screen and (max-width: 1200px) {
-  .container {
-    padding: 15px 50px;
-    gap: 15px;
-  }
-
-  .rightContainer {
-    gap: 30px;
-  }
+  .container { padding: 14px 50px; }
+  .rightContainer { gap: 24px; }
 }
 
-@media only screen and (max-width: 1050px) {
-  .container {
-    padding: 15px 20px;
-  }
+@media only screen and (max-width: 900px) {
+  .wordmark { height: 20px; }
+  .emblem { width: 44px; }
+  .tagline { font-size: 14px; }
+}
 
+@media only screen and (max-width: 650px) {
+  .container { padding: 12px 18px; }
   .rightContainer {
     position: fixed;
     top: 0;
     right: 0;
-    height: 500px;
+    height: 100vh;
     width: 300px;
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 40px;
+    gap: 32px;
     background-color: var(--white);
-    transition: 1s;
-    /* transform: translateY(-100vh); */
   }
-
-  .logo {
-    height: 40px;
-  }
-
-  .responsive_nav {
-    transform: none;
-    display: flex;
-    border-bottom: 1px solid var(--gray3);
-    border-left: 1px solid var(--gray3);
-  }
-
-  .closeBtn {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-  }
-
-  .faIcon {
-    display: block;
-  }
-
-  .dropdownContainer,
-  .buttonContainer,
-  .iconContainer {
-    flex-direction: column;
-  }
-
-  .logoDiv h5 {
-    font-size: 42px;
-  }
+  .faIcon { display: block; }
+  .logoWrap { gap: 10px; }
+  .wordmark { height: 18px; }
+  .emblem { width: 40px; }
+  .tagline { font-size: 14px; }
 }
 
-@media only screen and (max-width: 550px) {
-  .container {
-    padding: 15px 20px;
-  }
-
-  .logo {
-    height: 35px;
-  }
-
-  .logo2 {
-    height: 18px;
-  }
-
-  .logoDiv h5 {
-    font-size: 36px;
-  }
+/* very small screens: stack if needed */
+@media only screen and (max-width: 420px) {
+  .wordmarkWrap { gap: 10px; }
+  .tagline { font-size: 13px; }
+  .sep { height: 22px; }
 }

@@ -137,7 +137,7 @@ export const generateInvoicePDF = async (booking, bookingId, user, vehicle) => {
       
 
     // --- Customer details ---
-    let y = companyY + 70;
+    let y = companyY + 90;
     doc.font(headerFont).fontSize(11).text("Customer Details", 50, y);
     y += 15;
     doc.font(regularFont).fontSize(10);
@@ -146,7 +146,7 @@ export const generateInvoicePDF = async (booking, bookingId, user, vehicle) => {
     doc.text(`Phone: ${user.phoneNo || "N/A"}`, 50, y + 24);
 
     // --- Table header ---
-    y += 50;
+    y += 60;
     const startX = 50;
 
     // Increased row height to accommodate multi-line content
