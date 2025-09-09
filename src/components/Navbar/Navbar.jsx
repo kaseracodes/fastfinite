@@ -1,10 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
+import React, { useEffect, useState } from "react";
 import styles from "./Navbar.module.css";
-// import { COLORS } from "../../assets/constants";
 import { Link, useNavigate } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-import { useEffect, useState } from "react";
 import Modal from "../Modal/Modal";
 import SignIn from "../SignIn/SignIn";
 import { useSelector } from "react-redux";
@@ -26,26 +25,15 @@ const Navbar = ({ bgColor }) => {
       setIsSmallScreen(window.innerWidth <= 1000);
     };
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 0);
     };
-
     window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -53,75 +41,43 @@ const Navbar = ({ bgColor }) => {
   }, [user]);
 
   const handleClick = () => {
-    if (user) {
-      navigate("/profile");
-    } else {
-      setOpenModal(true);
-    }
+    if (user) navigate("/profile");
+    else setOpenModal(true);
   };
 
   return (
     <>
-      <div className={styles.container}>
-        <div onClick={() => navigate("/")} className={styles.logoDiv}>
-          <img src="/images/logo.png" alt="logo" className={styles.logo} />
-          <img src="/images/logo2.png" alt="logo" className={styles.logo2} />
+      <div className={styles.container} style={{ backgroundColor: bgColor || undefined }}>
+        {/* Logo lockup */}
+        <div className={styles.logoWrap} onClick={() => navigate("/")}>
+          {/* Emblem / bike icon */}
+          <img src="/images/logo.png" alt="Fast Finite emblem" className={styles.emblem} />
+
+          {/* Wordmark + separator + tagline */}
+          <div className={styles.wordmarkWrap}>
+            {/* Use the image wordmark if available */}
+            <img src="/images/logo2.png" alt="Fast Finite" className={styles.wordmark} />
+            {/* vertical dash/separator */}
+            <div className={styles.sep} aria-hidden="true" />
+            {/* tagline in Inter font */}
+            <div className={styles.tagline}>Bike Rentals</div>
+          </div>
         </div>
 
-        <div
-          className={`${styles.rightContainer} ${
-            navbarOpen ? styles.responsive_nav : ""
-          }`}
-        >
-          <Link to="/" className={styles.link}>
-            Home
-          </Link>
+        {/* Right-side nav */}
+        <div className={`${styles.rightContainer} ${navbarOpen ? styles.responsive_nav : ""}`}>
+          <Link to="/" className={styles.link}>Home</Link>
+          <Link to="/about-us" className={styles.link}>About Us</Link>
+          <Link to="/vehicles" className={styles.link}>Book Your Bike</Link>
+          <Link to="/vehicles/?transmissionType=premiumBike" className={styles.link}>Premium Bike</Link>
+          <a href="https://forms.gle/qHLa8LJe6HcqxPT39" target="_blank" rel="noreferrer" className={styles.link}>Become A Dealer</a>
 
-          <Link to="/about-us" className={styles.link}>
-            About Us
-          </Link>
+          <img src="/images/avatar.png" alt="profile" className={styles.avator} onClick={handleClick} />
 
-          <Link to="/vehicles" className={styles.link}>
-            Book Your Bike
-          </Link>
-
-          <Link
-            to="/vehicles/?transmissionType=premiumBike"
-            className={styles.link}
-          >
-            Premium Bike
-          </Link>
-
-          {/* <Link to="/#testimonials" className={styles.link}>
-            Testimonials
-          </Link> */}
-
-          <a
-            href="https://forms.gle/qHLa8LJe6HcqxPT39"
-            target="_blank"
-            className={styles.link}
-          >
-            Become A Dealer
-          </a>
-
-          <img
-            src="/images/avatar.png"
-            alt="image"
-            className={styles.avator}
-            onClick={handleClick}
-          />
-
-          <button
-            className={`${styles.faIcon} ${styles.closeBtn}`}
-            onClick={showNavbar}
-          >
-            <FaTimes />
-          </button>
+          <button className={`${styles.faIcon} ${styles.closeBtn}`} onClick={showNavbar}><FaTimes /></button>
         </div>
 
-        <button className={styles.faIcon} onClick={showNavbar}>
-          <FaBars />
-        </button>
+        <button className={styles.faIcon} onClick={showNavbar}><FaBars /></button>
       </div>
 
       <Modal open={openModal} onClose={() => setOpenModal(false)}>
