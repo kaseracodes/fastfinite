@@ -156,3 +156,79 @@
   .tagline { font-size: 13px; }
   .sep { height: 22px; }
 }
+
+@media only screen and (max-width: 650px) {
+  /* ensure hamburger visible (you already have this, keep it) */
+  .faIcon {
+    display: block;
+  }
+
+  /* default hidden inline nav (kept from your file) */
+  .rightContainer {
+    display: none;
+  }
+
+  /* When responsive_nav is added, show the drawer */
+  .rightContainer.responsive_nav,
+  .responsive_nav {
+    display: flex !important;        /* override display:none */
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 300px;
+    max-width: 92vw;
+    z-index: 2000;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 18px;
+    padding: 22px 18px 32px 18px;
+    background-color: var(--white);
+    box-shadow: -8px 18px 60px rgba(6,8,12,0.14);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* link styles inside drawer: larger hit area */
+  .rightContainer.responsive_nav .link,
+  .responsive_nav .link {
+    font-size: 18px;
+    padding: 12px 6px;
+    width: 100%;
+    display: block;
+  }
+
+  /* avatar inside drawer */
+  .rightContainer.responsive_nav .avator,
+  .responsive_nav .avator {
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    margin-top: 6px;
+  }
+
+  /* close button (X) visible inside drawer */
+  .rightContainer.responsive_nav .closeBtn,
+  .responsive_nav .closeBtn {
+    display: block;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  /* ensure the hamburger open button (outside) remains visible */
+  .faIcon {
+    display: block;
+  }
+}
+
+/* Optional: when menu-open is on body, prevent background scroll */
+body.menu-open {
+  overflow: hidden;
+  touch-action: none;
+}
