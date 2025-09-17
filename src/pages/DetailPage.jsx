@@ -28,6 +28,8 @@ import { BikeCategory } from "../assets/BikeCategory";
 import { auth } from "../firebase/config";
 import { logoutUser } from "../store/userSlice";
 import { formatDate } from "../utils/formatDate";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase/config"; // adjust to your firebase config path
 
 // Fix for the marker not showing in production
 delete L.Icon.Default.prototype._getIconUrl;
@@ -95,9 +97,32 @@ const DetailPage = () => {
   const [duration, setDuration] = useState(query.get("duration") || "daily");
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [bookingsEnabled, setBookingsEnabled] = useState(true);
+const [settingsLoading, setSettingsLoading] = useState(true);
 
   useEffect(() => {}, [user]);
-
+  useEffect(() => {
+    const ref = doc(db, "settings", "global");
+    // real-time subscription so admins toggling takes effect immediately
+    const unsub = onSnapshot(
+      ref,
+      (snap) => {
+        if (snap.exists()) {
+          setBookingsEnabled(Boolean(snap.data().bookingsEnabled));
+        } else {
+          // default if doc missing
+          setBookingsEnabled(true);
+        }
+        setSettingsLoading(false);
+      },
+      (err) => {
+        console.error("Failed to fetch settings:", err);
+        setSettingsLoading(false);
+      }
+    );
+  
+    return () => unsub();
+  }, []);
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
       if (!authUser) {
@@ -350,7 +375,13 @@ const DetailPage = () => {
       });
       return;
     }
-
+    if (!bookingsEnabled) {
+      notification["error"]({
+        message: `Bookings are temporarily disabled. Please try later.`,
+        duration: 4,
+      });
+      return;
+    }
     if (!user) {
       notification["error"]({
         message: `Please login before booking your ride`,
@@ -519,12 +550,23 @@ const DetailPage = () => {
             </div>
 
             <div className={styles.detailsDiv}>
+              {!bookingsEnabled && (
+                <div role="status" aria-live="polite" className={styles.bookingsStopped}>
+                  <span className={styles.icon} aria-hidden>❌</span>
+                  <div>
+                    Bookings are currently stopped.
+                    <br />
+                    Please check back later. Thanks for visiting us!
+                  </div>
+                </div>
+              )}
               <h5 className={styles.title}>{bike.name}</h5>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <div className={styles.dateInputContainer}>
                   <DateTimePicker
                     label="Pickup Date & Time"
                     value={pickupDate}
+                    disabled={!bookingsEnabled}
                     onChange={handlePickupDateChange}
                     renderInput={(props) => (
                       <TextField {...props} fullWidth margin="normal" />
@@ -616,6 +658,7 @@ const DetailPage = () => {
                   type="checkbox"
                   name="checkbox"
                   checked={isChecked}
+                  disabled={!bookingsEnabled}
                   onChange={() => setIsChecked(event.target.checked)}
                 />
                 <label htmlFor="checkbox">
@@ -629,13 +672,14 @@ const DetailPage = () => {
                 </label>
               </div>
 
-              <button className={styles.btn2} onClick={handlePayment}>
-                {loading ? (
-                  <BeatLoader color={COLORS.black} size={18} />
-                ) : (
-                  "Book Now"
-                )}
-              </button>
+              <button
+  className={styles.btn2}
+  onClick={handlePayment}
+  disabled={!bookingsEnabled || loading}
+>
+  {loading ? <BeatLoader color={COLORS.black} size={18} /> :
+    (bookingsEnabled ? "Book Now" : "Bookings Disabled")}
+</button>
             </div>
           </div>
 

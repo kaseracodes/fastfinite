@@ -397,3 +397,28 @@
     justify-content: center;
   }
 }
+
+.bookingsStopped {
+  background: #fff4e5;
+  color: #6a4b00;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(250,200,120,0.45);
+  margin-bottom: 16px;
+  text-align: center;
+  font-weight: 700;
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 18px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.bookingsStopped .icon {
+  font-size: 20px;
+  transform: translateY(-1px);
+}
