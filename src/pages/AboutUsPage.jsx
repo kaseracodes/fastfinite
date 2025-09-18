@@ -6,17 +6,25 @@ import Navbar from "../components/Navbar/Navbar";
 import QualityPolicy from "../components/QualityPolicy/QualityPolicy";
 import Wrapper from "../components/Wrapper/Wrapper";
 import styles from "./AboutUsPage.module.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import useBanners from "../utils/useBanners";
 
 const AboutUsPage = () => {
   const location = useLocation();
+  
+  // Fetch banners for about us page
+  const { banners, loading: bannersLoading, error: bannersError } = useBanners("about_us_page");
+  
+  // Local state to track both og:image and banner background
+  const [ogImage, setOgImage] = useState("https://fastfinite.in/images/about_us/image1.jpg");
+  const [bannerBackground, setBannerBackground] = useState("");
 
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (hash) {
-        const sectionId = hash.substring(1); // Remove "#"
+        const sectionId = hash.substring(1);
         const section = document.getElementById(sectionId);
         if (section) {
           section.scrollIntoView({ behavior: "smooth" });
@@ -32,7 +40,31 @@ const AboutUsPage = () => {
     };
   }, [location]);
 
-  // ✅ JSON-LD structured data
+  // Update both og:image and banner background when banners change
+  useEffect(() => {
+    console.log("🖼️ Banner data changed:", { 
+      bannersLoading, 
+      bannersError, 
+      banners, 
+      bannersLength: banners?.length 
+    });
+    
+    if (!bannersLoading && !bannersError && banners && banners.length > 0) {
+      const newImageUrl = banners[0].bannerUrl;
+      console.log("✅ Setting new banner background:", newImageUrl);
+      
+      // Update both og:image and banner background
+      setOgImage(newImageUrl);
+      setBannerBackground(newImageUrl);
+    } else {
+      console.log("📷 Using default images");
+      // Keep default images
+      setOgImage("https://fastfinite.in/images/about_us/image1.jpg");
+      setBannerBackground(""); // Empty string will use CSS default background
+    }
+  }, [banners, bannersLoading, bannersError]);
+
+  // JSON-LD structured data
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -57,7 +89,6 @@ const AboutUsPage = () => {
 
   return (
     <Wrapper>
-      {/* ✅ Helmet should only wrap head/meta info */}
       <Helmet>
         <title>About Us | Fast Finite Bike Rentals</title>
         <meta
@@ -65,8 +96,6 @@ const AboutUsPage = () => {
           content="Learn about Speed Group's bike rental services in Kolkata. Affordable, sustainable, and convenient urban mobility solutions."
         />
         <link rel="canonical" href="https://fastfinite.in/about-us" />
-
-        {/* Open Graph tags */}
         <meta property="og:title" content="About Us | Fast Finite Bike Rentals" />
         <meta
           property="og:description"
@@ -74,18 +103,24 @@ const AboutUsPage = () => {
         />
         <meta property="og:url" content="https://fastfinite.in/about-us" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://fastfinite.in/images/about_us/image1.jpg" />
-
-        {/* JSON-LD structured data */}
+        <meta property="og:image" content={ogImage} />
         <script type="application/ld+json">
           {JSON.stringify(jsonLd)}
         </script>
       </Helmet>
 
-      {/* ✅ Actual page content */}
       <Navbar />
 
-      <div className={styles.bannerContainer}>
+      {/* Dynamic banner background that changes based on Firebase banner */}
+      <div 
+        className={styles.bannerContainer}
+        style={{
+          backgroundImage: bannerBackground ? `url(${bannerBackground})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <h1 className={styles.bannerHeading}>
           Your <span style={{ color: COLORS.yellow }}>Urban Adventure</span> Starts Here !
         </h1>
@@ -112,7 +147,7 @@ const AboutUsPage = () => {
             of lifestyles and requirements. For the young, office-going
             generation, bikes offer a convenient and efficient way to navigate
             through city traffic, ensuring you arrive at work on time without
-            the hassle of parking or public transport delays. You also save on
+            the hassle of parking or public waste delays. You also save on
             the costs of maintenance, fuel, insurance, and parking, making it an
             economical choice for students, young professionals, and anyone
             looking to reduce their transportation expenses.

@@ -15,18 +15,24 @@ import AccordionSection from "../components/Accordion/Accordion";
 import Footer from "../components/Footer/Footer";
 import { Helmet } from "react-helmet-async";
 import { useLocation, useNavigate } from "react-router-dom";
+import useBanners from "../utils/useBanners"; // Import the custom hook
 
 const HomePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const pageUrl = `https://fastfinite.in${location.pathname}`;
 
-  // const heading = `Your<br /><span style="color:${COLORS.yellow}">Urban Adventure</span><br />Starts Here !`;
+  // Fetch banners for homepage
+  const { banners, loading: bannersLoading, error: bannersError } = useBanners("homepage_top");
+  
+  // Local state for dynamic content
+  const [ogImage, setOgImage] = useState("https://fastfinite.in/og-image.jpg");
+  const [bannerImage, setBannerImage] = useState("/images/home_banner.png");
+
   const heading = `EXPLORE.<br /><span style="color:${COLORS.yellow}">RIDE.</span> REPEAT.`;
 
   const responsive1 = {
     superLargeDesktop: {
-      // the naming can be any, depends on you.
       breakpoint: { max: 4000, min: 1350 },
       items: 4,
     },
@@ -50,7 +56,6 @@ const HomePage = () => {
 
   const responsive2 = {
     superLargeDesktop: {
-      // the naming can be any, depends on you.
       breakpoint: { max: 4000, min: 1350 },
       items: 1,
     },
@@ -77,7 +82,6 @@ const HomePage = () => {
 
     window.addEventListener("resize", handleResize);
 
-    // Clean up the event listener on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -87,7 +91,7 @@ const HomePage = () => {
     const handleHashChange = () => {
       const hash = window.location.hash;
       if (hash) {
-        const sectionId = hash.substring(1); // Remove the "#" from the hash
+        const sectionId = hash.substring(1);
         const section = document.getElementById(sectionId);
         if (section) {
           section.scrollIntoView({ behavior: "smooth" });
@@ -95,99 +99,120 @@ const HomePage = () => {
       }
     };
 
-    // Call the handler initially in case there's already a hash in the URL
     handleHashChange();
-
-    // Add event listener for hash change
     window.addEventListener("hashchange", handleHashChange);
 
-    // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener("hashchange", handleHashChange);
     };
   }, [location]);
 
+  // Update both og:image and banner image when banners change
+  useEffect(() => {
+    console.log("🏠 Homepage banner data changed:", { 
+      bannersLoading, 
+      bannersError, 
+      banners, 
+      bannersLength: banners?.length 
+    });
+    
+    if (!bannersLoading && !bannersError && banners && banners.length > 0) {
+      const newImageUrl = banners[0].bannerUrl;
+      console.log("✅ Setting new homepage images:", newImageUrl);
+      
+      // Update both og:image and banner image
+      setOgImage(newImageUrl);
+      setBannerImage(newImageUrl);
+    } else {
+      console.log("🏠 Using default homepage images");
+      // Keep default images
+      setOgImage("https://fastfinite.in/og-image.jpg");
+      setBannerImage("/images/home_banner.png");
+    }
+  }, [banners, bannersLoading, bannersError]);
+
   return (
+    <Wrapper>
+      <Helmet>
+        <title>Fast Finite – Premium Bike Rentals in Kolkata</title>
+        <meta
+          name="description"
+          content="Fast Finite offers premium bike rentals and guided tours in Kolkata, India. Explore our city and mountain bikes for every adventure."
+        />
+        <meta
+          name="keywords"
+          content="bike rental Kolkata, cycle tours West Bengal, mountain bike rent, premium bike rental India"
+        />
+        <link rel="canonical" href={pageUrl} />
 
-      <Wrapper>
-<Helmet>
-  <title>Fast Finite – Premium Bike Rentals in Kolkata</title>
-  <meta
-    name="description"
-    content="Fast Finite offers premium bike rentals and guided tours in Kolkata, India. Explore our city and mountain bikes for every adventure."
-  />
-  <meta
-    name="keywords"
-    content="bike rental Kolkata, cycle tours West Bengal, mountain bike rent, premium bike rental India"
-  />
-  <link rel="canonical" href={pageUrl} />
+        {/* Open Graph with dynamic image */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Fast Finite – Premium Bike Rentals in Kolkata" />
+        <meta property="og:description" content="Explore Kolkata on two wheels with Fast Finite's premium bike rentals and guided tours." />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:url" content={pageUrl} />
 
-  {/* Open Graph */}
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Fast Finite – Premium Bike Rentals in Kolkata" />
-  <meta property="og:description" content="Explore Kolkata on two wheels with Fast Finite’s premium bike rentals and guided tours." />
-  <meta property="og:image" content="https://fastfinite.in/og-image.jpg" />
-  <meta property="og:url" content={pageUrl} />
-
-  {/* ✅ JSON-LD: Rental Service */}
-  <script type="application/ld+json">
-    {`
-    {
-      "@context": "https://schema.org",
-      "@type": "RentalService",
-      "name": "Fast Finite",
-      "image": "https://fastfinite.in/logo.png",
-      "description": "Fast Finite provides premium bike rentals and guided tours in Kolkata, West Bengal, India.",
-      "telephone": "+91-9007074744",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "8 Beck Bagan Row ",
-        "addressLocality": "Kolkata",
-        "addressRegion": "West Bengal",
-        "postalCode": "700017",
-        "addressCountry": "IN"
-      },
-      "openingHours": "Mo-Su 08:00-19:00",
-      "priceRange": "₹₹",
-      "url": "https://fastfinite.in"
-    }
-    `}
-  </script>
-
-  {/* ✅ JSON-LD: FAQPage */}
-  <script type="application/ld+json">
-    {`
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What documents are required for bike rental?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Aadhar Card, Driving License and Student/Employee ID Card are required at pickup."
+        {/* JSON-LD: Rental Service */}
+        <script type="application/ld+json">
+          {`
+          {
+            "@context": "https://schema.org",
+            "@type": "RentalService",
+            "name": "Fast Finite",
+            "image": "https://fastfinite.in/logo.png",
+            "description": "Fast Finite provides premium bike rentals and guided tours in Kolkata, West Bengal, India.",
+            "telephone": "+91-9007074744",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "8 Beck Bagan Row ",
+              "addressLocality": "Kolkata",
+              "addressRegion": "West Bengal",
+              "postalCode": "700017",
+              "addressCountry": "IN"
+            },
+            "openingHours": "Mo-Su 08:00-19:00",
+            "priceRange": "₹₹",
+            "url": "https://fastfinite.in"
           }
-        },
-        {
-          "@type": "Question",
-          "name": "Is fuel included in the rent?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No, fuel charges are not included in rent or deposit."
+          `}
+        </script>
+
+        {/* JSON-LD: FAQPage */}
+        <script type="application/ld+json">
+          {`
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What documents are required for bike rental?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Aadhar Card, Driving License and Student/Employee ID Card are required at pickup."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is fuel included in the rent?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No, fuel charges are not included in rent or deposit."
+                }
+              }
+            ]
           }
-        }
-      ]
-    }
-    `}
-  </script>
-</Helmet>
+          `}
+        </script>
+      </Helmet>
+
       <Navbar />
 
+      {/* Dynamic Banner component with Firebase image */}
       <Banner
         heading={heading}
         buttonText="Book Your Bike"
-        imagePath="/images/home_banner.png"
+        imagePath={bannerImage}
         onClick={() => navigate("/vehicles")}
       />
 
@@ -199,7 +224,6 @@ const HomePage = () => {
             responsive={responsive1}
             showDots={showDots}
             arrows={!showDots}
-            // infinite={true}
           >
             {BikeCategory.map((item, index) => (
               <div key={index} className={styles.categoryOuterDiv}>
@@ -246,11 +270,6 @@ const HomePage = () => {
           >
             {ReviewsData.map((item, index) => (
               <div key={index} className={styles.reviewCard}>
-                {/* <img
-                  src={item.profilePic}
-                  alt="image"
-                  className={styles.profilePic}
-                /> */}
                 <div className={styles.reviewContent}>
                   <p className={styles.reviewDesc}>
                     <RiDoubleQuotesL color={COLORS.orange} /> {item.review}{" "}
@@ -275,9 +294,6 @@ const HomePage = () => {
 
       <Footer />
     </Wrapper>
-
-      
-
   );
 };
 
