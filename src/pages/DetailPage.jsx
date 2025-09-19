@@ -14,6 +14,9 @@ import "leaflet/dist/leaflet.css";
 import { COLORS } from "../assets/constants";
 import Footer from "../components/Footer/Footer";
 import { calculateGST, calculateRent } from "../utils/Calculations";
+// ADD: Import custom pricing functionality
+import { calculateSegmentedPricing } from "../utils/CustomPricingSegmentation";
+import PricingBreakdown from "../components/PricingBreakdown/PricingBreakdown";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -143,6 +146,29 @@ const [settingsLoading, setSettingsLoading] = useState(true);
     setCategory(transmissionType);
   }, [state]);
 
+  // ADD: Enhanced amount calculation with custom pricing
+  const calculateSegmentedAmount = () => {
+    if (!bike) return { rent: 0, gst: 0, total: 0, breakdown: [], hasCustomPricing: false };
+    
+    const pricingResult = calculateSegmentedPricing(
+      pickupDate, 
+      dropoffDate, 
+      bike.package, 
+      bike.type, 
+      bike.customPricing
+    );
+    
+    const gst = pricingResult.totalRent * 0.18;
+    
+    return {
+      rent: pricingResult.totalRent,
+      gst: gst,
+      total: pricingResult.totalRent + gst,
+      breakdown: pricingResult.breakdown,
+      hasCustomPricing: pricingResult.hasCustomPricing
+    };
+  };
+
   const calculateAmount = () => {
     // return (
     //   calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
@@ -150,10 +176,9 @@ const [settingsLoading, setSettingsLoading] = useState(true);
     //   Number(bike.package[duration].deposit)
     // );
 
-    return (
-      calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
-      calculateGST(pickupDate, dropoffDate, bike.package, bike.type)
-    );
+    // UPDATED: Use segmented calculation for custom pricing
+    const segmentedAmount = calculateSegmentedAmount();
+    return segmentedAmount.total;
   };
 
   const handleScrollToTerms = (e) => {
@@ -457,6 +482,9 @@ const [settingsLoading, setSettingsLoading] = useState(true);
     }
   };
 
+  // ADD: Get the pricing details for display
+  const pricingDetails = bike ? calculateSegmentedAmount() : null;
+
   return (
     
     <Wrapper>
@@ -607,12 +635,16 @@ const [settingsLoading, setSettingsLoading] = useState(true);
 
               <p className={styles.filterHeading}>Fair Details</p>
               <hr className={styles.hr} />
+
+              {/* ADD: Enhanced pricing breakdown */}
+              {pricingDetails && <PricingBreakdown pricingDetails={pricingDetails} />}
+
               <p className={styles.amountText}>Total</p>
               <div className={styles.amountDiv}>
                 <p className={styles.amountText}>Rent Amount</p>
                 <p className={styles.amountText}>
                   ₹{" "}
-                  {calculateRent(
+                  {pricingDetails ? pricingDetails.rent : calculateRent(
                     pickupDate,
                     dropoffDate,
                     bike.package,
@@ -625,7 +657,7 @@ const [settingsLoading, setSettingsLoading] = useState(true);
                 <p className={styles.amountText}>GST (18%)</p>
                 <p className={styles.amountText}>
                   ₹{" "}
-                  {calculateGST(
+                  {pricingDetails ? pricingDetails.gst : calculateGST(
                     pickupDate,
                     dropoffDate,
                     bike.package,
