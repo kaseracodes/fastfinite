@@ -14,6 +14,8 @@ import "leaflet/dist/leaflet.css";
 import { COLORS } from "../assets/constants";
 import Footer from "../components/Footer/Footer";
 import { calculateGST, calculateRent } from "../utils/Calculations";
+import { calculateSegmentedPricing } from "../utils/CustomPricingSegmentation";
+import PricingBreakdown from "../components/PricingBreakdown/PricingBreakdown";
 import { notification } from "antd";
 import PageLoader from "../components/PageLoader/PageLoader";
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -29,7 +31,7 @@ import { auth } from "../firebase/config";
 import { logoutUser } from "../store/userSlice";
 import { formatDate } from "../utils/formatDate";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
-import { db } from "../firebase/config"; // adjust to your firebase config path
+import { db } from "../firebase/config";
 
 // Fix for the marker not showing in production
 delete L.Icon.Default.prototype._getIconUrl;
@@ -98,19 +100,18 @@ const DetailPage = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bookingsEnabled, setBookingsEnabled] = useState(true);
-const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsLoading, setSettingsLoading] = useState(true);
 
   useEffect(() => {}, [user]);
+  
   useEffect(() => {
     const ref = doc(db, "settings", "global");
-    // real-time subscription so admins toggling takes effect immediately
     const unsub = onSnapshot(
       ref,
       (snap) => {
         if (snap.exists()) {
           setBookingsEnabled(Boolean(snap.data().bookingsEnabled));
         } else {
-          // default if doc missing
           setBookingsEnabled(true);
         }
         setSettingsLoading(false);
@@ -120,7 +121,6 @@ const [settingsLoading, setSettingsLoading] = useState(true);
         setSettingsLoading(false);
       }
     );
-  
     return () => unsub();
   }, []);
   useEffect(() => {
@@ -143,27 +143,41 @@ const [settingsLoading, setSettingsLoading] = useState(true);
     setCategory(transmissionType);
   }, [state]);
 
-  const calculateAmount = () => {
-    // return (
-    //   calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
-    //   calculateGST(pickupDate, dropoffDate, bike.package, bike.type) +
-    //   Number(bike.package[duration].deposit)
-    // );
-
-    return (
-      calculateRent(pickupDate, dropoffDate, bike.package, bike.type) +
-      calculateGST(pickupDate, dropoffDate, bike.package, bike.type)
+  // UPDATED: Enhanced amount calculation with custom pricing
+  const calculateSegmentedAmount = () => {
+    if (!bike) return { rent: 0, gst: 0, total: 0, breakdown: [], hasCustomPricing: false };
+    
+    const pricingResult = calculateSegmentedPricing(
+      pickupDate, 
+      dropoffDate, 
+      bike.package, 
+      bike.type, 
+      bike.customPricing
     );
+    
+    const gst = pricingResult.totalRent * 0.18;
+    
+    return {
+      rent: pricingResult.totalRent,
+      gst: gst,
+      total: pricingResult.totalRent + gst,
+      breakdown: pricingResult.breakdown,
+      hasCustomPricing: pricingResult.hasCustomPricing
+    };
+  };
+
+  // UPDATED: Keep the original calculateAmount for backward compatibility
+  const calculateAmount = () => {
+    const segmentedAmount = calculateSegmentedAmount();
+    return segmentedAmount.total;
   };
 
   const handleScrollToTerms = (e) => {
     e.preventDefault();
 
-    // Keep existing query params and navigate
     const currentSearch = location.search;
     navigate(`${currentSearch}#terms`, { replace: true, state });
 
-    // Scroll to the 'terms' section
     const termsElement = document.getElementById("terms");
     if (termsElement) {
       termsElement.scrollIntoView({ behavior: "smooth" });
@@ -318,55 +332,8 @@ const [settingsLoading, setSettingsLoading] = useState(true);
     return orderData;
   };
 
-  // const handleSendMail = async () => {
-  //   const sendMail = httpsCallable(getFunctions(), "sendMail");
-  //   const res = await sendMail({
-  //     name: user.name,
-  //     email: user.email,
-  //     vehicleName: bike.name,
-  //     pickupDate: formatDate(pickupDate.toISOString()),
-  //     dropoffDate: formatDate(dropoffDate.toISOString()),
-  //     amount: calculateAmount(),
-  //   });
-  //   const { statusCode, message } = res.data;
-
-  //   let status = statusCode === 200 ? "success" : "error";
-  //   notification[status]({
-  //     message: message,
-  //     duration: 3,
-  //   });
-  // };
-
-  // const handleSendMailToAdmin = async () => {
-  //   const sendMail = httpsCallable(getFunctions(), "sendMail");
-  //   const res = await sendMail({
-  //     name: "Fast Finite",
-  //     email: "support@fastfinite.in",
-  //     vehicleName: bike.name,
-  //     pickupDate: formatDate(pickupDate.toISOString()),
-  //     dropoffDate: formatDate(dropoffDate.toISOString()),
-  //     amount: calculateAmount(),
-  //   });
-  //   const { statusCode, message } = res.data;
-
-  //   let status = statusCode === 200 ? "success" : "error";
-  //   notification[status]({
-  //     message: message,
-  //     duration: 3,
-  //   });
-  // };
-
   const handlePayment = async (e) => {
     e.preventDefault();
-    // const f = true;
-
-    // if (f) {
-    //   notification["info"]({
-    //     message: `Booking is disabled till 13th October, 2024`,
-    //     duration: 3,
-    //   });
-    //   return;
-    // }
 
     if (!isChecked) {
       notification["error"]({
@@ -393,10 +360,6 @@ const [settingsLoading, setSettingsLoading] = useState(true);
     setLoading(true);
 
     try {
-      // const f = true;
-      // await handleSendMail();
-      // if (f) return;
-
       const isAvailable = await handleCheckAvailability(bike || state.vehicle);
       if (!isAvailable) {
         setLoading(false);
@@ -437,9 +400,6 @@ const [settingsLoading, setSettingsLoading] = useState(true);
           duration: 3,
         });
         setLoading(false);
-
-        // await handleSendMail();
-        // await handleSendMailToAdmin(); Not using this one now, changed in the cloud function
       } else {
         notification["error"]({
           message: `${verificationMessage}`,
@@ -457,55 +417,55 @@ const [settingsLoading, setSettingsLoading] = useState(true);
     }
   };
 
+  // NEW: Get the pricing details for display
+  const pricingDetails = bike ? calculateSegmentedAmount() : null;
+
   return (
-    
     <Wrapper>
-{bike && (
-  <Helmet>
-    <title>{`${bike.name} Rental in Kolkata | Fast Finite`}</title>
-    <meta
-      name="description"
-      content={`Rent the ${bike.name} in Kolkata with Fast Finite. ${bike.mileage ? `Mileage: ${bike.mileage} kmpl.` : ""} ${bike.displacement ? `Displacement: ${bike.displacement}cc.` : ""} Book online today.`}
-    />
-    <meta
-      name="keywords"
-      content={`${bike.name} rental Kolkata, ${bike.name} rent Kolkata, ${bike.type} hire, premium bike rental India`}
-    />
-    <link rel="canonical" href={pageUrl} />
+      {bike && (
+        <Helmet>
+          <title>{`${bike.name} Rental in Kolkata | Fast Finite`}</title>
+          <meta
+            name="description"
+            content={`Rent the ${bike.name} in Kolkata with Fast Finite. ${bike.mileage ? `Mileage: ${bike.mileage} kmpl.` : ""} ${bike.displacement ? `Displacement: ${bike.displacement}cc.` : ""} Book online today.`}
+          />
+          <meta
+            name="keywords"
+            content={`${bike.name} rental Kolkata, ${bike.name} rent Kolkata, ${bike.type} hire, premium bike rental India`}
+          />
+          <link rel="canonical" href={pageUrl} />
 
-    {/* Open Graph */}
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content={`${bike.name} Rental in Kolkata | Fast Finite`} />
-    <meta
-      property="og:description"
-      content={`Book ${bike.name} with Fast Finite. Affordable ${bike.type} rentals in Kolkata with flexible packages.`}
-    />
-    <meta property="og:image" content={bike.image || "https://fastfinite.in/og-image.jpg"} />
-    <meta property="og:url" content={pageUrl} />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content={`${bike.name} Rental in Kolkata | Fast Finite`} />
+          <meta
+            property="og:description"
+            content={`Book ${bike.name} with Fast Finite. Affordable ${bike.type} rentals in Kolkata with flexible packages.`}
+          />
+          <meta property="og:image" content={bike.image || "https://fastfinite.in/og-image.jpg"} />
+          <meta property="og:url" content={pageUrl} />
 
-    {/* ✅ JSON-LD Structured Data for Product (Bike Rental) */}
-    <script type="application/ld+json">
-      {`
-      {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": "${bike.name}",
-        "image": "${bike.image}",
-        "description": "Rent the ${bike.name} in Kolkata with Fast Finite. ${bike.mileage ? `Mileage: ${bike.mileage} kmpl.` : ""} ${bike.displacement ? `Displacement: ${bike.displacement}cc.` : ""}",
-        "brand": { "@type": "Brand", "name": "Fast Finite" },
-        "sku": "${bike.vehicle_id}",
-        "offers": {
-          "@type": "Offer",
-          "url": "${window.location.href}",
-          "priceCurrency": "INR",
-          "price": "${calculateAmount()}",
-          "availability": "https://schema.org/InStock"
-        }
-      }
-      `}
-    </script>
-  </Helmet>
-)}
+          <script type="application/ld+json">
+            {`
+            {
+              "@context": "https://schema.org",
+              "@type": "Product",
+              "name": "${bike.name}",
+              "image": "${bike.image}",
+              "description": "Rent the ${bike.name} in Kolkata with Fast Finite. ${bike.mileage ? `Mileage: ${bike.mileage} kmpl.` : ""} ${bike.displacement ? `Displacement: ${bike.displacement}cc.` : ""}",
+              "brand": { "@type": "Brand", "name": "Fast Finite" },
+              "sku": "${bike.vehicle_id}",
+              "offers": {
+                "@type": "Offer",
+                "url": "${window.location.href}",
+                "priceCurrency": "INR",
+                "price": "${calculateAmount()}",
+                "availability": "https://schema.org/InStock"
+              }
+            }
+            `}
+          </script>
+        </Helmet>
+      )}
       <Navbar />
       {bike ? (
         <>
@@ -533,20 +493,6 @@ const [settingsLoading, setSettingsLoading] = useState(true);
               <p className={styles.para}>
                 *Images are for representation purposes only.
               </p>
-              {/* <div className={styles.infoCardDiv}>
-                <Card
-                  imagePath="/images/mileage.png"
-                  heading="Mileage"
-                  detail={bike.mileage}
-                  textColor={COLORS.yellow}
-                />
-                <Card
-                  imagePath="/images/make_year.png"
-                  heading="Make Year"
-                  detail={bike.make_year}
-                  textColor={COLORS.yellow}
-                />
-              </div> */}
             </div>
 
             <div className={styles.detailsDiv}>
@@ -574,7 +520,6 @@ const [settingsLoading, setSettingsLoading] = useState(true);
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
                     minDateTime={dayjs().startOf("hour").add(1, "hour")}
                     views={["year", "month", "day", "hours"]}
-                    // disabled
                   />
                   <DateTimePicker
                     label="Dropoff Date & Time"
@@ -586,65 +531,36 @@ const [settingsLoading, setSettingsLoading] = useState(true);
                     shouldDisableTime={(timeValue) => timeValue.minute() !== 0}
                     minDateTime={pickupDate.add(1, "hour")}
                     views={["year", "month", "day", "hours"]}
-                    // disabled
                   />
                 </div>
               </LocalizationProvider>
 
-              {/* <p className={styles.filterHeading}>Select Package</p>
-              <select
-                name="package"
-                value={duration}
-                className={styles.select}
-                onChange={handleDurationChange}
-                disabled
-              >
-                <option value="hourly">Hourly Package</option>
-                <option value="daily">Daily Package</option>
-                <option value="weekly">Weekly Package</option>
-                <option value="monthly">Monthly Package</option>
-              </select> */}
-
               <p className={styles.filterHeading}>Fair Details</p>
               <hr className={styles.hr} />
+
+              {/* UPDATED: Add the enhanced pricing breakdown */}
+              {pricingDetails && <PricingBreakdown pricingDetails={pricingDetails} />}
+
               <p className={styles.amountText}>Total</p>
               <div className={styles.amountDiv}>
                 <p className={styles.amountText}>Rent Amount</p>
                 <p className={styles.amountText}>
-                  ₹{" "}
-                  {calculateRent(
-                    pickupDate,
-                    dropoffDate,
-                    bike.package,
-                    bike.type
-                  )}
+                  ₹ {pricingDetails ? pricingDetails.rent : 0}
                 </p>
               </div>
 
               <div className={styles.amountDiv}>
                 <p className={styles.amountText}>GST (18%)</p>
                 <p className={styles.amountText}>
-                  ₹{" "}
-                  {calculateGST(
-                    pickupDate,
-                    dropoffDate,
-                    bike.package,
-                    bike.type
-                  )}
+                  ₹ {pricingDetails ? pricingDetails.gst : 0}
                 </p>
               </div>
 
-              {/* <div className={styles.amountDiv}>
-                <p className={styles.amountText}>Refundable Deposit</p>
-                <p className={styles.amountText}>
-                  ₹ {bike.package[duration].deposit}
-                </p>
-              </div> */}
               <hr className={styles.hr} />
 
               <div className={styles.amountDiv}>
                 <p className={styles.amountText2}>Amount Payable Today</p>
-                <p className={styles.amountText2}>₹ {calculateAmount()}</p>
+                <p className={styles.amountText2}>₹ {pricingDetails ? pricingDetails.total : 0}</p>
               </div>
 
               <button className={styles.btn1}>
@@ -673,13 +589,13 @@ const [settingsLoading, setSettingsLoading] = useState(true);
               </div>
 
               <button
-  className={styles.btn2}
-  onClick={handlePayment}
-  disabled={!bookingsEnabled || loading}
->
-  {loading ? <BeatLoader color={COLORS.black} size={18} /> :
-    (bookingsEnabled ? "Book Now" : "Bookings Disabled")}
-</button>
+                className={styles.btn2}
+                onClick={handlePayment}
+                disabled={!bookingsEnabled || loading}
+              >
+                {loading ? <BeatLoader color={COLORS.black} size={18} /> :
+                  (bookingsEnabled ? "Book Now" : "Bookings Disabled")}
+              </button>
             </div>
           </div>
 
@@ -811,29 +727,29 @@ const [settingsLoading, setSettingsLoading] = useState(true);
             </div>
 
             <div className={styles.map}>
-  <h5 className={styles.title}>Pickup Location</h5>
-  <p className={styles.location}>{bike.location}</p>
+              <h5 className={styles.title}>Pickup Location</h5>
+              <p className={styles.location}>{bike.location}</p>
 
-  {bike?.position && bike?.position.lat && bike?.position.lng ? (
-    <MapContainer
-      center={bike.position}
-      zoom={13}
-      className={styles.mapContainer}
-    >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <Marker position={bike.position}>
-        <Popup>{bike.location || "Pickup Location"}</Popup>
-      </Marker>
-    </MapContainer>
-  ) : (
-    <p style={{ padding: "1rem", color: "gray" }}>
-      Pickup location not available
-    </p>
-  )}
-</div>
+              {bike?.position && bike?.position.lat && bike?.position.lng ? (
+                <MapContainer
+                  center={bike.position}
+                  zoom={13}
+                  className={styles.mapContainer}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <Marker position={bike.position}>
+                    <Popup>{bike.location || "Pickup Location"}</Popup>
+                  </Marker>
+                </MapContainer>
+              ) : (
+                <p style={{ padding: "1rem", color: "gray" }}>
+                  Pickup location not available
+                </p>
+              )}
+            </div>
           </div>
         </>
       ) : (
@@ -842,7 +758,6 @@ const [settingsLoading, setSettingsLoading] = useState(true);
 
       <Footer />
     </Wrapper>
-   
   );
 };
 
