@@ -125,7 +125,7 @@ export const generateInvoicePDF = async (booking, bookingId, user, vehicle) => {
     doc.text("Kolkata, West Bengal 700017", 50, companyY + 24);
     doc.text("GST No. : 19AAJCS0090E1ZE", 50, companyY + 36);
     doc.text("Email: support@fastfinite.in", 50, companyY + 48);
-    doc.text("Phone: +91 8584828210", 50, companyY + 60);
+    doc.text("Phone: +91 9007074744", 50, companyY + 60);
 
     doc.text(` #INV-${bookingId}`, 300, companyY, { align: "right" });
     doc.text(
