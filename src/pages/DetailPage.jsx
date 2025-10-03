@@ -215,7 +215,7 @@ const [settingsLoading, setSettingsLoading] = useState(true);
         const diff = currentDropoffDate.diff(updatedPickupDate, "hour");
         if (
           diff < 24 &&
-          (bike.type === "premium" || state.vehicle.type === "premium")
+          (bike.type === "premiumBike" || state.vehicle.type === "premiumBike")
         ) {
           newDuration = "hourly";
         } else if (diff >= 1 && diff < 24 * 7) {
@@ -246,7 +246,7 @@ const [settingsLoading, setSettingsLoading] = useState(true);
 
       if (
         diff < 24 &&
-        (bike.type === "premium" || state.vehicle.type === "premium")
+        (bike.type === "premiumBike" || state.vehicle.type === "premiumBike")
       ) {
         newDuration = "hourly";
       } else if (diff >= 1 && diff < 24 * 7) {
