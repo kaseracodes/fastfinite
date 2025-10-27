@@ -6,7 +6,7 @@ export const calculateRent = (pickupDate, dropoffDate, packageRates, type) => {
   const floorDays = Math.floor(diffInHours / 24);
   const hours = diffInHours % 24;
 
-  if (type === "premiumBike") {
+  if (type === "premiumBike2") {
     if (floorDays < 7) {
       totalRent =
         packageRates.daily.price * floorDays +
