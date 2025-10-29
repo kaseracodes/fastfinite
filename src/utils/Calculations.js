@@ -2,7 +2,7 @@ export const calculateRent = (pickupDate, dropoffDate, packageRates, type) => {
     let hours = dropoffDate.diff(pickupDate, "hour");
     let totalRent = 0;
 
-    if (type === "premiumBike") {
+    if (type === "premiumBike2") {
         let months = Math.floor(hours / 720);
         hours %= 720;
         let weeks = Math.floor(hours / 168);
